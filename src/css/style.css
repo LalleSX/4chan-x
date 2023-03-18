@@ -137,8 +137,8 @@ body.hasDropDownNav{
   height: auto !important;
 }
 :root.sw-yotsuba:not(.ads-loaded) hr.abovePostForm,
-:root.sw-yotsuba:not(.ads-loaded) .adg-rects>hr,
-:root.sw-yotsuba #adg-ol+hr,
+:root.sw-yotsuba:not(.ads-loaded) .adg-rects > hr,
+:root.sw-yotsuba #adg-ol + hr,
 :root.sw-yotsuba .danbo-slot:empty {
   display: none;
 }

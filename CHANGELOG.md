@@ -18,6 +18,7 @@
 - Make post from QR more like original form post to possibly reduce posting errors. #3330
 - Disable Javascript Whitelist on captcha iframe to fix issues with Cloudflare scripts. #3292
 - (4chenz) Add Google Lens image search url.
+- Change Google image search to Google Lens due to old link not working.
 - Change issues link from dead gitreports.com back to Github.
 
 **v1.14.22.1** *(2022-07-14)* - [[Userscript](https://raw.githubusercontent.com/ccd0/4chan-x/1.14.22.1/builds/4chan-X-noupdate.user.js)] [[Chrome extension](https://raw.githubusercontent.com/ccd0/4chan-x/1.14.22.1/builds/4chan-X-noupdate.crx)]
