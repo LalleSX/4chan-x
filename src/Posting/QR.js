@@ -1910,7 +1910,7 @@ var QR = {
       this.file = file;
       if (Conf['Randomize Filename'] && (g.BOARD.ID !== 'f')) {
         let ext;
-        this.filename = `${Date.now() - Math.floor(Math.random() * 365 * DAY)}`;
+        this.filename = `${Date.now() * 1000 - Math.floor(Math.random() * 365 * DAY * 1000)}`;
         if (ext = this.file.name.match(QR.validExtension)) { this.filename += ext[0]; }
       } else {
         this.filename = this.file.name;
