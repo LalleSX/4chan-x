@@ -795,6 +795,7 @@ https://www.google.com/searchbyimage?image_url=%IMG&safe=off
 https://yandex.com/images/search?rpt=imageview&url=%IMG
 #//tineye.com/search?url=%IMG
 #//www.bing.com/images/search?q=imgurl:%IMG&view=detailv2&iss=sbi#enterInsights
+#https://lens.google.com/uploadbyurl?url=%IMG;text:lens
 
 # Specialized reverse image search:
 //iqdb.org/?url=%IMG
