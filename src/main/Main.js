@@ -207,6 +207,7 @@ var Main = {
     if (
       /\.4chan(?:nel)?\.org$/.test(location.hostname) &&
       !SW.yotsuba.regexp.pass.test(location.href) &&
+      !SW.yotsuba.regexp.captcha.test(location.href) &&
       !$$('script:not([src])', d).filter(s => /this\[/.test(s.textContent)).length
     ) {
       ($.getSync || $.get)({'jsWhitelist': Conf['jsWhitelist']}, ({jsWhitelist}) => $.addCSP(`script-src ${jsWhitelist.replace(/^#.*$/mg, '').replace(/[\s;]+/g, ' ').trim()}`));
