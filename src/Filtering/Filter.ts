@@ -12,6 +12,7 @@ import { dict } from "../platform/helpers";
 import QuoteYou from "../Quotelinks/QuoteYou";
 import PostHiding from "./PostHiding";
 import ThreadHiding from "./ThreadHiding";
+import type Post from "../classes/Post";
 
 /*
  * decaffeinate suggestions:
@@ -21,9 +22,31 @@ import ThreadHiding from "./ThreadHiding";
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
+
+interface FilterObj {
+  isstring: boolean;
+  regexp: string | RegExp;
+  boards: any;
+  excludes: any;
+  mask: any;
+  hide: boolean;
+  stub: any;
+  hl: string;
+  top: boolean;
+  noti: boolean;
+}
+
+type FilterType = "postID" | "name" | "uniqueID" | "tripcode" | "capcode" | "pass" | "email" | "subject" | "comment" 
+  | "flag" | "filename" | "dimensions" | "filesize" | "MD5";
+
 var Filter = {
-  filters: dict(),
-  init() {
+  /**
+   * Uses a Map for string types, with the value to filter for as the key.
+   * This allows faster lookup than iterating over every filter.
+   */
+  filters: new Map<FilterType, FilterObj[] | Map<string, FilterObj[]>>(),
+
+  init(this: typeof Filter) {
     if (!['index', 'thread', 'catalog'].includes(g.VIEW) || !Conf['Filter']) { return; }
     if ((g.VIEW === 'catalog') && !Conf['Filter in Native Catalog']) { return; }
 
@@ -32,8 +55,13 @@ var Filter = {
     }
 
     for (var key in Config.filter) {
-      for (var line of Conf[key].split('\n')) {
-        var hl, isstring, regexp, top, types;
+      for (var line of (Conf[key] as string).split('\n')) {
+        let hl:       string;
+        let isstring: boolean;
+        let regexp:   RegExp | string;
+        let top:      boolean;
+        let types:    string[];
+
         if (line[0] === '#') { continue; }
 
         if (!(regexp = line.match(/\/(.*)\/(\w*)/))) {
@@ -113,18 +141,32 @@ var Filter = {
         // Hide the post (default case).
         var hide = !(hl || noti);
 
-        filter = {isstring, regexp, boards, excludes, mask, hide, stub, hl, top, noti};
+        const filterObj = { isstring, regexp, boards, excludes, mask, hide, stub, hl, top, noti };
         if (key === 'general') {
           for (var type of types) {
-            (this.filters[type] || (this.filters[type] = [])).push(filter);
+            this.filters.get(type)?.push(filterObj) ?? this.filters.set(type, [filterObj]);
           }
         } else {
-          (this.filters[key] || (this.filters[key] = [])).push(filter);
+          this.filters.get(key)?.push(filterObj) ?? this.filters.set(key, [filterObj]);
         }
       }
     }
 
-    if (!Object.keys(this.filters).length) { return; }
+    if (!this.filters.size) return;
+
+    // conversion from array to map for string types
+    for (const type of ['MD5', 'uniqueID'] satisfies FilterType[]) {
+      const filtersForType = this.filters.get(type);
+      if (!filtersForType) continue;
+
+      const map = new Map<string, FilterObj[]>();
+      for (const filter of filtersForType) {
+        map.get(filter.regexp)?.push(filter) ?? map.set(filter.regexp, [filter]);
+      }
+
+      this.filters.set(type, map);
+    }
+
     if (g.VIEW === 'catalog') {
       return Filter.catalog();
     } else {
@@ -166,7 +208,7 @@ var Filter = {
 
   parseBoardsMemo: dict(),
 
-  test(post, hideable=true) {
+  test(post: Post, hideable = true) {
     if (post.filterResults) { return post.filterResults; }
     let hide = false;
     let stub = true;
@@ -180,9 +222,14 @@ var Filter = {
     mask = (mask | (post.file ? 4 : 8));
     const board = `${post.siteID}/${post.boardID}`;
     const site = `${post.siteID}/*`;
-    for (var key in Filter.filters) {
-      for (var value of Filter.values(key, post)) {
-        for (var filter of Filter.filters[key]) {
+    for (const key of Filter.filters.keys()) {
+      for (const value of Filter.values(key, post)) {
+        const filtersOrMap = Filter.filters.get(key);
+
+        const filtersForType = Array.isArray(filtersOrMap) ? filtersOrMap : filtersOrMap.get(value);
+        if (!filtersForType) continue;
+
+        for (const filter of filtersForType) {
           if (
             (filter.boards   && !(filter.boards[board]   || filter.boards[site]  )) ||
             (filter.excludes &&  (filter.excludes[board] || filter.excludes[site])) ||
@@ -217,7 +264,7 @@ var Filter = {
     }
   },
 
-  node() {
+  node(this: Post) {
     if (this.isClone) { return; }
     const {hide, stub, hl, top, noti} = Filter.test(this, (!this.isFetchedQuote && (this.isReply || (g.VIEW === 'index'))));
     if (hide) {
@@ -284,33 +331,38 @@ var Filter = {
     }
   },
 
-  isHidden(post) {
+  isHidden(post: Post) {
     return !!Filter.test(post).hide;
   },
 
   valueF: {
-    postID(post) { return [`${post.ID}`]; },
-    name(post) { return [post.info.name]; },
+    postID (post) { return [`${post.ID}`]; },
+    name(post) { return post.info.name === undefined ? [] : [post.info.name]; },
     uniqueID(post) { return [post.info.uniqueID || '']; },
-    tripcode(post) { return [post.info.tripcode]; },
-    capcode(post) { return [post.info.capcode]; },
+    tripcode(post) { return post.info.tripcode === undefined ? [] : [post.info.tripcode]; },
+    capcode(post) { return post.info.capcode === undefined ? [] : [post.info.capcode]; },
     pass(post) { return [post.info.pass]; },
     email(post) { return [post.info.email]; },
     subject(post) { return [post.info.subject || (post.isReply ? undefined : '')]; },
-    comment(post) { return [(post.info.comment != null ? post.info.comment : (post.info.comment = g.sites[post.siteID]?.Build?.parseComment?.(post.info.commentHTML.innerHTML)))]; },
-    flag(post) { return [post.info.flag]; },
+    comment(post) { 
+      if (post.info.comment == null) {
+        post.info.comment = g.sites[post.siteID]?.Build?.parseComment?.(post.info.commentHTML.innerHTML);
+      }
+      return [post.info.comment]; 
+    },
+    flag(post) { return post.info.flag === undefined ? [] : [post.info.flag]; },
     filename(post) { return post.files.map(f => f.name); },
     dimensions(post) { return post.files.map(f => f.dimensions); },
     filesize(post) { return post.files.map(f => f.size); },
     MD5(post) { return post.files.map(f => f.MD5); }
-  },
+  } satisfies Record<FilterType, (post: Post) => string[]>,
 
-  values(key, post) {
+  values(key: FilterType, post: Post): string[] {
     if ($.hasOwn(Filter.valueF, key)) {
       return Filter.valueF[key](post).filter(v => v != null);
     } else {
       return [key.split('+').map(function(k) {
-        let f;
+        let f: (post: Post) => string[];
         if (f = $.getOwn(Filter.valueF, k)) {
           return f(post).map(v => v || '').join('\n');
         } else {
@@ -320,7 +372,7 @@ var Filter = {
     }
   },
 
-  addFilter(type, re, cb) {
+  addFilter(type: FilterType, re: string, cb?: () => void) {
     if (!$.hasOwn(Config.filter, type)) { return; }
     return $.get(type, Conf[type], function(item) {
       let save = item[type];
@@ -334,11 +386,12 @@ var Filter = {
     });
   },
 
-  removeFilters(type, res, cb) {
-    return $.get(type, Conf[type], function(item) {
+  removeFilters(type: FilterType, res: FilterObj[] | Map<string, FilterObj[]>, cb?: () => void) {
+    return $.get(type, Conf[type], function (item) {
       let save = item[type];
-      res = res.map(Filter.escape).join('|');
-      save = save.replace(RegExp(`(?:$\n|^)(?:${res})$`, 'mg'), '');
+      const filterArray = Array.isArray(res) ? res : [...res.values()].flat();
+      const r = filterArray.map(Filter.escape).join('|');
+      save = save.replace(RegExp(`(?:$\n|^)(?:${r})$`, 'mg'), '');
       return $.set(type, save, cb);
     });
   },
@@ -358,7 +411,7 @@ var Filter = {
   },
 
   quickFilterMD5() {
-    const post = Get.postFromNode(this);
+    const post: Post = Get.postFromNode(this);
     const files = post.files.filter(f => f.MD5);
     if (!files.length) { return; }
     const filter = files.map(f => `/${f.MD5}/`).join('\n');
@@ -473,7 +526,7 @@ var Filter = {
         ['Image dimensions', 'dimensions'],
         ['Filesize',         'filesize'],
         ['Image MD5',        'MD5']
-      ]) {
+      ] satisfies [string, FilterType][]) {
         // Add a sub entry for each filter type.
         entry.subEntries.push(Filter.menu.createSubEntry(type[0], type[1]));
       }
