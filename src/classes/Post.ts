@@ -3,15 +3,48 @@ import { g, Conf } from "../globals/globals";
 import ImageExpand from "../Images/ImageExpand";
 import $ from "../platform/$";
 import $$ from "../platform/$$";
+import type Board from "./Board";
 import Callbacks from "./Callbacks";
+import type Thread from "./Thread";
 
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
 export default class Post {
+  declare root:           HTMLElement;
+  declare thread:         Thread;
+  declare board:          Board;
+  declare ID:             number;
+  declare postID:         number;
+  declare threadID:       number;
+  declare boardID:        number | string;
+  declare siteID:         number | string;
+  declare fullID:         string;
+  declare context:        Post;
+  declare isReply:        boolean
+  declare nodes:          ReturnType<Post['parseNodes']>;
+  declare isDead:         boolean;
+  declare isHidden:       boolean;
+  declare clones:         any[];
+  declare isRebuilt?:     boolean;
+  declare isFetchedQuote: boolean;
+  declare isClone:        boolean;
+  declare quotes:         string[];
+  declare file:           ReturnType<Post['parseFile']>;
+  declare files:          ReturnType<Post['parseFile']>[];
+
+  declare info: {
+    subject:       string | undefined,
+    name:          string | undefined,
+    email:         string | undefined,
+    tripcode:      string | undefined,
+    uniqueID:      string | undefined,
+    capcode:       string | undefined,
+    pass:          string | undefined,
+    flagCode:      string | undefined,
+    flagCodeTroll: string | undefined,
+    flag:          string | undefined,
+    date:          Date | undefined,
+    nameBlock:     string,
+  };
+
   // because of a circular dependency $ might not be initialized, so we can't use $.el
   static deadMark = (() => {
     const el = document.createElement('span');
@@ -23,7 +56,7 @@ export default class Post {
 
   toString() { return this.ID; }
 
-  constructor(root, thread, board, flags={}) {
+  constructor(root?: HTMLElement, thread?: Thread, board?: Board, flags={}) {
     // <% if (readJSON('/.tests_enabled')) { %>
     // @normalizedOriginal = Test.normalize root
     // <% } %>
@@ -73,14 +106,10 @@ export default class Post {
       flagCode:  this.nodes.flag?.className.match(/flag-(\w+)/)?.[1].toUpperCase(),
       flagCodeTroll: this.nodes.flag?.className.match(/bfl-(\w+)/)?.[1].toUpperCase(),
       flag:      this.nodes.flag?.title,
-      date:      this.nodes.date ? g.SITE.parseDate(this.nodes.date) : undefined
+      date:      this.nodes.date ? g.SITE.parseDate(this.nodes.date) : undefined,
+      nameBlock: Conf['Anonymize'] ? 'Anonymous' : `${this.info.name || ''} ${this.info.tripcode || ''}`.trim(),
     };
 
-    if (Conf['Anonymize']) {
-      this.info.nameBlock = 'Anonymous';
-    } else {
-      this.info.nameBlock = `${this.info.name || ''} ${this.info.tripcode || ''}`.trim();
-    }
     if (this.info.capcode) { this.info.nameBlock += ` ## ${this.info.capcode}`; }
     if (this.info.uniqueID) { this.info.nameBlock += ` (ID: ${this.info.uniqueID})`; }
 
@@ -110,11 +139,26 @@ export default class Post {
     this.isClone = false;
   }
 
-  parseNodes(root) {
+  parseNodes(root: HTMLElement) {
     const s = g.SITE.selectors;
-    const post = $(s.post, root) || root;
-    const info = $(s.infoRoot, post);
-    const nodes = {
+    const post: HTMLElement = $(s.post, root) || root;
+    const info: HTMLElement = $(s.infoRoot, post);
+
+    interface Node {
+      root:         HTMLElement,
+      bottom:       false | HTMLElement,
+      post:         HTMLElement,
+      info:         HTMLElement,
+      comment:      HTMLElement;
+      quotelinks:   HTMLAnchorElement[],
+      archivelinks: HTMLAnchorElement[],
+      embedlinks:   HTMLAnchorElement[],
+      backlinks:    HTMLCollectionOf<HTMLAnchorElement>;
+      uniqueIDRoot: any,
+      uniqueID:     any,
+    };
+
+    const nodes: Node & Partial<Record<keyof Post['info'], HTMLElement>> = {
       root,
       bottom:     this.isReply || !g.SITE.isOPContainerThread ? root : $(s.opBottom, root),
       post,
@@ -122,7 +166,10 @@ export default class Post {
       comment:    $(s.comment, post),
       quotelinks: [],
       archivelinks: [],
-      embedlinks:   []
+      embedlinks:   [],
+      backlinks:    post.getElementsByClassName('backlink') as HTMLCollectionOf<HTMLAnchorElement>,
+      uniqueIDRoot: undefined as any,
+      uniqueID:     undefined as any,
     };
     for (var key in s.info) {
       var selector = s.info[key];
@@ -131,20 +178,7 @@ export default class Post {
     g.SITE.parseNodes?.(this, nodes);
     if (!nodes.uniqueIDRoot) { nodes.uniqueIDRoot = nodes.uniqueID; }
 
-    // XXX Edge invalidates HTMLCollections when an ancestor node is inserted into another node.
-    // https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/7560353/
-    if ($.engine === 'edge') {
-      Object.defineProperty(nodes, 'backlinks', {
-        configurable: true,
-        enumerable:   true,
-        get() { return post.getElementsByClassName('backlink'); }
-      }
-      );
-    } else {
-      nodes.backlinks = post.getElementsByClassName('backlink');
-    }
-
-    return nodes;
+    return nodes as Node & Record<keyof Post['info'], HTMLElement>;
   }
 
   parseComment() {
@@ -224,7 +258,7 @@ export default class Post {
 
     // ES6 Set when?
     const fullID = `${match[1]}.${match[3]}`;
-    if (!this.quotes.includes(fullID)) { return this.quotes.push(fullID); }
+    if (!this.quotes.includes(fullID)) this.quotes.push(fullID);
   }
 
   parseFiles() {
@@ -253,13 +287,23 @@ export default class Post {
     return [this.nodes.root];
   }
 
-  parseFile(fileRoot) {
-    const file = {};
+  parseFile(fileRoot: HTMLElement) {
+    interface File {
+      text:        string,
+      link:        HTMLAnchorElement,
+      thumb:       HTMLElement,
+      thumbLink:   HTMLElement,
+      size:        string,
+      sizeInBytes: number,
+      isDead:      boolean,
+    };
+
+    const file: Partial<File> = { isDead: false };
     for (var key in g.SITE.selectors.file) {
       var selector = g.SITE.selectors.file[key];
       file[key] = $(selector, fileRoot);
     }
-    file.thumbLink = file.thumb?.parentNode;
+    file.thumbLink = file.thumb?.parentNode as HTMLElement;
 
     if (!(file.text && file.link)) { return; }
     if (!g.SITE.parseFile(this, file)) { return; }
@@ -275,7 +319,7 @@ export default class Post {
     while (unit-- > 0) { size *= 1024; }
     file.sizeInBytes = size;
 
-    return file;
+    return file as File;
   }
 
   kill(file, index=0) {
@@ -344,7 +388,7 @@ export default class Post {
   collect() {
     g.posts.rm(this.fullID);
     this.thread.posts.rm(this);
-    return this.board.posts.rm(this);
+    this.board.posts.rm(this);
   }
 
   addClone(context, contractThumb) {
@@ -365,11 +409,13 @@ export default class Post {
     this.nodes.root.classList.toggle('opContainer', !isCatalogOP);
     this.nodes.post.classList.toggle('catalog-post', isCatalogOP);
     this.nodes.post.classList.toggle('op', !isCatalogOP);
-    return this.nodes.post.style.left = (this.nodes.post.style.right = null);
+    this.nodes.post.style.left = (this.nodes.post.style.right = null);
   }
 };
 
 export class PostClone extends Post {
+  declare origin: Post;
+
   static suffix = 0;
 
   constructor(origin, context, contractThumb) {
