@@ -1,3 +1,73 @@
+# 4chan XT
+
+**This repo is work in progress!** Use the build from the [repo this is forked from](https://github.com/ccd0/4chan-x) in the meantime.
+
+PR to upstream: https://github.com/ccd0/4chan-x/pull/3341.
+
+The 4chan XT project is a migration of 4chan X from coffeescript to TypeScript/JavaScript. It is named XT both as a continuation of eXTended, and a T for TypeScript. The goals of this project is to first get a working bundle from js/ts files, and then gradually convert js files to ts and add types as needed.
+
+## TODO
+
+- find alternative for `<% if (`
+  - [x] made html templates jsx/txt functions
+    - this uses the typescript compiler to compile the jsx
+    - render code is in [src/globals/jsx.ts](./src/globals/jsx.ts)
+  - [x] binary files are included as base64 in the bundle step, they do need explicit imports
+  - [ ] \<% if (readJSON('/.tests_enabled')) { %\>, are these still used?
+- build script
+  - [x] userscript
+  - [ ] .crx extension
+    - [x] crx directory that can be loaded as an unpacked extension is created
+  - [x] beta
+  - [x] noupdate
+- [ ] run and debug
+- [ ] port updates made to 4chan-X made since this was forked
+
+## Other notes
+
+- A lot of files have circular dependencies, but rollup can handle that
+  - but for some scripts that add to the same object I had to merge them, like Posting/QR and site/SW.yotsuba.js
+  - sometimes something might not be initialized before use, for example, `$.dict()` and `$.SECONDS`
+    - I moved these to a new file called helpers.ts, which shouldn't have dependencies itself, so it's also available
+- tsconfig.json has `"checkJs": true,`, and a lot of js files report type errors when opened because of unknown properties on objects and reassigning variables with different types. These errors don't block the bundle at this moment.
+- old files in the builds directory stay as reference until the new builds are functional, new files go in the builds/test directory
+- old build scripts are also kept around for reference until the new build output is fully functional
+- the es 2020 target was choses for optional chaining
+- @violentmonkey/types was chosen over @types/greasemonkey because @types/greasemonkey only declares the GM object, and not GM\_ functions
+
+## commits since this was forked
+
+<details>
+<summary>Click to expand</summary>
+
+- [x] 944b04210c119aedf8da1a8bcabaca9b80312118 Update archive list.
+  - [x] 59ee8c57792d0f82491756a077e25f506fd62994 Desuarchive removes /gif/
+  - [x] 402679e33a06dfbe0dc39ceba5c24fed761b6a19 desuarchive removes /wsg/ files
+  - [x] 86071184aa39b3585f06c1a4e2921c411ad8cf10 archived.moe adds /pw/ search, tokyochronos has hosting issues
+  - [x] 8a6392b1cf721ddfae6d8f4e3ec2566f15755370 add Eientei
+  - [x] 451a06f54b878ce433b0775858affefc71927fc7 alice.al domain change
+- [x] 2a8bf2adb0737ce7bb1e21f6b959e4c6e1de1bc7 Disable Javascript Whitelist on captcha iframe. #3292
+- [x] e9c1529da7844a42a1b40458c2c77b77e23ca537 Make QR post more like original form post. #3330
+- [x] d16062a8fac5c092c34310c7704ac3980494b6ef Merge remote-tracking branch '4chenz/master'
+  - [x] 8795b1c56dbdfb52a32ddb3ea80b549f0048dc7b Add Google Lens image search url
+- [x] f3f03f5e79fb5f26c0fd4406b2ab6796851ea471 Replace Google image search link with Google Lens.
+  - [x] c68a8afbdf30e3cbb35f0834b364f20600151adf Switch Google image search back to old version, thanks to https://boards.4channel.org/g/thread/91737566#p91789527
+- [x] aef984da1a6af4d0003b51e7f03bce252ac71dff Remove empty space from ads if they don't load. https://kissu.moe/b/res/7155#11052
+- [x] 19268975ea2d49a753624315b0928f27496aac02 Update Randomize Filename to match current 4chan format. https://boards.4channel.org/g/thread/91737566#p91784238
+- [x] 2a47dfd8ba724b17f5bc5f9214bea8ce8b469398 Catch errors due to "Restricted" selection. #2905
+- [x] 27957c25af5d182adc38f1e67a098ab338631ccd Release 4chan X v1.14.22.2.
+- [x] eb25d6e797a1673fd7cddb257fce04055383ec9b Update chrome-webstore-upload.
+- [x] 14e67e9a958633e37b4e4a6293cfa3a921c1eab0 Release 4chan X v1.14.22.3.
+- [x] 7295b21b73eb13ec53fdc61767ada341c2e13144 Avoid breaking sauce settings of people with links to original Google Images and Google Lens, provided they didn't already update to v1.14.22.3.
+- [x] 71873cd7b22a565c2a41fa24f63f7504152683eb Recognize JPEG files with .jfif extensions as images for purposes of Image Hover etc.; also recognize .avif and .jxl files as images.
+- [x] ea2462ecc47327c6f0c31348d95fd2b1b6447cb3 Release 4chan X v1.14.22.4.
+
+</details>
+
+---
+
+Original readme:
+
 ![screenshot](https://ccd0.github.io/4chan-x/img/screenshot.png)
 # 4chan X
 4chan X is a script that adds various features to anonymous imageboards. It was originally developed for 4chan but has no affiliation with it.
@@ -90,4 +160,3 @@ If you encounter a bug, try the steps [here](https://github.com/ccd0/4chan-x/blo
 - [Frequently Asked Questions](https://github.com/ccd0/4chan-x/wiki/Frequently-Asked-Questions)
 - [Report Bugs](https://github.com/ccd0/4chan-x/issues)
 - [Contributing](https://github.com/ccd0/4chan-x/blob/master/CONTRIBUTING.md)
-
