@@ -95,11 +95,14 @@ export default class Post {
       }
     }
 
+    const name = this.nodes.name?.textContent;
+    const tripcode = this.nodes.tripcode?.textContent;
+
     this.info = {
       subject:   this.nodes.subject?.textContent || undefined,
-      name:      this.nodes.name?.textContent,
+      name,
       email:     this.nodes.email ? decodeURIComponent(this.nodes.email.href.replace(/^mailto:/, '')) : undefined,
-      tripcode:  this.nodes.tripcode?.textContent,
+      tripcode,
       uniqueID:  this.nodes.uniqueID?.textContent,
       capcode:   this.nodes.capcode?.textContent.replace('## ', ''),
       pass:      this.nodes.pass?.title.match(/\d*$/)[0],
@@ -107,7 +110,7 @@ export default class Post {
       flagCodeTroll: this.nodes.flag?.className.match(/bfl-(\w+)/)?.[1].toUpperCase(),
       flag:      this.nodes.flag?.title,
       date:      this.nodes.date ? g.SITE.parseDate(this.nodes.date) : undefined,
-      nameBlock: Conf['Anonymize'] ? 'Anonymous' : `${this.info.name || ''} ${this.info.tripcode || ''}`.trim(),
+      nameBlock: Conf['Anonymize'] ? 'Anonymous' : `${name || ''} ${tripcode || ''}`.trim(),
     };
 
     if (this.info.capcode) { this.info.nameBlock += ` ## ${this.info.capcode}`; }
