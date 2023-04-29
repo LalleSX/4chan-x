@@ -64,8 +64,8 @@ var QR = {
     });
 
     this.shortcut = (sc = $.el('a', {
-      className: 'fa fa-comment-o disabled',
-      textContent: 'QR',
+      className: 'disabled',
+      textContent: '↩',
       title: 'Quick Reply',
       href: 'javascript:;'
     }
@@ -1646,7 +1646,7 @@ var QR = {
         href: 'javascript:;'
       }
       );
-      $.extend(el, { innerHTML: '<a class="remove fa fa-times-circle" title="Remove"></a><label class="qr-preview-spoiler"><input type="checkbox"> Spoiler</label><span></span>' });
+      $.extend(el, { innerHTML: '<a class="remove" title="Remove">✕</a><label class="qr-preview-spoiler"><input type="checkbox"> Spoiler</label><span></span>' });
 
       this.nodes = {
         el,

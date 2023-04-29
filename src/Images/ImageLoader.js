@@ -35,8 +35,7 @@ var ImageLoader = {
     const el = $.el('a', {
       href: 'javascript:;',
       title: 'Prefetch Images',
-      className: 'fa fa-bolt disabled',
-      textContent: 'Prefetch'
+      innerHTML: '🗲︎'
     }
     );
 

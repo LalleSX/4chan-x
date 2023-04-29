@@ -36,11 +36,10 @@ var ThreadWatcher = {
     if (!(this.enabled = Conf['Thread Watcher'])) { return; }
 
     this.shortcut = (sc = $.el('a', {
-      id:   'watcher-link',
-      textContent: 'Watcher',
-      title: 'Thread Watcher',
-      href: 'javascript:;',
-      className: 'fa fa-eye'
+      id:          'watcher-link',
+      textContent: '👁︎',
+      title:       'Thread Watcher',
+      href:        'javascript:;',
     }
     ));
 
@@ -276,7 +275,7 @@ var ThreadWatcher = {
   fetch(url, {siteID, force}, args, cb) {
     if (ThreadWatcher.requests.length === 0) {
       ThreadWatcher.status.textContent = '...';
-      $.addClass(ThreadWatcher.refreshButton, 'fa-spin');
+      $.addClass(ThreadWatcher.refreshButton, 'spin');
     }
     const onloadend = function() {
       if (this.finished) { return; }
@@ -306,7 +305,7 @@ var ThreadWatcher = {
     ThreadWatcher.requests = [];
     ThreadWatcher.fetched = 0;
     ThreadWatcher.status.textContent = '';
-    return $.rmClass(ThreadWatcher.refreshButton, 'fa-spin');
+    return $.rmClass(ThreadWatcher.refreshButton, 'spin');
   },
 
   abort() {
@@ -361,7 +360,7 @@ var ThreadWatcher = {
 
   fetchAllStatus(interval=0) {
     ThreadWatcher.status.textContent = '...';
-    $.addClass(ThreadWatcher.refreshButton, 'fa-spin');
+    $.addClass(ThreadWatcher.refreshButton, 'spin');
     ThreadWatcher.syncing = true;
     const dbs = [ThreadWatcher.db, ThreadWatcher.unreaddb, QuoteYou.db].filter(x => x);
     let n = 0;
@@ -572,7 +571,7 @@ var ThreadWatcher = {
   makeLine(siteID, boardID, threadID, data) {
     let page;
     const x = $.el('a', {
-      className: 'fa fa-times',
+      textContent: '✕',
       href: 'javascript:;'
     }
     );

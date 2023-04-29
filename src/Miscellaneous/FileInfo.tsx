@@ -82,9 +82,9 @@ var FileInfo = {
       }
     },
     N() { return { innerHTML: E(this.file.name), [isEscaped]: true }; },
-    d() { return <a href={this.file.url} download={this.file.name} class="fa fa-download download-button"></a> },
+    d() { return <a href={this.file.url} download={this.file.name} class="download-button">📥︎</a> },
     f() {
-      return { innerHTML: "<a href=\"javascript:;\" class=\"fa fa-times quick-filter-md5\"></a>", [isEscaped]: true };
+      return { innerHTML: "<a href=\"javascript:;\" class=\"quick-filter-md5\">✕</a>", [isEscaped]: true };
     },
     p() { return { innerHTML: ((this.file.isSpoiler) ? "Spoiler, " : ""), [isEscaped]: true }; },
     s() { return { innerHTML: E(this.file.size), [isEscaped]: true }; },

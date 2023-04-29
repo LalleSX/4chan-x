@@ -213,10 +213,8 @@ var PostHiding = {
 
   makeButton(post, type) {
     const span = $.el('span', {
-      className:   `fa fa-${type === 'hide' ? 'minus' : 'plus'}-square-o`,
-      textContent: ""
-    }
-    );
+      textContent: type === 'hide' ? '➖︎' : '➕︎',
+    });
     const a = $.el('a', {
       className: `${type}-reply-button`,
       href:      'javascript:;'
@@ -247,7 +245,7 @@ var PostHiding = {
 
   toggle() {
     const post = Get.postFromNode(this);
-    PostHiding[(post.isHidden ? 'show' : 'hide')](post); 
+    PostHiding[(post.isHidden ? 'show' : 'hide')](post);
     return PostHiding.saveHiddenState(post, post.isHidden);
   },
 

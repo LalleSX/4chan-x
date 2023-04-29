@@ -17,7 +17,7 @@ const settingsHtml = <div id="fourchanx-settings" class="dialog">
       <a href={meta.page} target="_blank">{meta.name}</a>{separator}
       <a href={meta.changelog} target="_blank">{g.VERSION}</a>{separator}
       <a href={meta.issues} target="_blank">Issues</a>{separator}
-      <a href="javascript:;" class="close fa fa-times" title="Close"></a>
+      <a href="javascript:;" class="close" title="Close">✕</a>
     </div>
   </nav>
   <div class="section-container"><section></section></div>

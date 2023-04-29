@@ -143,7 +143,7 @@ var Header = {
       const cs = $.el('a', {href: 'javascript:;'});
       if (g.VIEW === 'catalog') {
         cs.title = (cs.textContent = 'Catalog Settings');
-        cs.className = 'fa fa-book';
+        cs.textContent = '🕮︎';
       } else {
         cs.title = (cs.textContent = '4chan Settings');
         cs.className = 'native-settings';

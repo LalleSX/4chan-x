@@ -18,7 +18,7 @@ var Menu = {
     }
     );
 
-    $.extend(this.button, {innerHTML: "<i class=\"fa fa-angle-down\"></i>"});
+    $.extend(this.button, {textContent: "🞃"});
 
     this.menu = new UI.Menu('post');
     Callbacks.Post.push({

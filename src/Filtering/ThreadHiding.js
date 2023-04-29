@@ -137,7 +137,7 @@ var ThreadHiding = {
         href: 'javascript:;'
       }
       );
-      $.on(div, 'click', ThreadHiding.menu.show); 
+      $.on(div, 'click', ThreadHiding.menu.show);
 
       Menu.menu.addEntry({
         el: div,
@@ -200,7 +200,7 @@ var ThreadHiding = {
       href:      'javascript:;'
     }
     );
-    $.extend(a, {innerHTML: "<span class=\"fa fa-" + ((type === "hide") ? "minus" : "plus") + "-square\"></span>"});
+    $.extend(a, {textContent: type === "hide" ? '➖︎' : '➕︎' });
     a.dataset.fullID = thread.fullID;
     $.on(a, 'click', ThreadHiding.toggle);
     return a;

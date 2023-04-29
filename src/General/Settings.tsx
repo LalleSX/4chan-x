@@ -38,8 +38,8 @@ var Settings = {
   init() {
     // 4chan X settings link
     const link = $.el('a', {
-      className:   'settings-link fa fa-wrench',
-      textContent: 'Settings',
+      className:   'settings-link',
+      textContent: '🔧︎',
       title:       `${meta.name} Settings`,
       href:        'javascript:;'
     }

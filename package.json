@@ -108,7 +108,6 @@
     "@violentmonkey/types": "^0.1.5",
     "chrome-webstore-upload": "^1.0.0",
     "esprima": "^4.0.1",
-    "font-awesome": "=4.7.0",
     "jshint": "^2.13.4",
     "jszip": "^3.10.0",
     "lodash.template": "^4.5.0",

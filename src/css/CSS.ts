@@ -1,13 +1,10 @@
-// cSpell:ignore installGentoo, fontawesome, webfont
+// cSpell:ignore installGentoo, webfont
 
 import $ from '../platform/$';
 
 // import boardCss from './board.css';
-import faCSS from '../../node_modules/font-awesome/css/font-awesome.css';
-import faWebFont from '../../node_modules/font-awesome/fonts/fontawesome-webfont.woff';
 
 import burichan from './burichan.css';
-import fontAwesome from './font-awesome.css';
 import futaba from './futaba.css';
 import linkifyAudio from './linkify.audio.png';
 import linkifyBitchute from './linkify.bitchute.png';
@@ -41,19 +38,18 @@ import tomorrow from './tomorrow.css';
 import www from './www.css';
 import yotsubaB from './yotsuba-b.css';
 import yotsuba from './yotsuba.css';
-import { fa, icons } from './style';
+import { icons } from './style';
 import { g } from '../globals/globals';
 
 // <%
   // var inc       = require['style'];
   // var faCSS     = read('/node_modules/font-awesome/css/font-awesome.css');
-  // var faWebFont = readBase64('/node_modules/font-awesome/fonts/fontawesome-webfont.woff');
   // var mainCSS   = ['font-awesome', 'style', 'yotsuba', 'yotsuba-b', 'futaba', 'burichan', 'tomorrow', 'photon', 'spooky'].map(x => read(`${x}.css`)).join('');
 //   var iconNames = files.filter(f => /^linkify\.[^.]+\.png$/.test(f));
 //   var icons     = iconNames.map(readBase64);
 // %>
 
-const mainCSS = fontAwesome + style + yotsuba +yotsubaB+futaba+burichan+tomorrow + photon + spooky;
+const mainCSS = style + yotsuba +yotsubaB+futaba+burichan+tomorrow + photon + spooky;
 const faIcons: { name: string, data: string }[] = [
   { name: "Audio", data: linkifyAudio },
   { name: "Bitchute", data: linkifyBitchute },
@@ -80,7 +76,7 @@ const faIcons: { name: string, data: string }[] = [
 
 const CSS = {
 
-  boards: fa(faCSS, faWebFont) + mainCSS + icons(faIcons) + supports,
+  boards: mainCSS + icons(faIcons) + supports,
 
   report,
 

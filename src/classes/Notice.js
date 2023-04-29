@@ -15,7 +15,7 @@ export default class Notice {
     this.timeout = timeout;
     this.onclose = onclose;
     this.el = $.el('div',
-      {innerHTML: "<a href=\"javascript:;\" class=\"close fa fa-times\" title=\"Close\"></a><div class=\"message\"></div>"});
+      {innerHTML: "<a href=\"javascript:;\" class=\"close\" title=\"Close\">✕</a><div class=\"message\"></div>"});
     this.el.style.opacity = 0;
     this.setType(type);
     $.on(this.el.firstElementChild, 'click', this.close);

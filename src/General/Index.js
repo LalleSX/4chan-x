@@ -82,10 +82,9 @@ var Index = {
 
     // Header refresh button
     this.button = $.el('a', {
-      className: 'fa fa-refresh',
       title: 'Refresh',
       href: 'javascript:;',
-      textContent: 'Refresh Index'
+      textContent: '🗘'
     }
     );
     $.on(this.button, 'click', () => Index.update());
@@ -768,14 +767,14 @@ var Index = {
       'Index',
       Index.load
     );
-    return $.addClass(Index.button, 'fa-spin');
+    return $.addClass(Index.button, 'spin');
   },
 
   load() {
     let err;
     if (this !== Index.req) { return; } // aborted
 
-    $.rmClass(Index.button, 'fa-spin');
+    $.rmClass(Index.button, 'spin');
     const {notice, nTimeout} = Index;
     if (nTimeout) { clearTimeout(nTimeout); }
     delete Index.nTimeout;

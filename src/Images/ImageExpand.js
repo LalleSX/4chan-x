@@ -21,8 +21,8 @@ var ImageExpand = {
     if (!(this.enabled = Conf['Image Expansion'] && ['index', 'thread'].includes(g.VIEW))) { return; }
 
     this.EAI = $.el('a', {
-      className: 'expand-all-shortcut fa fa-expand',
-      textContent: 'EAI', 
+      className: 'expand-all-shortcut',
+      textContent: '➕︎',
       title: 'Expand All Images',
       href: 'javascript:;'
     }
@@ -44,7 +44,7 @@ var ImageExpand = {
     if (!this.file || (!this.file.isImage && !this.file.isVideo)) { return; }
     $.on(this.file.thumbLink, 'click', ImageExpand.cb.toggle);
 
-    if (this.isClone) { 
+    if (this.isClone) {
       if (this.file.isExpanding) {
         // If we clone a post where the image is still loading,
         // make it loading in the clone too.
@@ -96,12 +96,14 @@ var ImageExpand = {
       };
 
       if (ImageExpand.on = $.hasClass(ImageExpand.EAI, 'expand-all-shortcut')) {
-        ImageExpand.EAI.className = 'contract-all-shortcut fa fa-compress';
-        ImageExpand.EAI.title     = 'Contract All Images';
+        ImageExpand.EAI.className   = 'contract-all-shortcut';
+        ImageExpand.EAI.title       = 'Contract All Images';
+        ImageExpand.EAI.textContent = '➖︎';
         func = ImageExpand.expand;
       } else {
-        ImageExpand.EAI.className = 'expand-all-shortcut fa fa-expand';
-        ImageExpand.EAI.title     = 'Expand All Images';
+        ImageExpand.EAI.className   = 'expand-all-shortcut';
+        ImageExpand.EAI.title       = 'Expand All Images';
+        ImageExpand.EAI.textContent = '➕︎';
         func = ImageExpand.contract;
       }
 

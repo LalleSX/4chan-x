@@ -40,9 +40,10 @@ var PSAHiding = {
     $.on(entry.el, 'click', PSAHiding.toggle);
 
     PSAHiding.btn = (btn = $.el('a', {
-      title:     'Mark announcement as read and hide.',
-      className: 'hide-announcement-button fa fa-minus-square',
-      href:      'javascript:;'
+      title:       'Mark announcement as read and hide.',
+      className:   'hide-announcement-button',
+      href:        'javascript:;',
+      textContent: '➖︎',
     }
     ));
     $.on(btn, 'click', PSAHiding.toggle);

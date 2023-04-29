@@ -30,10 +30,8 @@ var Gallery = {
     const el = $.el('a', {
       href: 'javascript:;',
       title: 'Gallery',
-      className: 'fa fa-picture-o',
-      textContent: 'Gallery'
-    }
-    );
+      textContent: '🖼︎',
+    });
 
     $.on(el, 'click', this.cb.toggle);
 
