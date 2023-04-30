@@ -7,6 +7,7 @@ import generateMetadata from '../src/meta/metadata.js';
 import { copyFile, readFile, writeFile } from 'fs/promises';
 import importBase64 from './rollup-plugin-base64.js';
 import generateManifestJson from '../src/meta/manifestJson.js';
+import terser from '@rollup/plugin-terser';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -19,6 +20,7 @@ if (process.argv.includes('-beta')) {
 } else if (process.argv.includes('-noupdate')) {
   channel = '-noupdate';
 }
+const minify = process.argv.includes('-min');
 
 (async () => {
   const packageJson = JSON.parse(await readFile(resolve(__dirname, '../package.json'), 'utf-8'));
@@ -75,7 +77,14 @@ if (process.argv.includes('-beta')) {
     ...sharedBundleOpts,
     banner: metadata + license,
     // file: '../builds/test/rollupOutput.js',
-    file: resolve(buildDir, `${packageJson.meta.path}${channel}.user.js`),
+    file: resolve(buildDir, `${packageJson.meta.path}${channel}.user${minify ? '.min' : ''}.js`),
+    plugins: minify ? [terser({
+      format: {
+        max_line_len: 1000,
+        comments: /^(?: ==\/?UserScript==| @|!)|license|\bcc\b|copyright/i,
+      },
+    })] : [],
+    sourcemap: minify,
   });
 
   // chrome extension

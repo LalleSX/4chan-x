@@ -101,6 +101,7 @@
     }
   },
   "devDependencies": {
+    "@rollup/plugin-terser": "^0.4.1",
     "@rollup/plugin-typescript": "^11.0.0",
     "@rollup/pluginutils": "^5.0.2",
     "@types/chrome": "^0.0.217",
