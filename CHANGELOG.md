@@ -1,3 +1,23 @@
+## 4chan XT changelog
+
+4chan XT uses a different user script namespace, so to migrate you need to export settings from 4chan X, and import them
+in XT.
+
+### XT v2.0.0
+
+#### 2023-04-30
+
+This is the first XT release, which means this is after the migration from coffeescript to typescript, but there are
+some other changes as well. These changes aren't in the upstream PR.
+
+- Optimized image filters: filters are in a Map with the hash as key, instead of iterating over all image filters
+- I removed font awesome to make the script smaller, and used unicode icons instead. This might break some user scripts
+  build in 4chan X that rely on them, and I only tested on windows.
+- For even smaller user script size, there is a minified version available
+- https://github.com/ccd0/4chan-x/pull/3352, fix for https://github.com/ccd0/4chan-x/issues/3349 was ported
+
+## Original 4chan X changelog
+
 **Note**: Installing the script from one of the links below will disable automatic updates. If you want automatic updates, install the script from the links on the [main page](https://www.4chan-x.net/).
 
 -Sometimes the changelog has notes (not comprehensive) acknowledging people's work. This does not mean the changes are their fault, only that their code was used. All changes to the script are chosen by and the fault of the maintainer (ccd0).

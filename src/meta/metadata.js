@@ -80,9 +80,7 @@ export default async function generateMetadata(packageJson, channel) {
 
   output += '\n// @run-at       document-start';
 
-  if (channel === '-noupdate') {
-    output += '\n// @updateURL    https://noupdate.invalid/\n// @downloadURL  https://noupdate.invalid/';
-  } else {
+  if (channel !== '-noupdate') {
     output += `
 // @updateURL    ${meta.downloads}${packageJson.name}${channel}.meta.js
 // @downloadURL  ${meta.downloads}${packageJson.name}${channel}.user.js`;

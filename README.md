@@ -1,6 +1,7 @@
 # 4chan XT
 
-**This repo is work in progress!** Use the build from the [repo this is forked from](https://github.com/ccd0/4chan-x) in the meantime.
+I would prefer that this is merged into [the repo this is forked from](https://github.com/ccd0/4chan-x), but in the mean
+time, you can try this fork as well.
 
 PR to upstream: https://github.com/ccd0/4chan-x/pull/3341.
 
@@ -20,8 +21,7 @@ The 4chan XT project is a migration of 4chan X from coffeescript to TypeScript/J
     - [x] crx directory that can be loaded as an unpacked extension is created
   - [x] beta
   - [x] noupdate
-- [ ] run and debug
-- [ ] port updates made to 4chan-X made since this was forked
+- [x] port updates made to 4chan-X made since this was forked
 
 ## Other notes
 
@@ -61,6 +61,7 @@ The 4chan XT project is a migration of 4chan X from coffeescript to TypeScript/J
 - [x] 7295b21b73eb13ec53fdc61767ada341c2e13144 Avoid breaking sauce settings of people with links to original Google Images and Google Lens, provided they didn't already update to v1.14.22.3.
 - [x] 71873cd7b22a565c2a41fa24f63f7504152683eb Recognize JPEG files with .jfif extensions as images for purposes of Image Hover etc.; also recognize .avif and .jxl files as images.
 - [x] ea2462ecc47327c6f0c31348d95fd2b1b6447cb3 Release 4chan X v1.14.22.4.
+- [x] e31438f9a9907078508912fd4c4d44bf21ac773c Fix youtube /live embeds
 
 </details>
 

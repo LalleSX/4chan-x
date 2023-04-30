@@ -11,7 +11,7 @@ import terser from '@rollup/plugin-terser';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const buildDir = resolve(__dirname, '../builds/test/');
+const buildDir = resolve(__dirname, '../builds/');
 
 let channel = '';
 

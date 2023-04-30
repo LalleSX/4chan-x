@@ -8,9 +8,9 @@
     "page": "https://github.com/TuxedoTako/4chan-xt",
     "downloads": "https://github.com/TuxedoTako/4chan-xt/releases",
     "oldVersions": "https://raw.githubusercontent.com/ccd0/4chan-x/",
-    "faq": "https://github.com/TuxedoTako/4chan-xt/wiki/Frequently-Asked-Questions",
-    "captchaFAQ": "https://github.com/TuxedoTako/4chan-xt/wiki/Captcha-FAQ",
-    "cssGuide": "https://github.com/TuxedoTako/4chan-xt/wiki/Styling-Guide",
+    "faq": "https://github.com/ccd0/4chan-x/wiki/Frequently-Asked-Questions",
+    "captchaFAQ": "https://github.com/ccd0/4chan-x/wiki/Captcha-FAQ",
+    "cssGuide": "https://github.com/ccd0/4chan-x/wiki/Styling-Guide",
     "license": "https://github.com/TuxedoTako/4chan-xt/blob/master/LICENSE",
     "changelog": "https://github.com/TuxedoTako/4chan-xt/blob/master/CHANGELOG.md",
     "issues": "https://github.com/TuxedoTako/4chan-xt/issues",
@@ -121,7 +121,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ccd0/4chan-x.git"
+    "url": "https://github.com/TuxedoTako/4chan-xt.git"
   },
   "contributors": [
     "James Campos <james.r.campos@gmail.com>",
