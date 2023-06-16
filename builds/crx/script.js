@@ -90,9 +90,9 @@
    "page": "https://github.com/TuxedoTako/4chan-xt",
    "downloads": "https://github.com/TuxedoTako/4chan-xt/releases",
    "oldVersions": "https://raw.githubusercontent.com/ccd0/4chan-x/",
-   "faq": "https://github.com/TuxedoTako/4chan-xt/wiki/Frequently-Asked-Questions",
-   "captchaFAQ": "https://github.com/TuxedoTako/4chan-xt/wiki/Captcha-FAQ",
-   "cssGuide": "https://github.com/TuxedoTako/4chan-xt/wiki/Styling-Guide",
+   "faq": "https://github.com/ccd0/4chan-x/wiki/Frequently-Asked-Questions",
+   "captchaFAQ": "https://github.com/ccd0/4chan-x/wiki/Captcha-FAQ",
+   "cssGuide": "https://github.com/ccd0/4chan-x/wiki/Styling-Guide",
    "license": "https://github.com/TuxedoTako/4chan-xt/blob/master/LICENSE",
    "changelog": "https://github.com/TuxedoTako/4chan-xt/blob/master/CHANGELOG.md",
    "issues": "https://github.com/TuxedoTako/4chan-xt/issues",
@@ -1639,7 +1639,6 @@ https://*.hcaptcha.com
 
   /*
    * decaffeinate suggestions:
-   * DS101: Remove unnecessary use of Array.from
    * DS102: Remove unnecessary code created because of implicit returns
    * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
    */
@@ -1729,7 +1728,7 @@ https://*.hcaptcha.com
         items[i] = t + items[i++];
       }
 
-      [f.unreadDead, f.unreadDeadY, f.unreadSFW, f.unreadSFWY, f.unreadNSFW, f.unreadNSFWY] = Array.from(items);
+      [f.unreadDead, f.unreadDeadY, f.unreadSFW, f.unreadSFWY, f.unreadNSFW, f.unreadNSFWY] = items;
       return f.update();
     },
 
@@ -1749,13 +1748,7 @@ https://*.hcaptcha.com
     logo: `data:image/png;base64,${empty}`,
   };
 
-  /*
-   * decaffeinate suggestions:
-   * DS101: Remove unnecessary use of Array.from
-   * DS102: Remove unnecessary code created because of implicit returns
-   * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
-   */
-  const $$ = (selector, root = d$1.body) => [...Array.from(root.querySelectorAll(selector))];
+  const $$ = (selector, root = d$1.body) => Array.from(root.querySelectorAll(selector));
 
   /*
    * decaffeinate suggestions:
@@ -2199,7 +2192,6 @@ https://*.hcaptcha.com
 
   /*
    * decaffeinate suggestions:
-   * DS101: Remove unnecessary use of Array.from
    * DS102: Remove unnecessary code created because of implicit returns
    * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
    */
@@ -2223,7 +2215,7 @@ https://*.hcaptcha.com
           }
       }
       forEach(fn) {
-          for (var key of [...Array.from(this.keys)]) {
+          for (var key of this.keys) {
               fn(this[key]);
           }
       }
@@ -2378,7 +2370,6 @@ https://*.hcaptcha.com
 
   /*
    * decaffeinate suggestions:
-   * DS101: Remove unnecessary use of Array.from
    * DS102: Remove unnecessary code created because of implicit returns
    * DS206: Consider reworking classes to avoid initClass
    * DS207: Consider shorter variations of null checks
@@ -2494,14 +2485,14 @@ https://*.hcaptcha.com
         window.scrollX + bRect.left;
         const cHeight = doc$1.clientHeight;
         const cWidth  = doc$1.clientWidth;
-        const [top, bottom] = Array.from((bRect.top + bRect.height + mRect.height) < cHeight ?
+        const [top, bottom] = (bRect.top + bRect.height + mRect.height) < cHeight ?
           [`${bRect.bottom}px`, '']
         :
-          ['', `${cHeight - bRect.top}px`]);
-        const [left, right] = Array.from((bRect.left + mRect.width) < cWidth ?
+          ['', `${cHeight - bRect.top}px`];
+        const [left, right] = (bRect.left + mRect.width) < cWidth ?
           [`${bRect.left}px`, '']
         :
-          ['', `${cWidth - bRect.right}px`]);
+          ['', `${cWidth - bRect.right}px`];
         $$1.extend(this.menu.style, {top, right, bottom, left});
         return this.menu.classList.toggle('left', right);
       }
@@ -2546,7 +2537,7 @@ https://*.hcaptcha.com
       }
 
       findNextEntry(entry, direction) {
-        const entries = [...Array.from(entry.parentNode.children)];
+        const entries = [...entry.parentNode.children];
         entries.sort((first, second) => first.style.order - second.style.order);
         return entries[entries.indexOf(entry) + direction];
       }
@@ -2620,14 +2611,14 @@ https://*.hcaptcha.com
         const eRect   = entry.getBoundingClientRect();
         const cHeight = doc$1.clientHeight;
         const cWidth  = doc$1.clientWidth;
-        const [top, bottom] = Array.from((eRect.top + sRect.height) < cHeight ?
+        const [top, bottom] = (eRect.top + sRect.height) < cHeight ?
           ['0px', 'auto']
         :
-          ['auto', '0px']);
-        const [left, right] = Array.from((eRect.right + sRect.width) < (cWidth - 150) ?
+          ['auto', '0px'];
+        const [left, right] = (eRect.right + sRect.width) < (cWidth - 150) ?
           ['100%', 'auto']
         :
-          ['auto', '100%']);
+          ['auto', '100%'];
         const {style} = submenu;
         style.top    = top;
         style.bottom = bottom;
@@ -2681,12 +2672,12 @@ https://*.hcaptcha.com
       isTouching
     };
 
-    [o.topBorder, o.bottomBorder] = Array.from(Conf['Header auto-hide'] || !Conf['Fixed Header'] ?
+    [o.topBorder, o.bottomBorder] = Conf['Header auto-hide'] || !Conf['Fixed Header'] ?
       [0, 0]
     : Conf['Bottom Header'] ?
       [0, Header$1.bar.getBoundingClientRect().height]
     :
-      [Header$1.bar.getBoundingClientRect().height, 0]);
+      [Header$1.bar.getBoundingClientRect().height, 0];
 
     if (isTouching) {
       o.identifier = e.identifier;
@@ -2822,7 +2813,7 @@ https://*.hcaptcha.com
     let marginX = (clientX <= threshold ? clientX : this.clientWidth - clientX) + 45;
     if (this.isImage) { marginX = Math.min(marginX, this.clientWidth - width); }
     marginX += 'px';
-    const [left, right] = Array.from(clientX <= threshold ? [marginX, ''] : ['', marginX]);
+    const [left, right] = clientX <= threshold ? [marginX, ''] : ['', marginX];
 
     const {style} = this;
     style.top   = top + 'px';
@@ -3278,7 +3269,6 @@ https://*.hcaptcha.com
 
   /*
    * decaffeinate suggestions:
-   * DS101: Remove unnecessary use of Array.from
    * DS102: Remove unnecessary code created because of implicit returns
    * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
    */
@@ -3374,13 +3364,13 @@ https://*.hcaptcha.com
         }
 
         return g.posts.forEach(function(post) {
-          for (post of [post, ...Array.from(post.clones)]) { toggle(post); }
+          for (post of [post, ...post.clones]) { toggle(post); }
         });
       },
 
       playVideos() {
         return g.posts.forEach(function(post) {
-          for (post of [post, ...Array.from(post.clones)]) {
+          for (post of [post, ...post.clones]) {
             var {file} = post;
             if (!file || !file.isVideo || !file.isExpanded) { continue; }
 
@@ -4146,7 +4136,6 @@ https://*.hcaptcha.com
 
   /*
    * decaffeinate suggestions:
-   * DS101: Remove unnecessary use of Array.from
    * DS102: Remove unnecessary code created because of implicit returns
    * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
    */
@@ -4167,7 +4156,7 @@ https://*.hcaptcha.com
         if ((obj = Recursive.recursives[quote])) {
           for (var i = 0; i < obj.recursives.length; i++) {
             var recursive = obj.recursives[i];
-            recursive(this, ...Array.from(obj.args[i]));
+            recursive(this, ...obj.args[i]);
           }
         }
       }
@@ -4198,7 +4187,7 @@ https://*.hcaptcha.com
       const {fullID} = post;
       return g.posts.forEach(function(post) {
         if (post.quotes.includes(fullID)) {
-          return recursive(post, ...Array.from(args));
+          return recursive(post, ...args);
         }
       });
     }
@@ -5550,7 +5539,6 @@ https://*.hcaptcha.com
 
   /*
    * decaffeinate suggestions:
-   * DS101: Remove unnecessary use of Array.from
    * DS102: Remove unnecessary code created because of implicit returns
    * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
    */
@@ -5571,7 +5559,7 @@ https://*.hcaptcha.com
     setButton(thread) {
       let a;
       if (!(thread.nodes.root && (a = $$1('.summary', thread.nodes.root)))) { return; }
-      a.textContent = g.SITE.Build.summaryText('+', ...Array.from(a.textContent.match(/\d+/g)));
+      a.textContent = g.SITE.Build.summaryText('+', ...a.textContent.match(/\d+/g));
       a.style.cursor = 'pointer';
       return $$1.on(a, 'click', ExpandThread.cbToggle);
     },
@@ -5625,7 +5613,7 @@ https://*.hcaptcha.com
     expand(thread, a) {
       let status;
       ExpandThread.statuses[thread] = (status = {});
-      a.textContent = g.SITE.Build.summaryText('...', ...Array.from(a.textContent.match(/\d+/g)));
+      a.textContent = g.SITE.Build.summaryText('...', ...a.textContent.match(/\d+/g));
       status.req = $$1.cache(g.SITE.urls.threadJSON({boardID: thread.board.ID, threadID: thread.ID}), function() {
         if (this !== status.req) { return; } // aborted
         delete status.req;
@@ -5641,7 +5629,7 @@ https://*.hcaptcha.com
       if (oldReq = status.req) {
         delete status.req;
         oldReq.abort();
-        if (a) { a.textContent = g.SITE.Build.summaryText('+', ...Array.from(a.textContent.match(/\d+/g))); }
+        if (a) { a.textContent = g.SITE.Build.summaryText('+', ...a.textContent.match(/\d+/g)); }
         return;
       }
 
@@ -5855,7 +5843,6 @@ https://*.hcaptcha.com
 
   /*
    * decaffeinate suggestions:
-   * DS101: Remove unnecessary use of Array.from
    * DS102: Remove unnecessary code created because of implicit returns
    * DS104: Avoid inline assignments
    * DS207: Consider shorter variations of null checks
@@ -6059,7 +6046,7 @@ https://*.hcaptcha.com
       },
       rm() {
         const {siteID} = this.parentNode.dataset;
-        const [boardID, threadID] = Array.from(this.parentNode.dataset.fullID.split('.'));
+        const [boardID, threadID] = this.parentNode.dataset.fullID.split('.');
         return ThreadWatcher.rm(siteID, boardID, +threadID);
       },
       post(e) {
@@ -6514,7 +6501,7 @@ https://*.hcaptcha.com
       g.threads.forEach(function(thread) {
         const isWatched = ThreadWatcher.isWatched(thread);
         if (thread.OP) {
-          for (var post of [thread.OP, ...Array.from(thread.OP.clones)]) {
+          for (var post of [thread.OP, ...thread.OP.clones]) {
             var toggler;
             if (toggler = $$1('.watch-thread-link', post.nodes.info)) {
               ThreadWatcher.setToggler(toggler, isWatched);
@@ -6641,10 +6628,10 @@ https://*.hcaptcha.com
           el: entryEl,
           order: 60,
           open() {
-            const [addClass, rmClass, text] = Array.from(!!ThreadWatcher.db.get({boardID: g.BOARD.ID, threadID: g.THREADID}) ?
+            const [addClass, rmClass, text] = !!ThreadWatcher.db.get({boardID: g.BOARD.ID, threadID: g.THREADID}) ?
               ['unwatch-thread', 'watch-thread', 'Unwatch thread']
             :
-              ['watch-thread', 'unwatch-thread', 'Watch thread']);
+              ['watch-thread', 'unwatch-thread', 'Watch thread'];
             $$1.addClass(entryEl, addClass);
             $$1.rmClass(entryEl, rmClass);
             entryEl.textContent = text;
@@ -6753,7 +6740,6 @@ https://*.hcaptcha.com
 
   /*
    * decaffeinate suggestions:
-   * DS101: Remove unnecessary use of Array.from
    * DS102: Remove unnecessary code created because of implicit returns
    * DS205: Consider reworking code to avoid use of IIFEs
    * DS206: Consider reworking classes to avoid initClass
@@ -7062,7 +7048,6 @@ https://*.hcaptcha.com
 
   /*
    * decaffeinate suggestions:
-   * DS101: Remove unnecessary use of Array.from
    * DS102: Remove unnecessary code created because of implicit returns
    * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
    */
@@ -7091,7 +7076,7 @@ https://*.hcaptcha.com
     },
 
     node() {
-      for (var link of this.nodes.quotelinks.concat([...Array.from(this.nodes.backlinks)], this.nodes.archivelinks)) {
+      for (var link of this.nodes.quotelinks.concat([...this.nodes.backlinks], this.nodes.archivelinks)) {
         $$1.on(link, 'mouseover', QuotePreview.mouseover);
       }
     },
@@ -7204,7 +7189,6 @@ https://*.hcaptcha.com
 
   /*
    * decaffeinate suggestions:
-   * DS101: Remove unnecessary use of Array.from
    * DS102: Remove unnecessary code created because of implicit returns
    * DS205: Consider reworking code to avoid use of IIFEs
    * DS207: Consider shorter variations of null checks
@@ -7493,7 +7477,7 @@ https://*.hcaptcha.com
 
     cycleSortType() {
       let i;
-      const types = [...Array.from(Index.selectSort.options)].filter(option => !option.disabled);
+      const types = Index.selectSort.options.filter(option => !option.disabled);
       for (i = 0; i < types.length; i++) {
         var type = types[i];
         if (type.selected) { break; }
@@ -7555,7 +7539,7 @@ https://*.hcaptcha.com
       },
 
       lastLongThresholds() {
-        const i = [...Array.from(this.parentNode.children)].indexOf(this);
+        const i = [...this.parentNode.children].indexOf(this);
         const value = +this.value;
         if (!Number.isFinite(value)) {
           this.value = Index.lastLongThresholds[i];
@@ -8238,16 +8222,16 @@ https://*.hcaptcha.com
           for (var thread of liveThreadData) {
             lastlongD[thread.no] = lastlong(thread).no;
           }
-          return [...Array.from(liveThreadData)].sort((a, b) => lastlongD[b.no] - lastlongD[a.no]).map(post => post.no);
+          return [...liveThreadData].sort((a, b) => lastlongD[b.no] - lastlongD[a.no]).map(post => post.no);
         case 'bump':       return liveThreadIDs;
-        case 'birth':      return [...Array.from(liveThreadIDs) ].sort((a, b) => b - a);
-        case 'replycount': return [...Array.from(liveThreadData)].sort((a, b) => b.replies - a.replies).map(post => post.no);
-        case 'filecount':  return [...Array.from(liveThreadData)].sort((a, b) => b.images  - a.images).map(post => post.no);
-        case 'activity':   return [...Array.from(liveThreadData)].sort((a, b) => ((tmp_time-a.time)/(a.replies+1)) - ((tmp_time-b.time)/(b.replies+1))).map(post => post.no);
+        case 'birth':      return [...liveThreadIDs ].sort((a, b) => b - a);
+        case 'replycount': return [...liveThreadData].sort((a, b) => b.replies - a.replies).map(post => post.no);
+        case 'filecount':  return [...liveThreadData].sort((a, b) => b.images  - a.images).map(post => post.no);
+        case 'activity':   return [...liveThreadData].sort((a, b) => ((tmp_time-a.time)/(a.replies+1)) - ((tmp_time-b.time)/(b.replies+1))).map(post => post.no);
         default: return liveThreadIDs;
       } })();
       if (/-rev$/.test(Index.currentSort)) {
-        Index.sortedThreadIDs = [...Array.from(Index.sortedThreadIDs)].reverse();
+        Index.sortedThreadIDs.reverse();
       }
       if (Index.search && (threadIDs = Index.querySearch(Index.search))) {
         Index.sortedThreadIDs = threadIDs;
@@ -9004,7 +8988,7 @@ https://*.hcaptcha.com
   <legend>
     <label><input type="checkbox" name="Custom CSS"> Custom CSS</label>
   </legend>
-  <div>For more information about customizing 4chan X&#039;s CSS, see the <a href="https://github.com/TuxedoTako/4chan-xt/wiki/Styling-Guide" target="_blank">styling guide</a>.</div>
+  <div>For more information about customizing 4chan X&#039;s CSS, see the <a href="https://github.com/ccd0/4chan-x/wiki/Styling-Guide" target="_blank">styling guide</a>.</div>
   <button id="apply-css">Apply CSS</button>
   <textarea hidden name="usercss" class="field" spellcheck="false"></textarea>
 </fieldset>
@@ -13124,7 +13108,6 @@ $\
 
   /*
    * decaffeinate suggestions:
-   * DS101: Remove unnecessary use of Array.from
    * DS102: Remove unnecessary code created because of implicit returns
    * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
    */
@@ -13137,7 +13120,7 @@ $\
     ready() {
       if (d$1.title !== 'Post successful!') { return; }
 
-      let [_, threadID, postID] = Array.from($$1('h1').nextSibling.textContent.match(/thread:(\d+),no:(\d+)/));
+      let [_, threadID, postID] = $$1('h1').nextSibling.textContent.match(/thread:(\d+),no:(\d+)/);
       postID   = +postID;
       threadID = +threadID || postID;
 
@@ -13277,7 +13260,6 @@ $\
 
   /*
    * decaffeinate suggestions:
-   * DS101: Remove unnecessary use of Array.from
    * DS102: Remove unnecessary code created because of implicit returns
    * DS205: Consider reworking code to avoid use of IIFEs
    * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
@@ -13565,10 +13547,10 @@ $\
       insertTags(bq) {
           let node;
           for (node of $$('s, .removed-spoiler', bq)) {
-              $$1.replace(node, [$$1.tn('[spoiler]'), ...Array.from(node.childNodes), $$1.tn('[/spoiler]')]);
+              $$1.replace(node, [$$1.tn('[spoiler]'), ...node.childNodes, $$1.tn('[/spoiler]')]);
           }
           for (node of $$('.prettyprint', bq)) {
-              $$1.replace(node, [$$1.tn('[code]'), ...Array.from(node.childNodes), $$1.tn('[/code]')]);
+              $$1.replace(node, [$$1.tn('[code]'), ...node.childNodes, $$1.tn('[/code]')]);
           }
       },
       hasCORS(url) {
@@ -13872,11 +13854,11 @@ $\
               }
               $$1.add(root, thread.OP.nodes.root);
               if (data.omitted_posts || (!withReplies && data.replies)) {
-                  const [posts, files] = Array.from(withReplies ?
+                  const [posts, files] = withReplies ?
                       // XXX data.omitted_images is not accurate.
                       [data.omitted_posts, data.images - data.last_replies.filter(data => !!data.ext).length]
                       :
-                          [data.replies, data.images]);
+                          [data.replies, data.images];
                   const summary = this.summary(thread.board.ID, data.no, posts, files);
                   $$1.add(root, summary);
               }
@@ -13913,7 +13895,7 @@ $\
               const postCount = data.replies + 1;
               const fileCount = data.images + !!data.ext;
               const container = $$1.el('div', generateCatalogThreadHtml(thread, src, imgClass, data, postCount, fileCount, pageCount, staticPath, gifIcon));
-              $$1.before(thread.OP.nodes.info, [...Array.from(container.childNodes)]);
+              $$1.before(thread.OP.nodes.info, [...container.childNodes]);
               for (var br of $$('br', thread.OP.nodes.comment)) {
                   if (br.previousSibling && (br.previousSibling.nodeName === 'BR')) {
                       $$1.addClass(br, 'extra-linebreak');
@@ -13924,7 +13906,7 @@ $\
                   id: `t${thread}`
               });
               if (thread.OP.highlights) {
-                  $$1.addClass(root, ...Array.from(thread.OP.highlights));
+                  $$1.addClass(root, ...thread.OP.highlights);
               }
               if (!thread.OP.file) {
                   $$1.addClass(root, 'noFile');
@@ -14981,7 +14963,6 @@ $\
 
   /*
    * decaffeinate suggestions:
-   * DS101: Remove unnecessary use of Array.from
    * DS102: Remove unnecessary code created because of implicit returns
    * DS205: Consider reworking code to avoid use of IIFEs
    * DS207: Consider shorter variations of null checks
@@ -15514,7 +15495,7 @@ Enable it on boards.${location.hostname.split('.')[1]}.org in your browser's pri
               }
           }
           if ((compareString < '00001.00011.00019.00003') && !Settings.dialog) {
-              $$1.queueTask(() => Settings.warnings.ads(item => new Notice('warning', [...Array.from(item.childNodes)])));
+              $$1.queueTask(() => Settings.warnings.ads(item => new Notice('warning', [...item.childNodes])));
           }
           if (compareString < '00001.00011.00020.00003') {
               const object = { 'Inline Cross-thread Quotes Only': false, 'Pass Link': true };
@@ -15656,7 +15637,7 @@ Enable it on boards.${location.hostname.split('.')[1]}.org in your browser's pri
               if ((data['siteSoftware'] != null) && (data['siteProperties'] == null)) {
                   const siteProperties = dict();
                   for (var line of data['siteSoftware'].split('\n')) {
-                      var [hostname, software] = Array.from(line.split(' '));
+                      var [hostname, software] = line.split(' ');
                       siteProperties[hostname] = { software };
                   }
                   set('siteProperties', siteProperties);
@@ -16364,7 +16345,6 @@ vp-replace
 
   /*
    * decaffeinate suggestions:
-   * DS101: Remove unnecessary use of Array.from
    * DS102: Remove unnecessary code created because of implicit returns
    * DS205: Consider reworking code to avoid use of IIFEs
    * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
@@ -16798,11 +16778,11 @@ vp-replace
         const {style} = current;
 
         if (Conf['Stretch to Fit'] && (dim = g.posts.get(current.dataset.post)?.files[+current.dataset.file].dimensions)) {
-          const [width, height] = Array.from(dim.split('x'));
+          const [width, height] = dim.split('x');
           let containerWidth = frame.clientWidth;
           let containerHeight = doc$1.clientHeight - 25;
           if (((current.dataRotate || 0) % 180) === 90) {
-            [containerWidth, containerHeight] = Array.from([containerHeight, containerWidth]);
+            [containerWidth, containerHeight] = [containerHeight, containerWidth];
           }
           minHeight = Math.min(containerHeight, (height / width) * containerWidth);
           style.minHeight = minHeight + 'px';
@@ -16876,7 +16856,6 @@ vp-replace
 
   /*
    * decaffeinate suggestions:
-   * DS101: Remove unnecessary use of Array.from
    * DS102: Remove unnecessary code created because of implicit returns
    * DS205: Consider reworking code to avoid use of IIFEs
    * DS207: Consider shorter variations of null checks
@@ -16895,7 +16874,7 @@ vp-replace
         this.media = $$1('#media-embed', this.dialog);
         $$1.one(d$1, '4chanXInitFinished', this.ready);
         $$1.on(d$1, 'IndexRefreshInternal', () => g.posts.forEach(function(post) {
-          for (post of [post, ...Array.from(post.clones)]) {
+          for (post of [post, ...post.clones]) {
             for (var embed of post.nodes.embedlinks) {
               Embedding.cb.catalogRemove.call(embed);
             }
@@ -17333,7 +17312,7 @@ vp-replace
             $$1.add(el, $$1.el('source', {src: a.dataset.uid}));
             return el;
           }
-          const [_, host, names] = Array.from(a.dataset.uid.match(/(\w+)\/(.*)/));
+          const [_, host, names] = a.dataset.uid.match(/(\w+)\/(.*)/);
           const types = (() => { switch (host) {
             case 'gd': case 'wu': case 'fc': return [''];
             case 'gc': return ['giant', 'fat', 'zippy'];
@@ -18428,7 +18407,6 @@ vp-replace
 
   /*
    * decaffeinate suggestions:
-   * DS101: Remove unnecessary use of Array.from
    * DS102: Remove unnecessary code created because of implicit returns
    * DS202: Simplify dynamic range loops
    * DS207: Consider shorter variations of null checks
@@ -18985,7 +18963,7 @@ vp-replace
 
     handleFiles(files) {
       if (this !== QR) { // file input
-        files  = [...Array.from(this.files)];
+        files  = [...this.files];
         this.value = null;
       }
       if (!files.length) { return; }
@@ -19441,7 +19419,7 @@ vp-replace
 
       const h1 = $$1('h1', this.response);
 
-      let [_, threadID, postID] = Array.from(h1.nextSibling.textContent.match(/thread:(\d+),no:(\d+)/));
+      let [_, threadID, postID] = h1.nextSibling.textContent.match(/thread:(\d+),no:(\d+)/);
       postID   = +postID;
       threadID = +threadID || postID;
       const isReply  = threadID !== postID;
@@ -19981,7 +19959,7 @@ vp-replace
         let match, needle, type, val;
         if (item[0] === '#') { return; }
         if (!(match = item.match(/(name|options|email|subject|password):"(.*)"/i))) { return; }
-        [match, type, val] = Array.from(match);
+        [match, type, val] = match;
 
         // Don't mix up item settings with val.
         item = item.replace(match, '');
@@ -20292,7 +20270,7 @@ vp-replace
             `<br>[<a href="javascript:;">delete post</a>] [<a href="javascript:;">delete all</a>]`
         });
         (this.errors || (this.errors = [])).push(div);
-        const [rm, rmAll] = Array.from($$('a', div));
+        const [rm, rmAll] = $$('a', div);
         $$1.on(div, 'click', () => {
           if (QR.posts.includes(this)) { return this.select(); }
         });
@@ -20548,7 +20526,12 @@ vp-replace
         $$1.rmClass(this, 'over');
         if (!this.draggable) { return; }
         const el = $$1('.drag', this.parentNode);
-        const index = el => [...Array.from(el.parentNode.children)].indexOf(el);
+        const index = el => {
+          for (let i = 0; i < el.parentNode.children.length; i++) {
+            if (el.parentNode.children[i] === el) return i;
+          }
+          return -1;
+        };
         const oldIndex = index(el);
         const newIndex = index(this);
         if (QR.posts[oldIndex].isLocked || QR.posts[newIndex].isLocked) { return; }
@@ -21782,7 +21765,6 @@ vp-replace
 
   /*
    * decaffeinate suggestions:
-   * DS101: Remove unnecessary use of Array.from
    * DS102: Remove unnecessary code created because of implicit returns
    * DS207: Consider shorter variations of null checks
    * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
@@ -21791,7 +21773,7 @@ vp-replace
     url(type, IDs, ...args) {
       let f, site;
       if ((site = g.sites[IDs.siteID]) && (f = $$1.getOwn(site.urls, type))) {
-        return f(IDs, ...Array.from(args));
+        return f(IDs, ...args);
       } else {
         return undefined;
       }
@@ -21830,7 +21812,7 @@ vp-replace
         if (!threadID) { threadID = 0; }
       } else {
         const match = link.href.match(g.SITE.regexp.quotelink);
-        [boardID, threadID, postID] = Array.from(match.slice(1));
+        [boardID, threadID, postID] = match.slice(1);
         if (!postID) { postID = threadID; }
       }
       return {
@@ -21845,8 +21827,8 @@ vp-replace
       const {posts} = g;
       const {fullID} = post;
       const handleQuotes = function(qPost, type) {
-        quotelinks.push(...Array.from(qPost.nodes[type] || []));
-        for (var clone of qPost.clones) { quotelinks.push(...Array.from(clone.nodes[type] || [])); }
+        quotelinks.push(...(qPost.nodes[type] || []));
+        for (var clone of qPost.clones) { quotelinks.push(...(clone.nodes[type] || [])); }
       };
       // First:
       //   In every posts,
@@ -22022,7 +22004,7 @@ vp-replace
           let siteFilter = '';
           for (var boardID of boardsRaw.split(',')) {
               if (boardID.includes(':')) {
-                  [siteFilter, boardID] = Array.from(boardID.split(':').slice(-2));
+                  [siteFilter, boardID] = boardID.split(':').slice(-2);
               }
               for (var siteID in g.sites) {
                   var site = g.sites[siteID];
@@ -22120,7 +22102,7 @@ vp-replace
           else {
               if (hl) {
                   this.highlights = hl;
-                  $$1.addClass(this.nodes.root, ...Array.from(hl));
+                  $$1.addClass(this.nodes.root, ...hl);
               }
           }
           if (noti && Unread.posts && (this.ID > Unread.lastReadPost) && !QuoteYou.isYou(this)) {
@@ -22169,7 +22151,7 @@ vp-replace
           else {
               if (hl) {
                   this.highlights = hl;
-                  $$1.addClass(this.nodes.root, ...Array.from(hl));
+                  $$1.addClass(this.nodes.root, ...hl);
               }
               if (top) {
                   $$1.prepend(this.nodes.root.parentNode, this.nodes.root);
@@ -22654,7 +22636,6 @@ vp-replace
 
   /*
    * decaffeinate suggestions:
-   * DS101: Remove unnecessary use of Array.from
    * DS102: Remove unnecessary code created because of implicit returns
    * DS104: Avoid inline assignments
    * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
@@ -22833,7 +22814,7 @@ vp-replace
       if (g.SITE.transformBoardList) {
         nodes = g.SITE.transformBoardList();
       } else {
-        nodes = [...Array.from($$1(g.SITE.selectors.boardList).cloneNode(true).childNodes)];
+        nodes = [...$$1(g.SITE.selectors.boardList).cloneNode(true).childNodes];
       }
       const fullBoardList = $$1('.boardList', Header.boardList);
       $$1.add(fullBoardList, nodes);
@@ -23158,15 +23139,11 @@ vp-replace
     },
 
     setCustomNav(show) {
-      let ref;
       Header.customNavToggler.checked = show;
       const cust = $$1('#custom-board-list', Header.bar);
       const full = $$1('#full-board-list',   Header.bar);
       const btn = $$1('.hide-board-list-container', full);
-      return [cust.hidden, full.hidden, btn.hidden] = Array.from(ref = show ?
-        [false, true, false]
-      :
-        [true, false, true]), ref;
+      return [cust.hidden, full.hidden, btn.hidden] = show ? [false, true, false] : [true, false, true];
     },
 
     toggleCustomNav() {
@@ -23313,7 +23290,7 @@ vp-replace
           `[<a href=\"${meta.faq}#why-is-4chan-x-asking-for-permission-to-show-desktop-notifications\" target=\"_blank\">FAQ</a>]` +
           `<br><button>Authorize</button> or <button>Disable</button>`
       });
-      const [authorize, disable] = Array.from($$('button', el));
+      const [authorize, disable] = $$('button', el);
       $$1.on(authorize, 'click', () => Notification.requestPermission(function(status) {
         Header.areNotificationsEnabled = status === 'granted';
         if (status === 'default') { return; }
@@ -23762,7 +23739,6 @@ vp-replace
 
   /*
    * decaffeinate suggestions:
-   * DS101: Remove unnecessary use of Array.from
    * DS102: Remove unnecessary code created because of implicit returns
    * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
    */
@@ -23826,7 +23802,7 @@ vp-replace
         }
       }
       if (file.dimensions) {
-        [width, height] = Array.from((file.dimensions.split('x').map((x) => +x)));
+        [width, height] = file.dimensions.split('x').map((x) => +x);
         const maxWidth = doc$1.clientWidth;
         const maxHeight = doc$1.clientHeight - UI.hover.padding;
         const scale = Math.min(1, maxWidth / width, maxHeight / height);
@@ -23867,7 +23843,6 @@ vp-replace
 
   /*
    * decaffeinate suggestions:
-   * DS101: Remove unnecessary use of Array.from
    * DS102: Remove unnecessary code created because of implicit returns
    * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
    */
@@ -23946,8 +23921,8 @@ vp-replace
       }
       const replace = Conf[`Replace ${type}`] && !/spoiler/.test(thumb.src || thumb.dataset.src);
       if (!replace && !ImageLoader.prefetchEnabled) { return; }
-      if ($$1.hasClass(doc, 'catalog-mode')) { return; }
-      if (![post, ...Array.from(post.clones)].some(clone => doc.contains(clone.nodes.root))) { return; }
+      if ($$1.hasClass(doc$1, 'catalog-mode')) { return; }
+      if (![post, ...post.clones].some(clone => doc$1.contains(clone.nodes.root))) { return; }
       file.isPrefetched = true;
       if (file.videoThumb) {
         for (clone of post.clones) { clone.file.thumb.preload = 'auto'; }
@@ -23988,7 +23963,7 @@ vp-replace
       // Special case: Quote previews are off screen when inserted into document, but quickly moved on screen.
       const qpClone = $$1.id('qp')?.firstElementChild;
       return g.posts.forEach(function(post) {
-        for (post of [post, ...Array.from(post.clones)]) {
+        for (post of [post, ...post.clones]) {
           for (var file of post.files) {
             if (file.videoThumb) {
               var {thumb} = file;
@@ -24745,7 +24720,6 @@ aero|asia|biz|cat|com|coop|dance|info|int|jobs|mobi|moe|museum|name|net|org|post
 
   /*
    * decaffeinate suggestions:
-   * DS101: Remove unnecessary use of Array.from
    * DS102: Remove unnecessary code created because of implicit returns
    * DS207: Consider shorter variations of null checks
    * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
@@ -24839,7 +24813,7 @@ aero|asia|biz|cat|com|coop|dance|info|int|jobs|mobi|moe|museum|name|net|org|post
           });
         } else {
           $$1.rmAll(this);
-          $$1.add(this, [...Array.from(Banner.original[this.className].cloneNode(true).childNodes)]);
+          $$1.add(this, [...Banner.original[this.className].cloneNode(true).childNodes]);
           return Banner.db.delete({
             boardID:  g.BOARD.ID,
             threadID: this.className
@@ -25319,7 +25293,6 @@ aero|asia|biz|cat|com|coop|dance|info|int|jobs|mobi|moe|museum|name|net|org|post
 
   /*
    * decaffeinate suggestions:
-   * DS101: Remove unnecessary use of Array.from
    * DS102: Remove unnecessary code created because of implicit returns
    * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
    */
@@ -25397,9 +25370,9 @@ aero|asia|biz|cat|com|coop|dance|info|int|jobs|mobi|moe|museum|name|net|org|post
       psa.hidden = (hiddenPSAList[g.SITE.ID] === PSAHiding.text);
       // Remove content to prevent autoplaying sounds from hidden announcements
       if (psa.hidden) {
-        $$1.add(content, [...Array.from(psa.childNodes)]);
+        $$1.add(content, [...psa.childNodes]);
       } else {
-        $$1.add(psa, [...Array.from(content.childNodes)]);
+        $$1.add(psa, [...content.childNodes]);
       }
       if (PSAHiding.hr) PSAHiding.hr.hidden = psa.hidden;
     }
@@ -25407,7 +25380,6 @@ aero|asia|biz|cat|com|coop|dance|info|int|jobs|mobi|moe|museum|name|net|org|post
 
   /*
    * decaffeinate suggestions:
-   * DS101: Remove unnecessary use of Array.from
    * DS102: Remove unnecessary code created because of implicit returns
    * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
    */
@@ -25438,7 +25410,7 @@ aero|asia|biz|cat|com|coop|dance|info|int|jobs|mobi|moe|museum|name|net|org|post
       for (var spoiler of spoilers) {
         var span = $$1.el('span', {className: 'removed-spoiler'});
         $$1.replace(spoiler, span);
-        $$1.add(span, [...Array.from(spoiler.childNodes)]);
+        $$1.add(span, [...spoiler.childNodes]);
       }
     }
   };
@@ -25778,7 +25750,6 @@ aero|asia|biz|cat|com|coop|dance|info|int|jobs|mobi|moe|museum|name|net|org|post
 
   /*
    * decaffeinate suggestions:
-   * DS101: Remove unnecessary use of Array.from
    * DS102: Remove unnecessary code created because of implicit returns
    * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
    */
@@ -25799,7 +25770,7 @@ aero|asia|biz|cat|com|coop|dance|info|int|jobs|mobi|moe|museum|name|net|org|post
     node() {
       const {process} = QuoteInline;
       const {isClone} = this;
-      for (var link of this.nodes.quotelinks.concat([...Array.from(this.nodes.backlinks)], this.nodes.archivelinks)) {
+      for (var link of this.nodes.quotelinks.concat([...this.nodes.backlinks], this.nodes.archivelinks)) {
         process(link, isClone);
       }
     },
@@ -26142,7 +26113,6 @@ aero|asia|biz|cat|com|coop|dance|info|int|jobs|mobi|moe|museum|name|net|org|post
 
   /*
    * decaffeinate suggestions:
-   * DS101: Remove unnecessary use of Array.from
    * DS102: Remove unnecessary code created because of implicit returns
    * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
    */
@@ -26277,7 +26247,7 @@ aero|asia|biz|cat|com|coop|dance|info|int|jobs|mobi|moe|museum|name|net|org|post
         $$1.before(deadlink, green);
         $$1.add(green, deadlink);
       }
-      return $$1.replace(deadlink, [...Array.from(deadlink.childNodes)]);
+      return $$1.replace(deadlink, [...deadlink.childNodes]);
     }
   };
 
@@ -26314,7 +26284,6 @@ aero|asia|biz|cat|com|coop|dance|info|int|jobs|mobi|moe|museum|name|net|org|post
 
   /*
    * decaffeinate suggestions:
-   * DS101: Remove unnecessary use of Array.from
    * DS102: Remove unnecessary code created because of implicit returns
    * DS104: Avoid inline assignments
    * DS205: Consider reworking code to avoid use of IIFEs
@@ -26999,12 +26968,7 @@ aero|asia|biz|cat|com|coop|dance|info|int|jobs|mobi|moe|museum|name|net|org|post
           `${errors.length} errors occurred.${Main.reportLink(errors).innerHTML} [<a href="javascript:;">show</a>]`
       });
       $$1.on(div.lastElementChild, 'click', function () {
-        let ref;
-        return [this.textContent, logs.hidden] = Array.from(ref = this.textContent === 'show' ? (
-          ['hide', false]
-        ) : (
-          ['show', true]
-        )), ref;
+        return [this.textContent, logs.hidden] = this.textContent === 'show' ? ['hide', false] : ['show', true];
       });
 
       var logs = $$1.el('div',

@@ -16,7 +16,6 @@ import type Post from "../classes/Post";
 
 /*
  * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
  * DS102: Remove unnecessary code created because of implicit returns
  * DS205: Consider reworking code to avoid use of IIFEs
  * DS207: Consider shorter variations of null checks
@@ -187,7 +186,7 @@ var Filter = {
     let siteFilter = '';
     for (var boardID of boardsRaw.split(',')) {
       if (boardID.includes(':')) {
-        [siteFilter, boardID] = Array.from(boardID.split(':').slice(-2));
+        [siteFilter, boardID] = boardID.split(':').slice(-2);
       }
       for (var siteID in g.sites) {
         var site = g.sites[siteID];
@@ -208,13 +207,16 @@ var Filter = {
 
   parseBoardsMemo: dict(),
 
-  test(post: Post, hideable = true) {
+  test(
+    post: Post,
+    hideable = true,
+  ): { hide: boolean, stub: boolean } | { hl: string[] | null, top: boolean, noti: boolean } {
     if (post.filterResults) { return post.filterResults; }
-    let hide = false;
-    let stub = true;
-    let hl   = undefined;
-    let top  = false;
-    let noti = false;
+    let hide           = false;
+    let stub           = true;
+    let hl  : string[] = undefined;
+    let top            = false;
+    let noti           = false;
     if (QuoteYou.isYou(post)) {
       hideable = false;
     }
@@ -276,7 +278,7 @@ var Filter = {
     } else {
       if (hl) {
         this.highlights = hl;
-        $.addClass(this.nodes.root, ...Array.from(hl));
+        $.addClass(this.nodes.root, ...hl);
       }
     }
     if (noti && Unread.posts && (this.ID > Unread.lastReadPost) && !QuoteYou.isYou(this)) {
@@ -322,7 +324,7 @@ var Filter = {
     } else {
       if (hl) {
         this.highlights = hl;
-        $.addClass(this.nodes.root, ...Array.from(hl));
+        $.addClass(this.nodes.root, ...hl);
       }
       if (top) {
         $.prepend(this.nodes.root.parentNode, this.nodes.root);

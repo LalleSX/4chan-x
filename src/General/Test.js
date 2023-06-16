@@ -1,6 +1,5 @@
 /*
  * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
  * DS102: Remove unnecessary code created because of implicit returns
  * DS205: Consider reworking code to avoid use of IIFEs
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
@@ -144,7 +143,7 @@ const Test = {
           if (!x.isEqualNode(y)) {
             fail = true;
             c.log(`${post.fullID} differs`);
-            var [x2, y2] = Array.from(Test.firstDiff(x, y));
+            var [x2, y2] = Test.firstDiff(x, y);
             c.log(x2);
             c.log(y2);
             c.log(x.outerHTML);

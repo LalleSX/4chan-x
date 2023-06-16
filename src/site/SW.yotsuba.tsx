@@ -18,7 +18,6 @@ import { dict, MINUTE } from "../platform/helpers";
 
 /*
  * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
  * DS102: Remove unnecessary code created because of implicit returns
  * DS205: Consider reworking code to avoid use of IIFEs
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
@@ -307,10 +306,10 @@ $\
   insertTags(bq) {
     let node;
     for (node of $$('s, .removed-spoiler', bq)) {
-      $.replace(node, [$.tn('[spoiler]'), ...Array.from(node.childNodes), $.tn('[/spoiler]')]);
+      $.replace(node, [$.tn('[spoiler]'), ...node.childNodes, $.tn('[/spoiler]')]);
     }
     for (node of $$('.prettyprint', bq)) {
-      $.replace(node, [$.tn('[code]'), ...Array.from(node.childNodes), $.tn('[/code]')]);
+      $.replace(node, [$.tn('[code]'), ...node.childNodes, $.tn('[/code]')]);
     }
   },
 
@@ -627,11 +626,11 @@ $\
       if (this.hat) { $.add(root, this.hat.cloneNode(false)); }
       $.add(root, thread.OP.nodes.root);
       if (data.omitted_posts || (!withReplies && data.replies)) {
-        const [posts, files] = Array.from(withReplies ?
+        const [posts, files] = withReplies ?
           // XXX data.omitted_images is not accurate.
           [data.omitted_posts, data.images - data.last_replies.filter(data => !!data.ext).length]
           :
-          [data.replies, data.images]);
+          [data.replies, data.images];
         const summary = this.summary(thread.board.ID, data.no, posts, files);
         $.add(root, summary);
       }
@@ -672,7 +671,7 @@ $\
         'div',
         generateCatalogThreadHtml(thread, src, imgClass, data, postCount, fileCount, pageCount, staticPath, gifIcon)
       );
-      $.before(thread.OP.nodes.info, [...Array.from(container.childNodes)]);
+      $.before(thread.OP.nodes.info, [...container.childNodes]);
 
       for (var br of $$('br', thread.OP.nodes.comment)) {
         if (br.previousSibling && (br.previousSibling.nodeName === 'BR')) {
@@ -685,7 +684,7 @@ $\
         id: `t${thread}`
       }
       );
-      if (thread.OP.highlights) { $.addClass(root, ...Array.from(thread.OP.highlights)); }
+      if (thread.OP.highlights) { $.addClass(root, ...thread.OP.highlights); }
       if (!thread.OP.file) { $.addClass(root, 'noFile'); }
       root.style.cssText = cssText || '';
 

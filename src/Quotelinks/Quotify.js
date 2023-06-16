@@ -8,7 +8,6 @@ import $$ from "../platform/$$";
 
 /*
  * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
@@ -143,7 +142,7 @@ var Quotify = {
       $.before(deadlink, green);
       $.add(green, deadlink);
     }
-    return $.replace(deadlink, [...Array.from(deadlink.childNodes)]);
+    return $.replace(deadlink, [...deadlink.childNodes]);
   }
 };
 export default Quotify;

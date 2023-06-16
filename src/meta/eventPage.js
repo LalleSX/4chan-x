@@ -1,6 +1,5 @@
 /*
  * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
@@ -44,7 +43,7 @@ var handlers = {
       let {status, statusText, response} = this;
       const responseHeaderString = this.getAllResponseHeaders();
       if (response && (request.responseType === 'arraybuffer')) {
-        response = [...Array.from(new Uint8Array(response))];
+        response = [...new Uint8Array(response)];
       }
       return cb({status, statusText, response, responseHeaderString});
     }

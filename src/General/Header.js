@@ -14,7 +14,6 @@ import meta from '../../package.json';
 
 /*
  * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
  * DS102: Remove unnecessary code created because of implicit returns
  * DS104: Avoid inline assignments
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
@@ -193,7 +192,7 @@ var Header = {
     if (g.SITE.transformBoardList) {
       nodes = g.SITE.transformBoardList();
     } else {
-      nodes = [...Array.from($(g.SITE.selectors.boardList).cloneNode(true).childNodes)];
+      nodes = [...$(g.SITE.selectors.boardList).cloneNode(true).childNodes];
     }
     const fullBoardList = $('.boardList', Header.boardList);
     $.add(fullBoardList, nodes);
@@ -518,15 +517,11 @@ var Header = {
   },
 
   setCustomNav(show) {
-    let ref;
     Header.customNavToggler.checked = show;
     const cust = $('#custom-board-list', Header.bar);
     const full = $('#full-board-list',   Header.bar);
     const btn = $('.hide-board-list-container', full);
-    return [cust.hidden, full.hidden, btn.hidden] = Array.from(ref = show ?
-      [false, true, false]
-    :
-      [true, false, true]), ref;
+    return [cust.hidden, full.hidden, btn.hidden] = show ? [false, true, false] : [true, false, true];
   },
 
   toggleCustomNav() {
@@ -676,7 +671,7 @@ var Header = {
         `[<a href=\"${meta.faq}#why-is-4chan-x-asking-for-permission-to-show-desktop-notifications\" target=\"_blank\">FAQ</a>]` +
         `<br><button>Authorize</button> or <button>Disable</button>`
     });
-    const [authorize, disable] = Array.from($$('button', el));
+    const [authorize, disable] = $$('button', el);
     $.on(authorize, 'click', () => Notification.requestPermission(function(status) {
       Header.areNotificationsEnabled = status === 'granted';
       if (status === 'default') { return; }

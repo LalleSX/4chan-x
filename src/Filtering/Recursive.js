@@ -4,7 +4,6 @@ import { dict } from "../platform/helpers";
 
 /*
  * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
@@ -25,7 +24,7 @@ var Recursive = {
       if ((obj = Recursive.recursives[quote])) {
         for (var i = 0; i < obj.recursives.length; i++) {
           var recursive = obj.recursives[i];
-          recursive(this, ...Array.from(obj.args[i]));
+          recursive(this, ...obj.args[i]);
         }
       }
     }
@@ -56,7 +55,7 @@ var Recursive = {
     const {fullID} = post;
     return g.posts.forEach(function(post) {
       if (post.quotes.includes(fullID)) {
-        return recursive(post, ...Array.from(args));
+        return recursive(post, ...args);
       }
     });
   }

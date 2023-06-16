@@ -3,7 +3,6 @@ import $ from "../platform/$";
 
 /*
  * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
  * DS102: Remove unnecessary code created because of implicit returns
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
@@ -12,7 +11,7 @@ var Get = {
   url(type, IDs, ...args) {
     let f, site;
     if ((site = g.sites[IDs.siteID]) && (f = $.getOwn(site.urls, type))) {
-      return f(IDs, ...Array.from(args));
+      return f(IDs, ...args);
     } else {
       return undefined;
     }
@@ -51,7 +50,7 @@ var Get = {
       if (!threadID) { threadID = 0; }
     } else {
       const match = link.href.match(g.SITE.regexp.quotelink);
-      [boardID, threadID, postID] = Array.from(match.slice(1));
+      [boardID, threadID, postID] = match.slice(1);
       if (!postID) { postID = threadID; }
     }
     return {
@@ -66,8 +65,8 @@ var Get = {
     const {posts} = g;
     const {fullID} = post;
     const handleQuotes = function(qPost, type) {
-      quotelinks.push(...Array.from(qPost.nodes[type] || []));
-      for (var clone of qPost.clones) { quotelinks.push(...Array.from(clone.nodes[type] || [])); }
+      quotelinks.push(...(qPost.nodes[type] || []));
+      for (var clone of qPost.clones) { quotelinks.push(...(clone.nodes[type] || [])); }
     };
     // First:
     //   In every posts,

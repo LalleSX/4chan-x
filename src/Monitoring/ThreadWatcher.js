@@ -23,7 +23,6 @@ import { dict, HOUR, MINUTE } from '../platform/helpers';
 
 /*
  * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
  * DS102: Remove unnecessary code created because of implicit returns
  * DS104: Avoid inline assignments
  * DS207: Consider shorter variations of null checks
@@ -227,7 +226,7 @@ var ThreadWatcher = {
     },
     rm() {
       const {siteID} = this.parentNode.dataset;
-      const [boardID, threadID] = Array.from(this.parentNode.dataset.fullID.split('.'));
+      const [boardID, threadID] = this.parentNode.dataset.fullID.split('.');
       return ThreadWatcher.rm(siteID, boardID, +threadID);
     },
     post(e) {
@@ -682,7 +681,7 @@ var ThreadWatcher = {
     g.threads.forEach(function(thread) {
       const isWatched = ThreadWatcher.isWatched(thread);
       if (thread.OP) {
-        for (var post of [thread.OP, ...Array.from(thread.OP.clones)]) {
+        for (var post of [thread.OP, ...thread.OP.clones]) {
           var toggler;
           if (toggler = $('.watch-thread-link', post.nodes.info)) {
             ThreadWatcher.setToggler(toggler, isWatched);
@@ -809,10 +808,10 @@ var ThreadWatcher = {
         el: entryEl,
         order: 60,
         open() {
-          const [addClass, rmClass, text] = Array.from(!!ThreadWatcher.db.get({boardID: g.BOARD.ID, threadID: g.THREADID}) ?
+          const [addClass, rmClass, text] = !!ThreadWatcher.db.get({boardID: g.BOARD.ID, threadID: g.THREADID}) ?
             ['unwatch-thread', 'watch-thread', 'Unwatch thread']
           :
-            ['watch-thread', 'unwatch-thread', 'Watch thread']);
+            ['watch-thread', 'unwatch-thread', 'Watch thread'];
           $.addClass(entryEl, addClass);
           $.rmClass(entryEl, rmClass);
           entryEl.textContent = text;

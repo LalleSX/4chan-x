@@ -5,7 +5,6 @@ import $$ from "../platform/$$";
 
 /*
  * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
@@ -36,7 +35,7 @@ var RemoveSpoilers = {
     for (var spoiler of spoilers) {
       var span = $.el('span', {className: 'removed-spoiler'});
       $.replace(spoiler, span);
-      $.add(span, [...Array.from(spoiler.childNodes)]);
+      $.add(span, [...spoiler.childNodes]);
     }
   }
 };

@@ -8,7 +8,6 @@ import { dict } from "../platform/helpers";
 
 /*
  * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
  * DS102: Remove unnecessary code created because of implicit returns
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
@@ -102,7 +101,7 @@ var Banner = {
         });
       } else {
         $.rmAll(this);
-        $.add(this, [...Array.from(Banner.original[this.className].cloneNode(true).childNodes)]);
+        $.add(this, [...Banner.original[this.className].cloneNode(true).childNodes]);
         return Banner.db.delete({
           boardID:  g.BOARD.ID,
           threadID: this.className

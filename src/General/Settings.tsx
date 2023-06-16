@@ -1,6 +1,5 @@
 /*
  * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
  * DS102: Remove unnecessary code created because of implicit returns
  * DS205: Consider reworking code to avoid use of IIFEs
  * DS207: Consider shorter variations of null checks
@@ -579,7 +578,7 @@ Enable it on boards.${location.hostname.split('.')[1]}.org in your browser's pri
       }
     }
     if ((compareString < '00001.00011.00019.00003') && !Settings.dialog) {
-      $.queueTask(() => Settings.warnings.ads(item => new Notice('warning', [...Array.from(item.childNodes)])));
+      $.queueTask(() => Settings.warnings.ads(item => new Notice('warning', [...item.childNodes])));
     }
     if (compareString < '00001.00011.00020.00003') {
       const object = {'Inline Cross-thread Quotes Only': false, 'Pass Link': true};
@@ -707,7 +706,7 @@ Enable it on boards.${location.hostname.split('.')[1]}.org in your browser's pri
       if ((data['siteSoftware'] != null) && (data['siteProperties'] == null)) {
         const siteProperties = dict();
         for (var line of data['siteSoftware'].split('\n')) {
-          var [hostname, software] = Array.from(line.split(' '));
+          var [hostname, software] = line.split(' ');
           siteProperties[hostname] = {software};
         }
         set('siteProperties', siteProperties);

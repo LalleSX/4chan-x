@@ -95,7 +95,6 @@ import Polyfill from "../General/Polyfill";
 
 /*
  * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
  * DS102: Remove unnecessary code created because of implicit returns
  * DS104: Avoid inline assignments
  * DS205: Consider reworking code to avoid use of IIFEs
@@ -786,12 +785,7 @@ var Main = {
         `${errors.length} errors occurred.${Main.reportLink(errors).innerHTML} [<a href="javascript:;">show</a>]`
     });
     $.on(div.lastElementChild, 'click', function () {
-      let ref;
-      return [this.textContent, logs.hidden] = Array.from(ref = this.textContent === 'show' ? (
-        ['hide', false]
-      ) : (
-        ['show', true]
-      )), ref;
+      return [this.textContent, logs.hidden] = this.textContent === 'show' ? ['hide', false] : ['show', true];
     });
 
     var logs = $.el('div',

@@ -2,7 +2,6 @@ import $ from "../platform/$";
 
 /*
  * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
@@ -29,7 +28,7 @@ export default class SimpleDict<T> {
   }
 
   forEach(fn) { 
-    for (var key of [...Array.from(this.keys)]) { fn(this[key]); }
+    for (var key of this.keys) { fn(this[key]); }
   }
 
   get(key): T {

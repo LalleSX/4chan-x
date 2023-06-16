@@ -1,6 +1,5 @@
 /*
  * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
  * DS102: Remove unnecessary code created because of implicit returns
  * DS205: Consider reworking code to avoid use of IIFEs
  * DS207: Consider shorter variations of null checks
@@ -315,7 +314,7 @@ var Index = {
 
   cycleSortType() {
     let i;
-    const types = [...Array.from(Index.selectSort.options)].filter(option => !option.disabled);
+    const types = Index.selectSort.options.filter(option => !option.disabled);
     for (i = 0; i < types.length; i++) {
       var type = types[i];
       if (type.selected) { break; }
@@ -377,7 +376,7 @@ var Index = {
     },
 
     lastLongThresholds() {
-      const i = [...Array.from(this.parentNode.children)].indexOf(this);
+      const i = [...this.parentNode.children].indexOf(this);
       const value = +this.value;
       if (!Number.isFinite(value)) {
         this.value = Index.lastLongThresholds[i];
@@ -1060,16 +1059,16 @@ var Index = {
         for (var thread of liveThreadData) {
           lastlongD[thread.no] = lastlong(thread).no;
         }
-        return [...Array.from(liveThreadData)].sort((a, b) => lastlongD[b.no] - lastlongD[a.no]).map(post => post.no);
+        return [...liveThreadData].sort((a, b) => lastlongD[b.no] - lastlongD[a.no]).map(post => post.no);
       case 'bump':       return liveThreadIDs;
-      case 'birth':      return [...Array.from(liveThreadIDs) ].sort((a, b) => b - a);
-      case 'replycount': return [...Array.from(liveThreadData)].sort((a, b) => b.replies - a.replies).map(post => post.no);
-      case 'filecount':  return [...Array.from(liveThreadData)].sort((a, b) => b.images  - a.images).map(post => post.no);
-      case 'activity':   return [...Array.from(liveThreadData)].sort((a, b) => ((tmp_time-a.time)/(a.replies+1)) - ((tmp_time-b.time)/(b.replies+1))).map(post => post.no);
+      case 'birth':      return [...liveThreadIDs ].sort((a, b) => b - a);
+      case 'replycount': return [...liveThreadData].sort((a, b) => b.replies - a.replies).map(post => post.no);
+      case 'filecount':  return [...liveThreadData].sort((a, b) => b.images  - a.images).map(post => post.no);
+      case 'activity':   return [...liveThreadData].sort((a, b) => ((tmp_time-a.time)/(a.replies+1)) - ((tmp_time-b.time)/(b.replies+1))).map(post => post.no);
       default: return liveThreadIDs;
     } })();
     if (/-rev$/.test(Index.currentSort)) {
-      Index.sortedThreadIDs = [...Array.from(Index.sortedThreadIDs)].reverse();
+      Index.sortedThreadIDs.reverse();
     }
     if (Index.search && (threadIDs = Index.querySearch(Index.search))) {
       Index.sortedThreadIDs = threadIDs;

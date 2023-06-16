@@ -1,11 +1,10 @@
 import Callbacks from "../classes/Callbacks";
 import Header from "../General/Header";
-import { g, Conf, d } from "../globals/globals";
+import { g, Conf, d, doc } from "../globals/globals";
 import $ from "../platform/$";
 
 /*
  * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
@@ -85,7 +84,7 @@ var ImageLoader = {
     const replace = Conf[`Replace ${type}`] && !/spoiler/.test(thumb.src || thumb.dataset.src);
     if (!replace && !ImageLoader.prefetchEnabled) { return; }
     if ($.hasClass(doc, 'catalog-mode')) { return; }
-    if (![post, ...Array.from(post.clones)].some(clone => doc.contains(clone.nodes.root))) { return; }
+    if (![post, ...post.clones].some(clone => doc.contains(clone.nodes.root))) { return; }
     file.isPrefetched = true;
     if (file.videoThumb) {
       for (clone of post.clones) { clone.file.thumb.preload = 'auto'; }
@@ -126,7 +125,7 @@ var ImageLoader = {
     // Special case: Quote previews are off screen when inserted into document, but quickly moved on screen.
     const qpClone = $.id('qp')?.firstElementChild;
     return g.posts.forEach(function(post) {
-      for (post of [post, ...Array.from(post.clones)]) {
+      for (post of [post, ...post.clones]) {
         for (var file of post.files) {
           if (file.videoThumb) {
             var {thumb} = file;

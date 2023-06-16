@@ -6,7 +6,6 @@ import Header from "./Header";
 
 /*
  * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
  * DS102: Remove unnecessary code created because of implicit returns
  * DS206: Consider reworking classes to avoid initClass
  * DS207: Consider shorter variations of null checks
@@ -122,14 +121,14 @@ var Menu = (function() {
       const bLeft   = window.scrollX + bRect.left;
       const cHeight = doc.clientHeight;
       const cWidth  = doc.clientWidth;
-      const [top, bottom] = Array.from((bRect.top + bRect.height + mRect.height) < cHeight ?
+      const [top, bottom] = (bRect.top + bRect.height + mRect.height) < cHeight ?
         [`${bRect.bottom}px`, '']
       :
-        ['', `${cHeight - bRect.top}px`]);
-      const [left, right] = Array.from((bRect.left + mRect.width) < cWidth ?
+        ['', `${cHeight - bRect.top}px`];
+      const [left, right] = (bRect.left + mRect.width) < cWidth ?
         [`${bRect.left}px`, '']
       :
-        ['', `${cWidth - bRect.right}px`]);
+        ['', `${cWidth - bRect.right}px`];
       $.extend(this.menu.style, {top, right, bottom, left});
       return this.menu.classList.toggle('left', right);
     }
@@ -174,7 +173,7 @@ var Menu = (function() {
     }
 
     findNextEntry(entry, direction) {
-      const entries = [...Array.from(entry.parentNode.children)];
+      const entries = [...entry.parentNode.children];
       entries.sort((first, second) => first.style.order - second.style.order);
       return entries[entries.indexOf(entry) + direction];
     }
@@ -248,14 +247,14 @@ var Menu = (function() {
       const eRect   = entry.getBoundingClientRect();
       const cHeight = doc.clientHeight;
       const cWidth  = doc.clientWidth;
-      const [top, bottom] = Array.from((eRect.top + sRect.height) < cHeight ?
+      const [top, bottom] = (eRect.top + sRect.height) < cHeight ?
         ['0px', 'auto']
       :
-        ['auto', '0px']);
-      const [left, right] = Array.from((eRect.right + sRect.width) < (cWidth - 150) ?
+        ['auto', '0px'];
+      const [left, right] = (eRect.right + sRect.width) < (cWidth - 150) ?
         ['100%', 'auto']
       :
-        ['auto', '100%']);
+        ['auto', '100%'];
       const {style} = submenu;
       style.top    = top;
       style.bottom = bottom;
@@ -309,12 +308,12 @@ export var dragstart = function (e) {
     isTouching
   };
 
-  [o.topBorder, o.bottomBorder] = Array.from(Conf['Header auto-hide'] || !Conf['Fixed Header'] ?
+  [o.topBorder, o.bottomBorder] = Conf['Header auto-hide'] || !Conf['Fixed Header'] ?
     [0, 0]
   : Conf['Bottom Header'] ?
     [0, Header.bar.getBoundingClientRect().height]
   :
-    [Header.bar.getBoundingClientRect().height, 0]);
+    [Header.bar.getBoundingClientRect().height, 0];
 
   if (isTouching) {
     o.identifier = e.identifier;
@@ -450,7 +449,7 @@ export var hover = function (e) {
   let marginX = (clientX <= threshold ? clientX : this.clientWidth - clientX) + 45;
   if (this.isImage) { marginX = Math.min(marginX, this.clientWidth - width); }
   marginX += 'px';
-  const [left, right] = Array.from(clientX <= threshold ? [marginX, ''] : ['', marginX]);
+  const [left, right] = clientX <= threshold ? [marginX, ''] : ['', marginX];
 
   const {style} = this;
   style.top   = top + 'px';

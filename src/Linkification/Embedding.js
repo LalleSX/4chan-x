@@ -11,7 +11,6 @@ import { dict } from '../platform/helpers';
 import EmbeddingPage from './Embedding/Embed.html';
 /*
  * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
  * DS102: Remove unnecessary code created because of implicit returns
  * DS205: Consider reworking code to avoid use of IIFEs
  * DS207: Consider shorter variations of null checks
@@ -30,7 +29,7 @@ var Embedding = {
       this.media = $('#media-embed', this.dialog);
       $.one(d, '4chanXInitFinished', this.ready);
       $.on(d, 'IndexRefreshInternal', () => g.posts.forEach(function(post) {
-        for (post of [post, ...Array.from(post.clones)]) {
+        for (post of [post, ...post.clones]) {
           for (var embed of post.nodes.embedlinks) {
             Embedding.cb.catalogRemove.call(embed);
           }
@@ -468,7 +467,7 @@ var Embedding = {
           $.add(el, $.el('source', {src: a.dataset.uid}));
           return el;
         }
-        const [_, host, names] = Array.from(a.dataset.uid.match(/(\w+)\/(.*)/));
+        const [_, host, names] = a.dataset.uid.match(/(\w+)\/(.*)/);
         const types = (() => { switch (host) {
           case 'gd': case 'wu': case 'fc': return [''];
           case 'gc': return ['giant', 'fat', 'zippy'];

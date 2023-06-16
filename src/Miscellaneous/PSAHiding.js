@@ -3,7 +3,6 @@ import { Conf, doc, g } from "../globals/globals";
 import $ from "../platform/$";
 /*
  * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
@@ -81,9 +80,9 @@ var PSAHiding = {
     psa.hidden = (hiddenPSAList[g.SITE.ID] === PSAHiding.text);
     // Remove content to prevent autoplaying sounds from hidden announcements
     if (psa.hidden) {
-      $.add(content, [...Array.from(psa.childNodes)]);
+      $.add(content, [...psa.childNodes]);
     } else {
-      $.add(psa, [...Array.from(content.childNodes)]);
+      $.add(psa, [...content.childNodes]);
     }
     if (PSAHiding.hr) PSAHiding.hr.hidden = psa.hidden;
   }

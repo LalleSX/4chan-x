@@ -12,7 +12,6 @@ import Volume from "./Volume";
 
 /*
  * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
@@ -108,13 +107,13 @@ var ImageExpand = {
       }
 
       return g.posts.forEach(function(post) {
-        for (post of [post, ...Array.from(post.clones)]) { toggle(post); }
+        for (post of [post, ...post.clones]) { toggle(post); }
       });
     },
 
     playVideos() {
       return g.posts.forEach(function(post) {
-        for (post of [post, ...Array.from(post.clones)]) {
+        for (post of [post, ...post.clones]) {
           var {file} = post;
           if (!file || !file.isVideo || !file.isExpanded) { continue; }
 

@@ -10,7 +10,6 @@ import { dict } from "../platform/helpers";
 
 /*
  * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
@@ -31,7 +30,7 @@ var ExpandThread = {
   setButton(thread) {
     let a;
     if (!(thread.nodes.root && (a = $('.summary', thread.nodes.root)))) { return; }
-    a.textContent = g.SITE.Build.summaryText('+', ...Array.from(a.textContent.match(/\d+/g)));
+    a.textContent = g.SITE.Build.summaryText('+', ...a.textContent.match(/\d+/g));
     a.style.cursor = 'pointer';
     return $.on(a, 'click', ExpandThread.cbToggle);
   },
@@ -85,7 +84,7 @@ var ExpandThread = {
   expand(thread, a) {
     let status;
     ExpandThread.statuses[thread] = (status = {});
-    a.textContent = g.SITE.Build.summaryText('...', ...Array.from(a.textContent.match(/\d+/g)));
+    a.textContent = g.SITE.Build.summaryText('...', ...a.textContent.match(/\d+/g));
     status.req = $.cache(g.SITE.urls.threadJSON({boardID: thread.board.ID, threadID: thread.ID}), function() {
       if (this !== status.req) { return; } // aborted
       delete status.req;
@@ -101,7 +100,7 @@ var ExpandThread = {
     if (oldReq = status.req) {
       delete status.req;
       oldReq.abort();
-      if (a) { a.textContent = g.SITE.Build.summaryText('+', ...Array.from(a.textContent.match(/\d+/g))); }
+      if (a) { a.textContent = g.SITE.Build.summaryText('+', ...a.textContent.match(/\d+/g)); }
       return;
     }
 

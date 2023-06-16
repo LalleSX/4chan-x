@@ -1,6 +1,5 @@
 /*
  * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
  * DS102: Remove unnecessary code created because of implicit returns
  * DS205: Consider reworking code to avoid use of IIFEs
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
@@ -449,11 +448,11 @@ var Gallery = {
       const {style} = current;
 
       if (Conf['Stretch to Fit'] && (dim = g.posts.get(current.dataset.post)?.files[+current.dataset.file].dimensions)) {
-        const [width, height] = Array.from(dim.split('x'));
+        const [width, height] = dim.split('x');
         let containerWidth = frame.clientWidth;
         let containerHeight = doc.clientHeight - 25;
         if (((current.dataRotate || 0) % 180) === 90) {
-          [containerWidth, containerHeight] = Array.from([containerHeight, containerWidth]);
+          [containerWidth, containerHeight] = [containerHeight, containerWidth];
         }
         minHeight = Math.min(containerHeight, (height / width) * containerWidth);
         style.minHeight = minHeight + 'px';

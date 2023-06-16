@@ -18,7 +18,6 @@ import { DAY, dict, SECOND } from '../platform/helpers';
 
 /*
  * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
  * DS102: Remove unnecessary code created because of implicit returns
  * DS202: Simplify dynamic range loops
  * DS207: Consider shorter variations of null checks
@@ -575,7 +574,7 @@ var QR = {
 
   handleFiles(files) {
     if (this !== QR) { // file input
-      files  = [...Array.from(this.files)];
+      files  = [...this.files];
       this.value = null;
     }
     if (!files.length) { return; }
@@ -1031,7 +1030,7 @@ var QR = {
 
     const h1 = $('h1', this.response);
 
-    let [_, threadID, postID] = Array.from(h1.nextSibling.textContent.match(/thread:(\d+),no:(\d+)/));
+    let [_, threadID, postID] = h1.nextSibling.textContent.match(/thread:(\d+),no:(\d+)/);
     postID   = +postID;
     threadID = +threadID || postID;
     const isReply  = threadID !== postID;
@@ -1571,7 +1570,7 @@ var QR = {
       let match, needle, type, val;
       if (item[0] === '#') { return; }
       if (!(match = item.match(/(name|options|email|subject|password):"(.*)"/i))) { return; }
-      [match, type, val] = Array.from(match);
+      [match, type, val] = match;
 
       // Don't mix up item settings with val.
       item = item.replace(match, '');
@@ -1882,7 +1881,7 @@ var QR = {
           `<br>[<a href="javascript:;">delete post</a>] [<a href="javascript:;">delete all</a>]`
       });
       (this.errors || (this.errors = [])).push(div);
-      const [rm, rmAll] = Array.from($$('a', div));
+      const [rm, rmAll] = $$('a', div);
       $.on(div, 'click', () => {
         if (QR.posts.includes(this)) { return this.select(); }
       });
@@ -2138,7 +2137,12 @@ var QR = {
       $.rmClass(this, 'over');
       if (!this.draggable) { return; }
       const el = $('.drag', this.parentNode);
-      const index = el => [...Array.from(el.parentNode.children)].indexOf(el);
+      const index = el => {
+        for (let i = 0; i < el.parentNode.children.length; i++) {
+          if (el.parentNode.children[i] === el) return i;
+        }
+        return -1;
+      }
       const oldIndex = index(el);
       const newIndex = index(this);
       if (QR.posts[oldIndex].isLocked || QR.posts[newIndex].isLocked) { return; }

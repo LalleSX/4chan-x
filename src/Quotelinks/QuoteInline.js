@@ -8,7 +8,6 @@ import $ from "../platform/$";
 
 /*
  * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
@@ -29,7 +28,7 @@ var QuoteInline = {
   node() {
     const {process} = QuoteInline;
     const {isClone} = this;
-    for (var link of this.nodes.quotelinks.concat([...Array.from(this.nodes.backlinks)], this.nodes.archivelinks)) {
+    for (var link of this.nodes.quotelinks.concat([...this.nodes.backlinks], this.nodes.archivelinks)) {
       process(link, isClone);
     }
   },

@@ -9,7 +9,6 @@ import Volume from "./Volume";
 
 /*
  * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
@@ -73,7 +72,7 @@ var ImageHover = {
       }
     }
     if (file.dimensions) {
-      [width, height] = Array.from((file.dimensions.split('x').map((x) => +x)));
+      [width, height] = file.dimensions.split('x').map((x) => +x);
       const maxWidth = doc.clientWidth;
       const maxHeight = doc.clientHeight - UI.hover.padding;
       const scale = Math.min(1, maxWidth / width, maxHeight / height);
