@@ -2,16 +2,11 @@ import $ from "../platform/$";
 import Callbacks from "../classes/Callbacks";
 import { g, Conf } from "../globals/globals";
 
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
 var Time = {
   init() {
     if (!['index', 'thread', 'archive'].includes(g.VIEW) || !Conf['Time Formatting']) { return; }
 
-    return Callbacks.Post.push({
+    Callbacks.Post.push({
       name: 'Time Formatting',
       cb:   this.node
     });
@@ -20,10 +15,10 @@ var Time = {
   node() {
     if (!this.info.date || this.isClone) { return; }
     const {textContent} = this.nodes.date;
-    return this.nodes.date.textContent = textContent.match(/^\s*/)[0] + Time.format(Conf['time'], this.info.date) + textContent.match(/\s*$/)[0];
+    this.nodes.date.textContent = textContent.match(/^\s*/)[0] + Time.format(Conf['time'], this.info.date) + textContent.match(/\s*$/)[0];
   },
 
-  format(formatString, date) {
+  format(formatString: string, date: Date) {
     return formatString.replace(/%(.)/g, function(s, c) {
       if ($.hasOwn(Time.formatters, c)) {
         return Time.formatters[c].call(date);
@@ -33,58 +28,45 @@ var Time = {
     });
   },
 
-  day: [
-    'Sunday',
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday'
-  ],
-
-  month: [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December'
-  ],
-
-  localeFormat(date, options, defaultValue) {
-    if (Conf['timeLocale']) {
-      try {
-        const formatter = Intl.DateTimeFormat(Conf['timeLocale'], options);
-        return formatter.format(date);
-      } catch (error) {}
-    }
-    return defaultValue;
-  },
-
-  localeFormatPart(date, options, part, defaultValue) {
-    if (Conf['timeLocale']) {
-      try {
-        const parts = Intl.DateTimeFormat(Conf['timeLocale'], options).formatToParts(date);
-        return parts.map(function(x) { if (x.type === part) { return x.value; } else { return ''; } }).join('');
-      } catch (error) {}
-    }
-    return defaultValue;
-  },
-
   zeroPad(n) { if (n < 10) { return `0${n}`; } else { return n; } },
 
+  // Setting up the formatter takes more time than actually formatting the date,
+  // So while setting up this cache is a bit more code, it's faster at runtime
+  formatterCache: new Map<String, Intl.DateTimeFormat>(),
+
   formatters: {
-    a() { return Time.localeFormat(this, {weekday: 'short'}, Time.day[this.getDay()].slice(0, 3)); },
-    A() { return Time.localeFormat(this, {weekday: 'long'},  Time.day[this.getDay()]); },
-    b() { return Time.localeFormat(this, {month:   'short'}, Time.month[this.getMonth()].slice(0, 3)); },
-    B() { return Time.localeFormat(this, {month:   'long'},  Time.month[this.getMonth()]); },
+    a() {
+      let formatter = Time.formatterCache.get('a');
+      if (!formatter) {
+        formatter = Intl.DateTimeFormat(Conf['timeLocale'], {weekday: 'short'});
+        Time.formatterCache.set('a', formatter)
+      }
+      return formatter.format(this);
+    },
+    A() {
+      let formatter = Time.formatterCache.get('A');
+      if (!formatter) {
+        formatter = Intl.DateTimeFormat(Conf['timeLocale'], {weekday: 'long'});
+        Time.formatterCache.set('A', formatter)
+      }
+      return formatter.format(this);
+    },
+    b() {
+      let formatter = Time.formatterCache.get('b');
+      if (!formatter) {
+        formatter = Intl.DateTimeFormat(Conf['timeLocale'], {month: 'short'});
+        Time.formatterCache.set('b', formatter)
+      }
+      return formatter.format(this);
+    },
+    B() {
+      let formatter = Time.formatterCache.get('B');
+      if (!formatter) {
+        formatter = Intl.DateTimeFormat(Conf['timeLocale'], {month: 'long'});
+        Time.formatterCache.set('B', formatter)
+      }
+      return formatter.format(this);
+    },
     d() { return Time.zeroPad(this.getDate()); },
     e() { return this.getDate(); },
     H() { return Time.zeroPad(this.getHours()); },
@@ -93,12 +75,20 @@ var Time = {
     l() { return (this.getHours() % 12) || 12; },
     m() { return Time.zeroPad(this.getMonth() + 1); },
     M() { return Time.zeroPad(this.getMinutes()); },
-    p() { return Time.localeFormatPart(this, {hour: 'numeric', hour12: true}, 'dayperiod', (this.getHours() < 12 ? 'AM' : 'PM')); },
+    p() {
+      let formatter = Time.formatterCache.get('p');
+      if (!formatter) {
+        formatter = Intl.DateTimeFormat(Conf['timeLocale'], {hour: 'numeric', hour12: true});
+        Time.formatterCache.set('p', formatter)
+      }
+      const parts = formatter.formatToParts(this);
+      return parts.find((entry) => entry.type === 'dayPeriod').value;
+    },
     P() { return Time.formatters.p.call(this).toLowerCase(); },
     S() { return Time.zeroPad(this.getSeconds()); },
     y() { return this.getFullYear().toString().slice(2); },
     Y() { return this.getFullYear(); },
     '%'() { return '%'; }
-  }
+  },
 };
 export default Time;

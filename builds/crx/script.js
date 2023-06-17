@@ -8913,7 +8913,7 @@ https://*.hcaptcha.com
   <div>Minute: <code>%M</code></div>
   <div>Second: <code>%S</code></div>
   <div>Literal <code>%</code>: <code>%%</code></div>
-  <div><a href="https://www.w3.org/International/articles/language-tags/" target="_blank">Language tag</a>: <input name="timeLocale" class="field" spellcheck="false"></div>
+  <div><a href="https://www.w3.org/International/articles/language-tags/" target="_blank">Language tag</a>: <input name="timeLocale" class="field" spellcheck="false"> (needs page reload)</div>
 </fieldset>
 
 <fieldset>
@@ -14035,103 +14035,98 @@ $\
       }
   };
 
-  /*
-   * decaffeinate suggestions:
-   * DS102: Remove unnecessary code created because of implicit returns
-   * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
-   */
   var Time = {
-    init() {
-      if (!['index', 'thread', 'archive'].includes(g.VIEW) || !Conf['Time Formatting']) { return; }
-
-      return Callbacks.Post.push({
-        name: 'Time Formatting',
-        cb:   this.node
-      });
-    },
-
-    node() {
-      if (!this.info.date || this.isClone) { return; }
-      const {textContent} = this.nodes.date;
-      return this.nodes.date.textContent = textContent.match(/^\s*/)[0] + Time.format(Conf['time'], this.info.date) + textContent.match(/\s*$/)[0];
-    },
-
-    format(formatString, date) {
-      return formatString.replace(/%(.)/g, function(s, c) {
-        if ($$1.hasOwn(Time.formatters, c)) {
-          return Time.formatters[c].call(date);
-        } else {
-          return s;
-        }
-      });
-    },
-
-    day: [
-      'Sunday',
-      'Monday',
-      'Tuesday',
-      'Wednesday',
-      'Thursday',
-      'Friday',
-      'Saturday'
-    ],
-
-    month: [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December'
-    ],
-
-    localeFormat(date, options, defaultValue) {
-      if (Conf['timeLocale']) {
-        try {
-          return Intl.DateTimeFormat(Conf['timeLocale'], options).format(date);
-        } catch (error) {}
+      init() {
+          if (!['index', 'thread', 'archive'].includes(g.VIEW) || !Conf['Time Formatting']) {
+              return;
+          }
+          Callbacks.Post.push({
+              name: 'Time Formatting',
+              cb: this.node
+          });
+      },
+      node() {
+          if (!this.info.date || this.isClone) {
+              return;
+          }
+          const { textContent } = this.nodes.date;
+          this.nodes.date.textContent = textContent.match(/^\s*/)[0] + Time.format(Conf['time'], this.info.date) + textContent.match(/\s*$/)[0];
+      },
+      format(formatString, date) {
+          return formatString.replace(/%(.)/g, function (s, c) {
+              if ($$1.hasOwn(Time.formatters, c)) {
+                  return Time.formatters[c].call(date);
+              }
+              else {
+                  return s;
+              }
+          });
+      },
+      zeroPad(n) { if (n < 10) {
+          return `0${n}`;
       }
-      return defaultValue;
-    },
-
-    localeFormatPart(date, options, part, defaultValue) {
-      if (Conf['timeLocale']) {
-        try {
-          const parts = Intl.DateTimeFormat(Conf['timeLocale'], options).formatToParts(date);
-          return parts.map(function(x) { if (x.type === part) { return x.value; } else { return ''; } }).join('');
-        } catch (error) {}
-      }
-      return defaultValue;
-    },
-
-    zeroPad(n) { if (n < 10) { return `0${n}`; } else { return n; } },
-
-    formatters: {
-      a() { return Time.localeFormat(this, {weekday: 'short'}, Time.day[this.getDay()].slice(0, 3)); },
-      A() { return Time.localeFormat(this, {weekday: 'long'},  Time.day[this.getDay()]); },
-      b() { return Time.localeFormat(this, {month:   'short'}, Time.month[this.getMonth()].slice(0, 3)); },
-      B() { return Time.localeFormat(this, {month:   'long'},  Time.month[this.getMonth()]); },
-      d() { return Time.zeroPad(this.getDate()); },
-      e() { return this.getDate(); },
-      H() { return Time.zeroPad(this.getHours()); },
-      I() { return Time.zeroPad((this.getHours() % 12) || 12); },
-      k() { return this.getHours(); },
-      l() { return (this.getHours() % 12) || 12; },
-      m() { return Time.zeroPad(this.getMonth() + 1); },
-      M() { return Time.zeroPad(this.getMinutes()); },
-      p() { return Time.localeFormatPart(this, {hour: 'numeric', hour12: true}, 'dayperiod', (this.getHours() < 12 ? 'AM' : 'PM')); },
-      P() { return Time.formatters.p.call(this).toLowerCase(); },
-      S() { return Time.zeroPad(this.getSeconds()); },
-      y() { return this.getFullYear().toString().slice(2); },
-      Y() { return this.getFullYear(); },
-      '%'() { return '%'; }
-    }
+      else {
+          return n;
+      } },
+      // Setting up the formatter takes more time than actually formatting the date,
+      // So while setting up this cache is a bit more code, it's faster at runtime
+      formatterCache: new Map(),
+      formatters: {
+          a() {
+              let formatter = Time.formatterCache.get('a');
+              if (!formatter) {
+                  formatter = Intl.DateTimeFormat(Conf['timeLocale'], { weekday: 'short' });
+                  Time.formatterCache.set('a', formatter);
+              }
+              return formatter.format(this);
+          },
+          A() {
+              let formatter = Time.formatterCache.get('A');
+              if (!formatter) {
+                  formatter = Intl.DateTimeFormat(Conf['timeLocale'], { weekday: 'long' });
+                  Time.formatterCache.set('A', formatter);
+              }
+              return formatter.format(this);
+          },
+          b() {
+              let formatter = Time.formatterCache.get('b');
+              if (!formatter) {
+                  formatter = Intl.DateTimeFormat(Conf['timeLocale'], { month: 'short' });
+                  Time.formatterCache.set('b', formatter);
+              }
+              return formatter.format(this);
+          },
+          B() {
+              let formatter = Time.formatterCache.get('B');
+              if (!formatter) {
+                  formatter = Intl.DateTimeFormat(Conf['timeLocale'], { month: 'long' });
+                  Time.formatterCache.set('B', formatter);
+              }
+              return formatter.format(this);
+          },
+          d() { return Time.zeroPad(this.getDate()); },
+          e() { return this.getDate(); },
+          H() { return Time.zeroPad(this.getHours()); },
+          I() { return Time.zeroPad((this.getHours() % 12) || 12); },
+          k() { return this.getHours(); },
+          l() { return (this.getHours() % 12) || 12; },
+          m() { return Time.zeroPad(this.getMonth() + 1); },
+          M() { return Time.zeroPad(this.getMinutes()); },
+          p() {
+              let formatter = Time.formatterCache.get('p');
+              if (!formatter) {
+                  formatter = Intl.DateTimeFormat(Conf['timeLocale'], { hour: 'numeric', hour12: true });
+                  Time.formatterCache.set('p', formatter);
+              }
+              const parts = formatter.formatToParts(this);
+              return parts.find((entry) => entry.type === 'dayPeriod').value;
+          },
+          P() { return Time.formatters.p.call(this).toLowerCase(); },
+          S() { return Time.zeroPad(this.getSeconds()); },
+          y() { return this.getFullYear().toString().slice(2); },
+          Y() { return this.getFullYear(); },
+          '%'() { return '%'; }
+      },
   };
 
   var Beep = 'UklGRjQDAABXQVZFZm10IBAAAAABAAEAgD4AAIA+AAABAAgAc21wbDwAAABBAAADAAAAAAAAAAA8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABkYXRhzAIAAGMms8em0tleMV4zIpLVo8nhfSlcPR102Ki+5JspVEkdVtKzs+K1NEhUIT7DwKrcy0g6WygsrM2k1NpiLl0zIY/WpMrjgCdbPhxw2Kq+5Z4qUkkdU9K1s+K5NkVTITzBwqnczko3WikrqM+l1NxlLF0zIIvXpsnjgydZPhxs2ay95aIrUEkdUdC3suK8N0NUIjq+xKrcz002WioppdGm091pK1w0IIjYp8jkhydXPxxq2K295aUrTkoeTs65suK+OUFUIzi7xqrb0VA0WSoootKm0t5tKlo1H4TYqMfkiydWQBxm16+85actTEseS8y7seHAPD9TIza5yKra01QyWSson9On0d5wKVk2H4DYqcfkjidUQB1j1rG75KsvSkseScu8seDCPz1TJDW2yara1FYxWSwnm9Sn0N9zKVg2H33ZqsXkkihSQR1g1bK65K0wSEsfR8i+seDEQTxUJTOzy6rY1VowWC0mmNWoz993KVc3H3rYq8TklSlRQh1d1LS647AyR0wgRMbAsN/GRDpTJTKwzKrX1l4vVy4lldWpzt97KVY4IXbUr8LZljVPRCxhw7W3z6ZISkw1VK+4sMWvXEhSPk6buay9sm5JVkZNiLWqtrJ+TldNTnquqbCwilZXU1BwpKirrpNgWFhTaZmnpquZbFlbVmWOpaOonHZcXlljhaGhpZ1+YWBdYn2cn6GdhmdhYGN3lp2enIttY2Jjco+bnJuOdGZlZXCImJqakHpoZ2Zug5WYmZJ/bGlobX6RlpeSg3BqaW16jZSVkoZ0bGtteImSk5KIeG5tbnaFkJKRinxxbm91gY2QkIt/c3BwdH6Kj4+LgnZxcXR8iI2OjIR5c3J0e4WLjYuFe3VzdHmCioyLhn52dHR5gIiKioeAeHV1eH+GiYqHgXp2dnh9hIiJh4J8eHd4fIKHiIeDfXl4eHyBhoeHhH96eHmA';
@@ -26915,7 +26910,7 @@ aero|asia|biz|cat|com|coop|dance|info|int|jobs|mobi|moe|museum|name|net|org|post
         let node;
         if (!(node = nodes[i])) { return false; }
         cbs.execute(node);
-        return ++i % 25;
+        return ++i % 250;
       };
 
       var softTask = function() {
