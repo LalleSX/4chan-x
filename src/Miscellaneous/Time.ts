@@ -61,7 +61,8 @@ var Time = {
   localeFormat(date, options, defaultValue) {
     if (Conf['timeLocale']) {
       try {
-        return Intl.DateTimeFormat(Conf['timeLocale'], options).format(date);
+        const formatter = Intl.DateTimeFormat(Conf['timeLocale'], options);
+        return formatter.format(date);
       } catch (error) {}
     }
     return defaultValue;
