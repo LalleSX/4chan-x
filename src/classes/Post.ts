@@ -7,6 +7,25 @@ import type Board from "./Board";
 import Callbacks from "./Callbacks";
 import type Thread from "./Thread";
 
+export interface File {
+  text:        string,
+  link:        HTMLAnchorElement,
+  thumb:       HTMLElement,
+  thumbLink:   HTMLElement,
+  size:        string,
+  sizeInBytes: number,
+  isDead:      boolean,
+  url:         string,
+  name:        string,
+  isImage:     boolean,
+  isVideo:     boolean,
+  isExpanding: boolean,
+  isExpanded:  boolean,
+  fullImage?:  HTMLImageElement | HTMLVideoElement,
+  audio?:      HTMLAudioElement,
+  audioSlider?:HTMLSpanElement,
+};
+
 export default class Post {
   declare root:           HTMLElement;
   declare thread:         Thread;
@@ -291,15 +310,7 @@ export default class Post {
   }
 
   parseFile(fileRoot: HTMLElement) {
-    interface File {
-      text:        string,
-      link:        HTMLAnchorElement,
-      thumb:       HTMLElement,
-      thumbLink:   HTMLElement,
-      size:        string,
-      sizeInBytes: number,
-      isDead:      boolean,
-    };
+
 
     const file: Partial<File> = { isDead: false };
     for (var key in g.SITE.selectors.file) {

@@ -9,6 +9,8 @@ import $ from "../platform/$";
 import { SECOND } from "../platform/helpers";
 import ImageCommon from "./ImageCommon";
 import Volume from "./Volume";
+import Audio from "./Audio";
+import type { default as Post, PostClone } from "../classes/Post";
 
 /*
  * decaffeinate suggestions:
@@ -39,7 +41,7 @@ var ImageExpand = {
     });
   },
 
-  node() {
+  node(this: Post | PostClone) {
     if (!this.file || (!this.file.isImage && !this.file.isVideo)) { return; }
     $.on(this.file.thumbLink, 'click', ImageExpand.cb.toggle);
 
@@ -202,21 +204,31 @@ var ImageExpand = {
     }
     if (Conf['Restart when Opened']) { ImageCommon.rewind(file.thumb); }
     delete file.fullImage;
-    return $.queueTask(function() {
+    $.queueTask(function() {
       // XXX Work around Chrome/Chromium not firing mouseover on the thumbnail.
       if (file.isExpanding || file.isExpanded) { return; }
       $.rmClass(el, 'full-image');
       if (el.id) { return; }
       return $.rm(el);
     });
+
+    if (file.audio) {
+      file.audio.remove();
+      delete file.audio;
+      if (file.audioSlider) {
+        file.audioSlider.remove();
+        delete file.audioSlider;
+      }
+    }
   },
 
-  expand(post, src) {
-    // Do not expand images of hidden/filtered replies, or already expanded pictures.
-    let el;
+  expand(post: Post, src?: string) {
     const {file} = post;
-    const {thumb, thumbLink, isVideo} = file;
+    const {thumb, thumbLink, isVideo } = file;
+    // Do not expand images of hidden/filtered replies, or already expanded pictures.
     if (post.isHidden || file.isExpanding || file.isExpanded) { return; }
+
+    let el: HTMLImageElement| HTMLVideoElement;
 
     $.addClass(thumb, 'expanding');
     file.isExpanding = true;
@@ -255,11 +267,33 @@ var ImageExpand = {
     }
 
     if (!isVideo) {
-      return $.asap((() => el.naturalHeight), () => ImageExpand.completeExpand(post));
+      $.asap((() => el.naturalHeight), () => ImageExpand.completeExpand(post));
     } else if (el.readyState >= el.HAVE_METADATA) {
-      return ImageExpand.completeExpand(post);
+      ImageExpand.completeExpand(post);
     } else {
-      return $.on(el, 'loadedmetadata', () => ImageExpand.completeExpand(post));
+      $.on(el, 'loadedmetadata', () => ImageExpand.completeExpand(post));
+    }
+
+    if (Conf['Enable sound posts'] && Conf['Allow Sound']) {
+      const soundUrlMatch = file.name.match(/\[sound=([^\]]+)]/);
+      if (soundUrlMatch) {
+        let src = decodeURIComponent(soundUrlMatch[1]);
+        if (!src.startsWith('http')) src = `https://${src}`;
+        const audioEl: HTMLAudioElement = $.el('audio', { src });
+        Volume.setup(audioEl);
+        if (isVideo) {
+          Audio.setupSync(el as HTMLVideoElement, audioEl);
+          if (Conf['Show Controls']) {
+            file.audioSlider = Audio.setupAudioSlider(el as HTMLVideoElement, audioEl);
+            $.after(el.parentElement, file.audioSlider);
+          }
+        } else {
+          audioEl.controls = Conf['Show Controls'];
+          audioEl.autoplay = Conf['Autoplay'];
+        }
+        $.after(el, audioEl);
+        file.audio = audioEl;
+      }
     }
   },
 
@@ -295,7 +329,7 @@ var ImageExpand = {
     }
   },
 
-  setupVideo(post, playing, controls) {
+  setupVideo(post: Post, playing: boolean, controls: boolean) {
     const {fullImage} = post.file;
     if (!playing) {
       fullImage.controls = controls;

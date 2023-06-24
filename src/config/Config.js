@@ -324,7 +324,11 @@ const Config = {
       'Volume in New Tab': [
         true,
         `Apply ${meta.name} mute and volume settings to videos opened in their own tabs.`
-      ]
+      ],
+      'Enable sound posts': [
+        true,
+        'Enable loading audio from [sound=] file names. This audio is fetched from third parties.'
+      ],
     },
 
     'Menu': {

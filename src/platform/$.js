@@ -465,7 +465,7 @@ if (!globalThis.chrome?.extension) {
 } else {
   $.open =
     url => window.open(url, '_blank');
-} 
+}
 
 $.debounce = function(wait, fn) {
   let lastCall = 0;
@@ -556,7 +556,9 @@ $.minmax = (value, min, max) => value < min ?
   :
     value;
 
-$.hasAudio = video => video.mozHasAudio || !!video.webkitAudioDecodedByteCount;
+$.hasAudio = video =>
+  video.mozHasAudio || !!video.webkitAudioDecodedByteCount ||
+  video.nextElementSibling?.tagName === 'AUDIO'; // sound posts
 
 $.luma = rgb => (rgb[0] * 0.299) + (rgb[1] * 0.587) + (rgb[2] * 0.114);
 
