@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         4chan XT
-// @version      XT 2.0.0
+// @version      XT 2.0.1
 // @minGMVer     1.14
 // @minFFVer     74
 // @namespace    4chan-XT
@@ -190,8 +190,8 @@
   'use strict';
 
   var version = {
-    "version": "XT 2.0.0",
-    "date": "2023-04-30T13:46:25Z"
+    "version": "XT 2.0.1",
+    "date": "2023-06-24T16:01:33.425Z"
   };
 
   var meta = {

@@ -3,6 +3,16 @@
 4chan XT uses a different user script namespace, so to migrate you need to export settings from 4chan X, and import them
 in XT.
 
+### XT v2.1.0 (2023-06-24)
+
+- Limited support for audio posts: they work in threads but not yet in the gallery. Might add if there's demand.
+  - Can be disabled in the settings
+- Small performance improvements
+  - Removed unnecessary `Array.from`s from coffeescript to js migration
+  - Time module: cache Intl.DateTimeFormat objects
+  - callbackNodesDB: increase nr of callbacks because the setTimeout triggers a reflow, which in some of my tests took
+    as long as the actual chunk of callbacks
+
 ### XT v2.0.0
 
 #### 2023-04-30
