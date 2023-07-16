@@ -38,7 +38,8 @@ var Time = {
     a() {
       let formatter = Time.formatterCache.get('a');
       if (!formatter) {
-        formatter = Intl.DateTimeFormat(Conf['timeLocale'], {weekday: 'short'});
+        // || undefined to fall back to browser locale, an empty string gives an error
+        formatter = Intl.DateTimeFormat(Conf['timeLocale'] || undefined, {weekday: 'short'});
         Time.formatterCache.set('a', formatter)
       }
       return formatter.format(this);
@@ -46,7 +47,7 @@ var Time = {
     A() {
       let formatter = Time.formatterCache.get('A');
       if (!formatter) {
-        formatter = Intl.DateTimeFormat(Conf['timeLocale'], {weekday: 'long'});
+        formatter = Intl.DateTimeFormat(Conf['timeLocale'] || undefined, {weekday: 'long'});
         Time.formatterCache.set('A', formatter)
       }
       return formatter.format(this);
@@ -54,7 +55,7 @@ var Time = {
     b() {
       let formatter = Time.formatterCache.get('b');
       if (!formatter) {
-        formatter = Intl.DateTimeFormat(Conf['timeLocale'], {month: 'short'});
+        formatter = Intl.DateTimeFormat(Conf['timeLocale'] || undefined, {month: 'short'});
         Time.formatterCache.set('b', formatter)
       }
       return formatter.format(this);
@@ -62,7 +63,7 @@ var Time = {
     B() {
       let formatter = Time.formatterCache.get('B');
       if (!formatter) {
-        formatter = Intl.DateTimeFormat(Conf['timeLocale'], {month: 'long'});
+        formatter = Intl.DateTimeFormat(Conf['timeLocale'] || undefined, {month: 'long'});
         Time.formatterCache.set('B', formatter)
       }
       return formatter.format(this);
@@ -78,7 +79,7 @@ var Time = {
     p() {
       let formatter = Time.formatterCache.get('p');
       if (!formatter) {
-        formatter = Intl.DateTimeFormat(Conf['timeLocale'], {hour: 'numeric', hour12: true});
+        formatter = Intl.DateTimeFormat(Conf['timeLocale'] || undefined, {hour: 'numeric', hour12: true});
         Time.formatterCache.set('p', formatter)
       }
       const parts = formatter.formatToParts(this);

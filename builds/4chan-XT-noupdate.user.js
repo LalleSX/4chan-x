@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name         4chan XT
-// @version      XT 2.0.1
+// @version      XT 2.1.1
 // @minGMVer     1.14
 // @minFFVer     74
 // @namespace    4chan-XT
 // @description  4chan XT is a script that adds various features to anonymous imageboards.
-// @license      MIT; https://github.com/TuxedoTako/4chan-xt/blob/master/LICENSE
+// @license      MIT; https://github.com/TuxedoTako/4chan-xt/blob/project-XT/LICENSE
 // @include      http://boards.4chan.org/*
 // @include      https://boards.4chan.org/*
 // @include      http://sys.4chan.org/*
@@ -190,8 +190,8 @@
   'use strict';
 
   var version = {
-    "version": "XT 2.0.1",
-    "date": "2023-06-24T16:01:33.425Z"
+    "version": "XT 2.1.1",
+    "date": "2023-07-16T08:49:02.722Z"
   };
 
   var meta = {
@@ -204,8 +204,8 @@
    "faq": "https://github.com/ccd0/4chan-x/wiki/Frequently-Asked-Questions",
    "captchaFAQ": "https://github.com/ccd0/4chan-x/wiki/Captcha-FAQ",
    "cssGuide": "https://github.com/ccd0/4chan-x/wiki/Styling-Guide",
-   "license": "https://github.com/TuxedoTako/4chan-xt/blob/master/LICENSE",
-   "changelog": "https://github.com/TuxedoTako/4chan-xt/blob/master/CHANGELOG.md",
+   "license": "https://github.com/TuxedoTako/4chan-xt/blob/project-XT/LICENSE",
+   "changelog": "https://github.com/TuxedoTako/4chan-xt/blob/project-XT/CHANGELOG.md",
    "issues": "https://github.com/TuxedoTako/4chan-xt/issues",
    "newIssue": "https://github.com/TuxedoTako/4chan-xt/issues",
    "newIssueMaxLength": 8181,
@@ -14284,7 +14284,8 @@ $\
           a() {
               let formatter = Time.formatterCache.get('a');
               if (!formatter) {
-                  formatter = Intl.DateTimeFormat(Conf['timeLocale'], { weekday: 'short' });
+                  // || undefined to fall back to browser locale, an empty string gives an error
+                  formatter = Intl.DateTimeFormat(Conf['timeLocale'] || undefined, { weekday: 'short' });
                   Time.formatterCache.set('a', formatter);
               }
               return formatter.format(this);
@@ -14292,7 +14293,7 @@ $\
           A() {
               let formatter = Time.formatterCache.get('A');
               if (!formatter) {
-                  formatter = Intl.DateTimeFormat(Conf['timeLocale'], { weekday: 'long' });
+                  formatter = Intl.DateTimeFormat(Conf['timeLocale'] || undefined, { weekday: 'long' });
                   Time.formatterCache.set('A', formatter);
               }
               return formatter.format(this);
@@ -14300,7 +14301,7 @@ $\
           b() {
               let formatter = Time.formatterCache.get('b');
               if (!formatter) {
-                  formatter = Intl.DateTimeFormat(Conf['timeLocale'], { month: 'short' });
+                  formatter = Intl.DateTimeFormat(Conf['timeLocale'] || undefined, { month: 'short' });
                   Time.formatterCache.set('b', formatter);
               }
               return formatter.format(this);
@@ -14308,7 +14309,7 @@ $\
           B() {
               let formatter = Time.formatterCache.get('B');
               if (!formatter) {
-                  formatter = Intl.DateTimeFormat(Conf['timeLocale'], { month: 'long' });
+                  formatter = Intl.DateTimeFormat(Conf['timeLocale'] || undefined, { month: 'long' });
                   Time.formatterCache.set('B', formatter);
               }
               return formatter.format(this);
@@ -14324,7 +14325,7 @@ $\
           p() {
               let formatter = Time.formatterCache.get('p');
               if (!formatter) {
-                  formatter = Intl.DateTimeFormat(Conf['timeLocale'], { hour: 'numeric', hour12: true });
+                  formatter = Intl.DateTimeFormat(Conf['timeLocale'] || undefined, { hour: 'numeric', hour12: true });
                   Time.formatterCache.set('p', formatter);
               }
               const parts = formatter.formatToParts(this);

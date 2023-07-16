@@ -3,6 +3,11 @@
 4chan XT uses a different user script namespace, so to migrate you need to export settings from 4chan X, and import them
 in XT.
 
+### XT v2.1.1 (2023-07-16)
+
+- Time formatting now falls back to browser locale instead of giving an error when the locale is not set.
+- Update notification link now links to the changelog on the right branch on github.
+
 ### XT v2.1.0 (2023-06-24)
 
 - Limited support for audio posts: they work in threads but not yet in the gallery. Might add if there's demand.
