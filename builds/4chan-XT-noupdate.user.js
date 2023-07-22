@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         4chan XT
-// @version      XT 2.1.1
+// @version      XT 2.1.2
 // @minGMVer     1.14
 // @minFFVer     74
 // @namespace    4chan-XT
@@ -190,8 +190,8 @@
   'use strict';
 
   var version = {
-    "version": "XT 2.1.1",
-    "date": "2023-07-16T08:49:02.722Z"
+    "version": "XT 2.1.2",
+    "date": "2023-07-22T15:46:24.103Z"
   };
 
   var meta = {
@@ -6939,6 +6939,61 @@ https://*.hcaptcha.com
   var ThreadWatcher$1 = ThreadWatcher;
 
   /*
+   * This file has the code for the jsx to { innerHTML: "safe string" }
+   *
+   * Usage: import h from this file.
+   * Attributes are stringified raw, so the names must be like html text: eg class and not className.
+   * Boolean values are stringified as followed: true will mean the attribute is there, false means it will be omitted.
+   * Strings bound to attributes and children will be escaped automatically.
+   * It returns interface EscapedHtml { innerHTML: "safe string", [isEscaped]: true }
+   *
+   * For strings that don't have a parent element you can use fragments: <></>.
+   * Note that you need to import hFragment, which for some reason isn't auto imported on "add all missing imports"
+   */
+  /**
+   * The symbol indicating that a string is safely escaped.
+   * This is a symbol so it can't be faked by a json blob from the internet.
+   */
+  const isEscaped = Symbol('isEscaped');
+  const voidElements = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'source', 'track', 'wbr',]);
+  const hFragment = Symbol('hFragment');
+  /** Function that jsx/tsx will be compiled to. */
+  function h(tag, attributes, ...children) {
+      let innerHTML = tag === hFragment ? '' : `<${tag}`;
+      if (attributes) {
+          for (const [attribute, value] of Object.entries(attributes)) {
+              if (!value && value !== 0)
+                  continue;
+              innerHTML += ` ${attribute}`;
+              if (value === true)
+                  continue;
+              innerHTML += `="${E(value.toString())}"`;
+          }
+      }
+      if (tag !== hFragment)
+          innerHTML += '>';
+      const isVoid = tag !== hFragment && voidElements.has(tag);
+      if (isVoid) {
+          if (children.length)
+              throw new TypeError(`${tag} is a void html element and can't have child elements`);
+      }
+      else {
+          for (const child of children) {
+              if (child === null || child === undefined || child === '')
+                  continue;
+              if (child instanceof Object && "innerHTML" in child && child[isEscaped]) {
+                  innerHTML += child.innerHTML;
+                  continue;
+              }
+              innerHTML += E(child.toString());
+          }
+      }
+      if (!isVoid && tag !== hFragment)
+          innerHTML += `</${tag}>`;
+      return { innerHTML, [isEscaped]: true };
+  }
+
+  /*
    * decaffeinate suggestions:
    * DS102: Remove unnecessary code created because of implicit returns
    * DS205: Consider reworking code to avoid use of IIFEs
@@ -6947,32 +7002,30 @@ https://*.hcaptcha.com
    * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
    */
   class Fetcher {
-    static initClass() {
-    
-      this.prototype.archiveTags = {
-        '\n':         {innerHTML: "<br>"},
-        '[b]':        {innerHTML: "<b>"},
-        '[/b]':       {innerHTML: "</b>"},
-        '[spoiler]':  {innerHTML: "<s>"},
-        '[/spoiler]': {innerHTML: "</s>"},
-        '[code]':     {innerHTML: "<pre class=\"prettyprint\">"},
-        '[/code]':    {innerHTML: "</pre>"},
-        '[moot]':     {innerHTML: "<div style=\"padding:5px;margin-left:.5em;border-color:#faa;border:2px dashed rgba(255,0,0,.1);border-radius:2px\">"},
-        '[/moot]':    {innerHTML: "</div>"},
-        '[banned]':   {innerHTML: "<strong style=\"color: red;\">"},
-        '[/banned]':  {innerHTML: "</strong>"},
-        '[fortune]'(text) { return {innerHTML: "<span class=\"fortune\" style=\"color:" + E(text.match(/#\w+|$/)[0]) + "\"><b>"}; },
-        '[/fortune]': {innerHTML: "</b></span>"},
-        '[i]':        {innerHTML: "<span class=\"mu-i\">"},
-        '[/i]':       {innerHTML: "</span>"},
-        '[red]':      {innerHTML: "<span class=\"mu-r\">"},
-        '[/red]':     {innerHTML: "</span>"},
-        '[green]':    {innerHTML: "<span class=\"mu-g\">"},
-        '[/green]':   {innerHTML: "</span>"},
-        '[blue]':     {innerHTML: "<span class=\"mu-b\">"},
-        '[/blue]':    {innerHTML: "</span>"}
-      };
-    }
+    static archiveTags = {
+      '\n':         {innerHTML: "<br>"},
+      '[b]':        {innerHTML: "<b>"},
+      '[/b]':       {innerHTML: "</b>"},
+      '[spoiler]':  {innerHTML: "<s>"},
+      '[/spoiler]': {innerHTML: "</s>"},
+      '[code]':     {innerHTML: "<pre class=\"prettyprint\">"},
+      '[/code]':    {innerHTML: "</pre>"},
+      '[moot]':     {innerHTML: "<div style=\"padding:5px;margin-left:.5em;border-color:#faa;border:2px dashed rgba(255,0,0,.1);border-radius:2px\">"},
+      '[/moot]':    {innerHTML: "</div>"},
+      '[banned]':   {innerHTML: "<strong style=\"color: red;\">"},
+      '[/banned]':  {innerHTML: "</strong>"},
+      '[fortune]'(text) { return {innerHTML: "<span class=\"fortune\" style=\"color:" + E(text.match(/#\w+|$/)[0]) + "\"><b>"}; },
+      '[/fortune]': {innerHTML: "</b></span>"},
+      '[i]':        {innerHTML: "<span class=\"mu-i\">"},
+      '[/i]':       {innerHTML: "</span>"},
+      '[red]':      {innerHTML: "<span class=\"mu-r\">"},
+      '[/red]':     {innerHTML: "</span>"},
+      '[green]':    {innerHTML: "<span class=\"mu-g\">"},
+      '[/green]':   {innerHTML: "</span>"},
+      '[blue]':     {innerHTML: "<span class=\"mu-b\">"},
+      '[/blue]':    {innerHTML: "</span>"}
+    };
+
     constructor(boardID, threadID, postID, root, quoter) {
       let post, thread;
       this.boardID = boardID;
@@ -7153,25 +7206,21 @@ https://*.hcaptcha.com
       // https://github.com/FoolCode/FoolFuuka/blob/800bd090835489e7e24371186db6e336f04b85c0/src/Model/Comment.php#L368-L428
       // https://github.com/bstats/b-stats/blob/6abe7bffaf6e5f523498d760e54b110df5331fbb/inc/classes/Yotsuba.php#L157-L168
       let comment = (data.comment || '').split(/(\n|\[\/?(?:b|spoiler|code|moot|banned|fortune(?: color="#\w+")?|i|red|green|blue)\])/);
-      comment = (() => {
-        const result = [];
-        for (let i = 0; i < comment.length; i++) {
-          var text = comment[i];
-          if ((i % 2) === 1) {
-            var tag = Fetcher.archiveTags[text.replace(/\ .*\]/, ']')];
-            if (typeof tag === 'function') { result.push(tag(text)); } else { result.push(tag); }
-          } else {
-            var greentext = text[0] === '>';
-            text = text.replace(/(\[\/?[a-z]+):lit(\])/g, '$1$2');
-            text = text.split(/(>>(?:>\/[a-z\d]+\/)?\d+)/g).map((text2, j) =>
-              {((j % 2) ? "<span class=\"deadlink\">" + E(text2) + "</span>" : E(text2));});
-            text = {innerHTML: ((greentext) ? "<span class=\"quote\">" + E.cat(text) + "</span>" : E.cat(text))};
-            result.push(text);
-          }
+      comment = comment.map((text, i) => {
+        if ((i % 2) === 1) {
+          var tag = Fetcher.archiveTags[text.replace(/\ .*\]/, ']')];
+          return (typeof tag === 'function') ? tag(text) : tag;
+        } else {
+          var greentext = text[0] === '>';
+          text = text
+            .replace(/(\[\/?[a-z]+):lit(\])/g, '$1$2')
+            .split(/(>>(?:>\/[a-z\d]+\/)?\d+)/g)
+            .map((text2, j) => ((j % 2) ? `<span class="deadlink">${E(text2)}</span>`: E(text2)))
+            .join('');
+          return {innerHTML: (greentext ? `<span class="quote">${text}</span>` : text)};
         }
-        return result;
-      })();
-      comment = {innerHTML: E.cat(comment)};
+      });
+      comment = { innerHTML: E.cat(comment), [isEscaped]: true };
 
       this.threadID = +data.thread_num;
       const o = {
@@ -7244,7 +7293,6 @@ https://*.hcaptcha.com
       return this.insert(post);
     }
   }
-  Fetcher.initClass();
 
   /*
    * decaffeinate suggestions:
@@ -7283,7 +7331,7 @@ https://*.hcaptcha.com
 
     mouseover(e) {
       let origin;
-      if (($$1.hasClass(this, 'inlined') && !$$1.hasClass(doc, 'catalog-mode')) || !d$1.contains(this)) { return; }
+      if (($$1.hasClass(this, 'inlined') && !$$1.hasClass(doc$1, 'catalog-mode')) || !d$1.contains(this)) { return; }
 
       const {boardID, threadID, postID} = Get$1.postDataFromLink(this);
 
@@ -8867,61 +8915,6 @@ https://*.hcaptcha.com
       }
     }
   };
-
-  /*
-   * This file has the code for the jsx to { innerHTML: "safe string" }
-   *
-   * Usage: import h from this file.
-   * Attributes are stringified raw, so the names must be like html text: eg class and not className.
-   * Boolean values are stringified as followed: true will mean the attribute is there, false means it will be omitted.
-   * Strings bound to attributes and children will be escaped automatically.
-   * It returns interface EscapedHtml { innerHTML: "safe string", [isEscaped]: true }
-   *
-   * For strings that don't have a parent element you can use fragments: <></>.
-   * Note that you need to import hFragment, which for some reason isn't auto imported on "add all missing imports"
-   */
-  /**
-   * The symbol indicating that a string is safely escaped.
-   * This is a symbol so it can't be faked by a json blob from the internet.
-   */
-  const isEscaped = Symbol('isEscaped');
-  const voidElements = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'source', 'track', 'wbr',]);
-  const hFragment = Symbol('hFragment');
-  /** Function that jsx/tsx will be compiled to. */
-  function h(tag, attributes, ...children) {
-      let innerHTML = tag === hFragment ? '' : `<${tag}`;
-      if (attributes) {
-          for (const [attribute, value] of Object.entries(attributes)) {
-              if (!value && value !== 0)
-                  continue;
-              innerHTML += ` ${attribute}`;
-              if (value === true)
-                  continue;
-              innerHTML += `="${E(value.toString())}"`;
-          }
-      }
-      if (tag !== hFragment)
-          innerHTML += '>';
-      const isVoid = tag !== hFragment && voidElements.has(tag);
-      if (isVoid) {
-          if (children.length)
-              throw new TypeError(`${tag} is a void html element and can't have child elements`);
-      }
-      else {
-          for (const child of children) {
-              if (child === null || child === undefined || child === '')
-                  continue;
-              if (child instanceof Object && "innerHTML" in child && child[isEscaped]) {
-                  innerHTML += child.innerHTML;
-                  continue;
-              }
-              innerHTML += E(child.toString());
-          }
-      }
-      if (!isVoid && tag !== hFragment)
-          innerHTML += `</${tag}>`;
-      return { innerHTML, [isEscaped]: true };
-  }
 
   // \u00A0 is non breaking space
   const separator = '\u00A0|\u00A0';

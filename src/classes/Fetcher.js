@@ -10,6 +10,7 @@ import ImageHost from "../Images/ImageHost";
 import CrossOrigin from "../platform/CrossOrigin";
 import Get from "../General/Get";
 import { dict } from "../platform/helpers";
+import { isEscaped } from "../globals/jsx";
 
 /*
  * decaffeinate suggestions:
@@ -20,32 +21,30 @@ import { dict } from "../platform/helpers";
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
 export default class Fetcher {
-  static initClass() {
-  
-    this.prototype.archiveTags = {
-      '\n':         {innerHTML: "<br>"},
-      '[b]':        {innerHTML: "<b>"},
-      '[/b]':       {innerHTML: "</b>"},
-      '[spoiler]':  {innerHTML: "<s>"},
-      '[/spoiler]': {innerHTML: "</s>"},
-      '[code]':     {innerHTML: "<pre class=\"prettyprint\">"},
-      '[/code]':    {innerHTML: "</pre>"},
-      '[moot]':     {innerHTML: "<div style=\"padding:5px;margin-left:.5em;border-color:#faa;border:2px dashed rgba(255,0,0,.1);border-radius:2px\">"},
-      '[/moot]':    {innerHTML: "</div>"},
-      '[banned]':   {innerHTML: "<strong style=\"color: red;\">"},
-      '[/banned]':  {innerHTML: "</strong>"},
-      '[fortune]'(text) { return {innerHTML: "<span class=\"fortune\" style=\"color:" + E(text.match(/#\w+|$/)[0]) + "\"><b>"}; },
-      '[/fortune]': {innerHTML: "</b></span>"},
-      '[i]':        {innerHTML: "<span class=\"mu-i\">"},
-      '[/i]':       {innerHTML: "</span>"},
-      '[red]':      {innerHTML: "<span class=\"mu-r\">"},
-      '[/red]':     {innerHTML: "</span>"},
-      '[green]':    {innerHTML: "<span class=\"mu-g\">"},
-      '[/green]':   {innerHTML: "</span>"},
-      '[blue]':     {innerHTML: "<span class=\"mu-b\">"},
-      '[/blue]':    {innerHTML: "</span>"}
-    };
-  }
+  static archiveTags = {
+    '\n':         {innerHTML: "<br>"},
+    '[b]':        {innerHTML: "<b>"},
+    '[/b]':       {innerHTML: "</b>"},
+    '[spoiler]':  {innerHTML: "<s>"},
+    '[/spoiler]': {innerHTML: "</s>"},
+    '[code]':     {innerHTML: "<pre class=\"prettyprint\">"},
+    '[/code]':    {innerHTML: "</pre>"},
+    '[moot]':     {innerHTML: "<div style=\"padding:5px;margin-left:.5em;border-color:#faa;border:2px dashed rgba(255,0,0,.1);border-radius:2px\">"},
+    '[/moot]':    {innerHTML: "</div>"},
+    '[banned]':   {innerHTML: "<strong style=\"color: red;\">"},
+    '[/banned]':  {innerHTML: "</strong>"},
+    '[fortune]'(text) { return {innerHTML: "<span class=\"fortune\" style=\"color:" + E(text.match(/#\w+|$/)[0]) + "\"><b>"}; },
+    '[/fortune]': {innerHTML: "</b></span>"},
+    '[i]':        {innerHTML: "<span class=\"mu-i\">"},
+    '[/i]':       {innerHTML: "</span>"},
+    '[red]':      {innerHTML: "<span class=\"mu-r\">"},
+    '[/red]':     {innerHTML: "</span>"},
+    '[green]':    {innerHTML: "<span class=\"mu-g\">"},
+    '[/green]':   {innerHTML: "</span>"},
+    '[blue]':     {innerHTML: "<span class=\"mu-b\">"},
+    '[/blue]':    {innerHTML: "</span>"}
+  };
+
   constructor(boardID, threadID, postID, root, quoter) {
     let post, thread;
     this.boardID = boardID;
@@ -226,25 +225,21 @@ export default class Fetcher {
     // https://github.com/FoolCode/FoolFuuka/blob/800bd090835489e7e24371186db6e336f04b85c0/src/Model/Comment.php#L368-L428
     // https://github.com/bstats/b-stats/blob/6abe7bffaf6e5f523498d760e54b110df5331fbb/inc/classes/Yotsuba.php#L157-L168
     let comment = (data.comment || '').split(/(\n|\[\/?(?:b|spoiler|code|moot|banned|fortune(?: color="#\w+")?|i|red|green|blue)\])/);
-    comment = (() => {
-      const result = [];
-      for (let i = 0; i < comment.length; i++) {
-        var text = comment[i];
-        if ((i % 2) === 1) {
-          var tag = Fetcher.archiveTags[text.replace(/\ .*\]/, ']')];
-          if (typeof tag === 'function') { result.push(tag(text)); } else { result.push(tag); }
-        } else {
-          var greentext = text[0] === '>';
-          text = text.replace(/(\[\/?[a-z]+):lit(\])/g, '$1$2');
-          text = text.split(/(>>(?:>\/[a-z\d]+\/)?\d+)/g).map((text2, j) =>
-            {innerHTML: ((j % 2) ? "<span class=\"deadlink\">" + E(text2) + "</span>" : E(text2));});
-          text = {innerHTML: ((greentext) ? "<span class=\"quote\">" + E.cat(text) + "</span>" : E.cat(text))};
-          result.push(text);
-        }
+    comment = comment.map((text, i) => {
+      if ((i % 2) === 1) {
+        var tag = Fetcher.archiveTags[text.replace(/\ .*\]/, ']')];
+        return (typeof tag === 'function') ? tag(text) : tag;
+      } else {
+        var greentext = text[0] === '>';
+        text = text
+          .replace(/(\[\/?[a-z]+):lit(\])/g, '$1$2')
+          .split(/(>>(?:>\/[a-z\d]+\/)?\d+)/g)
+          .map((text2, j) => ((j % 2) ? `<span class="deadlink">${E(text2)}</span>`: E(text2)))
+          .join('');
+        return {innerHTML: (greentext ? `<span class="quote">${text}</span>` : text)};
       }
-      return result;
-    })();
-    comment = {innerHTML: E.cat(comment)};
+    });
+    comment = { innerHTML: E.cat(comment), [isEscaped]: true };
 
     this.threadID = +data.thread_num;
     const o = {
@@ -317,4 +312,3 @@ export default class Fetcher {
     return this.insert(post);
   }
 }
-Fetcher.initClass();
