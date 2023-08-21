@@ -3,6 +3,11 @@
 4chan XT uses a different user script namespace, so to migrate you need to export settings from 4chan X, and import them
 in XT.
 
+### XT v2.1.3 (2023-08-21)
+
+- Embed x.com links.
+- Settings no longer close when the mouse ends up outside of the modal when selecting text in an input or textarea.
+
 ### XT v2.1.2 (2023-07-22)
 
 - Fix inlining/previewing of archive links like quote links. [#5](https://github.com/TuxedoTako/4chan-xt/issues/5)

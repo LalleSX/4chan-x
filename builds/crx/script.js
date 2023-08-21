@@ -79,8 +79,8 @@
   'use strict';
 
   var version = {
-    "version": "XT 2.1.2",
-    "date": "2023-07-22T15:46:24.103Z"
+    "version": "XT 2.1.3",
+    "date": "2023-08-21T18:04:11.719Z"
   };
 
   var meta = {
@@ -15129,7 +15129,12 @@ $\
           }
           $$1.on($$1('.close', dialog), 'click', Settings.close);
           $$1.on(window, 'beforeunload', Settings.close);
-          $$1.on(dialog, 'click', Settings.close);
+          $$1.on(dialog, 'click', () => {
+              // Do not close when the mouse ends up outside the modal when selecting text in an input.
+              if (d$1.activeElement?.tagName === 'INPUT' || d$1.activeElement?.tagName === 'TEXTAREA')
+                  return;
+              Settings.close();
+          });
           $$1.on(dialog.firstElementChild, 'click', e => e.stopPropagation());
           $$1.add(d$1.body, dialog);
           return $$1.event('OpenSettings', null, dialog);
@@ -17523,7 +17528,7 @@ vp-replace
       }
       , {
         key: 'Twitter',
-        regExp: /^\w+:\/\/(?:www\.|mobile\.)?twitter\.com\/(\w+\/status\/\d+)/,
+        regExp: /^\w+:\/\/(?:www\.|mobile\.)?(?:twitter|x)\.com\/(\w+\/status\/\d+)/,
         style: 'border: none; width: 550px; height: 250px; overflow: hidden; resize: both;',
         el(a) {
           const el = $$1.el('iframe');

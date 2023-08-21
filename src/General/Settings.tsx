@@ -109,7 +109,11 @@ var Settings = {
 
     $.on($('.close', dialog), 'click', Settings.close);
     $.on(window, 'beforeunload', Settings.close);
-    $.on(dialog, 'click', Settings.close);
+    $.on(dialog, 'click', () => {
+      // Do not close when the mouse ends up outside the modal when selecting text in an input.
+      if (d.activeElement?.tagName === 'INPUT' || d.activeElement?.tagName === 'TEXTAREA') return;
+      Settings.close();
+    });
     $.on(dialog.firstElementChild, 'click', e => e.stopPropagation());
 
     $.add(d.body, dialog);
