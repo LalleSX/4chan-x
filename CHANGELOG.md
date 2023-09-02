@@ -3,6 +3,11 @@
 4chan XT uses a different user script namespace, so to migrate you need to export settings from 4chan X, and import them
 in XT.
 
+### XT v2.1.4 (2023-09-02)
+
+- Fix DataBoard class, should solve [#7](https://github.com/TuxedoTako/4chan-xt/issues/7)
+- Fix Settings.upgrade to work with version numbers prepended with XT
+
 ### XT v2.1.3 (2023-08-21)
 
 - Embed x.com links.

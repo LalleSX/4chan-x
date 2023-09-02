@@ -79,8 +79,8 @@
   'use strict';
 
   var version = {
-    "version": "XT 2.1.3",
-    "date": "2023-08-21T18:04:11.719Z"
+    "version": "XT 2.1.4",
+    "date": "2023-09-02T15:03:39.080Z"
   };
 
   var meta = {
@@ -1967,11 +1967,10 @@ https://*.hcaptcha.com
   class DataBoard {
     static initClass() {
       this.keys = ['hiddenThreads', 'hiddenPosts', 'lastReadPosts', 'yourPosts', 'watchedThreads', 'watcherLastModified', 'customTitles'];
-
-      this.changes = [];
     }
 
     constructor(key, sync, dontClean) {
+      this.changes = [];
       this.onSync = this.onSync.bind(this);
       this.key = key;
       this.initData(Conf[this.key]);
@@ -2002,15 +2001,15 @@ https://*.hcaptcha.com
 
     save(change, cb) {
       change();
-      DataBoard.changes.push(change);
+      this.changes.push(change);
       return $$1.get(this.key, { boards: dict() }, items => {
-        if (!DataBoard.changes.length) { return; }
+        if (!this.changes.length) { return; }
         const needSync = ((items[this.key].version || 0) > (this.data.version || 0));
         if (needSync) {
           this.initData(items[this.key]);
-          for (change of DataBoard.changes) { change(); }
+          for (change of this.changes) { change(); }
         }
-        DataBoard.changes = [];
+        this.changes = [];
         this.data.version = (this.data.version || 0) + 1;
         return $$1.set(this.key, this.data, () => {
           if (needSync) { this.sync?.(); }
@@ -2023,7 +2022,7 @@ https://*.hcaptcha.com
       return $$1.get(this.key, { boards: dict() }, items => {
         if ((items[this.key].version || 0) > (this.data.version || 0)) {
           this.initData(items[this.key]);
-          for (var change of DataBoard.changes) { change(); }
+          for (var change of this.changes) { change(); }
           this.sync?.();
         }
         return cb?.();
@@ -15521,7 +15520,7 @@ Enable it on boards.${location.hostname.split('.')[1]}.org in your browser's pri
               }
               catch (error) { }
           }
-          const compareString = version.replace(/\d+/g, x => ('0000' + x).slice(-5));
+          const compareString = version.replace(/^XT /i, '').replace(/\d+/g, x => x.padStart(5, '0'));
           if (compareString < '00001.00013.00014.00008') {
               for (key in data) {
                   val = data[key];
@@ -21352,27 +21351,16 @@ vp-replace
   };
 
   $.queueTask = (function() {
-    // inspired by https://www.w3.org/Bugs/Public/show_bug.cgi?id=15007
     const taskQueue = [];
     const execTask = function() {
-      const task = taskQueue.shift();
-      const func = task[0];
-      const args = Array.prototype.slice.call(task, 1);
-      return func.apply(func, args);
+      const [func, ...args] = taskQueue.shift();
+      func(...args);
     };
-    if (window.MessageChannel) {
-      const taskChannel = new MessageChannel();
-      taskChannel.port1.onmessage = execTask;
-      return function() {
-        taskQueue.push(arguments);
-        return taskChannel.port2.postMessage(null);
-      };
-    } else { // XXX Firefox
-      return function() {
-        taskQueue.push(arguments);
-        return setTimeout(execTask, 0);
-      };
-    }
+    return function() {
+      taskQueue.push(arguments);
+      // setTimeout is throttled in background tabs on firefox
+      Promise.resolve().then(execTask);
+    };
   })();
 
   $.global = function(fn, data) {

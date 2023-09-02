@@ -519,7 +519,7 @@ Enable it on boards.${location.hostname.split('.')[1]}.org in your browser's pri
         version = JSON.parse(version);
       } catch (error) {}
     }
-    const compareString = version.replace(/\d+/g, x => ('0000'+x).slice(-5));
+    const compareString = version.replace(/^XT /i, '').replace(/\d+/g, x => x.padStart(5, '0'));
     if (compareString < '00001.00013.00014.00008') {
       for (key in data) {
         val = data[key];
