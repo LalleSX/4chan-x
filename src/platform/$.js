@@ -490,27 +490,16 @@ $.debounce = function(wait, fn) {
 };
 
 $.queueTask = (function() {
-  // inspired by https://www.w3.org/Bugs/Public/show_bug.cgi?id=15007
   const taskQueue = [];
   const execTask = function() {
-    const task = taskQueue.shift();
-    const func = task[0];
-    const args = Array.prototype.slice.call(task, 1);
-    return func.apply(func, args);
+    const [func, ...args] = taskQueue.shift();
+    func(...args);
   };
-  if (window.MessageChannel) {
-    const taskChannel = new MessageChannel();
-    taskChannel.port1.onmessage = execTask;
-    return function() {
-      taskQueue.push(arguments);
-      return taskChannel.port2.postMessage(null);
-    };
-  } else { // XXX Firefox
-    return function() {
-      taskQueue.push(arguments);
-      return setTimeout(execTask, 0);
-    };
-  }
+  return function() {
+    taskQueue.push(arguments);
+    // setTimeout is throttled in background tabs on firefox
+    Promise.resolve().then(execTask);
+  };
 })();
 
 $.global = function(fn, data) {
