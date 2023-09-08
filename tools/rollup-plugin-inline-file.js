@@ -1,20 +1,16 @@
 import { createFilter } from "@rollup/pluginutils";
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default async function setupFileInliner(packageJson) {
   /** @param {string} string */
   const escape = (string) => string.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$\{/g, '\\\${');
 
   /**
-   * @param {{
-   *  include: import("@rollup/pluginutils").FilterPattern,
-   *  exclude?: import("@rollup/pluginutils").FilterPattern,
-   *  transformer?: (input: string) => string
-   *  wrap?: boolean
-   * }} opts
+   * @param {Object} opts
+   * @param {import("@rollup/pluginutils").FilterPattern} opts.include
+   * @param {import("@rollup/pluginutils").FilterPattern} [opts.exclude]
+   * @param {(input: string) => string} [opts.transformer] Optional function to transform the string.
+   * @param {boolean} [opts.wrap] Wether to look for <%= meta.stuff %> and replace it, and wrap in a string,
+   *  defaults to true.
    * @returns {import("rollup").Plugin}
    */
   return function inlineFile(opts) {
@@ -38,13 +34,15 @@ export default async function setupFileInliner(packageJson) {
           if (opts.transformer) {
             code = opts.transformer(code);
           }
-          if (!wrap) return code;
+          if (wrap) {
+            code = escape(code);
+            code = code.replace(/<%= meta\.(\w+) %>/g, (match, $1) => {
+              return escape(packageJson.meta[$1]);
+            });
+            code = `export default \`${code}\`;`;
+          }
 
-          code = escape(code);
-          code = code.replace(/<%= meta\.(\w+) %>/g, (match, $1) => {
-            return escape(packageJson.meta[$1]);
-          });
-          return `export default \`${code}\`;`;
+          return { code, map: { mappings: '' } };
         }
       }
     };

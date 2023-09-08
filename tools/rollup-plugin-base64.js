@@ -21,7 +21,7 @@ export default function importBase64(opts) {
       if (!filter(id)) return;
 
       const file = await readFile(id);
-      return `export default '${file.toString('base64')}';`;
+      return { code: `export default '${file.toString('base64')}';`, map: { mappings: '' } };
     }
   };
 };

@@ -39,7 +39,27 @@ const minify = process.argv.includes('-min');
     plugins: [
       typescript(),
       inlineFile({
-        include: ["**/*.html", "**/*.css"],
+        include: ["**/*.html"],
+      }),
+      inlineFile({
+        include: ["**/*.css"],
+        transformer(css) {
+          if (!minify) return css;
+
+          return css
+            // Remove whitespace after colon in css rules.
+            .replace(/^ {2,}([a-z\-]+:) +/gm, '$1')
+            // Remove newlines and trailing whitespace.
+            .replace(/\r?\n[ \t+]*/g, '')
+            // Remove last semicolon before the }.
+            .replace(/;\}/g, '}')
+            // Remove space between rule set and {.
+            .replace(/ \{/g, '{')
+            // Remove comments.
+            .replace(/\/\*[^\*]*\*\//g, '')
+            // Remove space before and after these characters in selectors.
+            .replace(/ ([>+~]) /g, '$1');
+        }
       }),
       importBase64({ include: ["**/*.png", "**/*.gif", "**/*.wav", "**/*.woff", "**/*.woff2"] }),
       inlineFile({
