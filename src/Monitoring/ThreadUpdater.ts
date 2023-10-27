@@ -12,6 +12,7 @@ import Header from '../General/Header';
 import { g, Conf, d, doc } from '../globals/globals';
 import UI from '../General/UI';
 import { MINUTE, SECOND } from '../platform/helpers';
+import type Thread from '../classes/Thread';
 
 /*
  * decaffeinate suggestions:
@@ -22,8 +23,8 @@ import { MINUTE, SECOND } from '../platform/helpers';
  */
 
 var ThreadUpdater = {
-  init() {
-    let el, name, sc;
+  init(this: typeof ThreadUpdater) {
+    let sc;
     if ((g.VIEW !== 'thread') || !Conf['Thread Updater']) { return; }
     this.enabled = true;
 
@@ -63,9 +64,9 @@ var ThreadUpdater = {
     $.on(updateLink.firstElementChild, 'click', this.update);
 
     const subEntries = [];
-    for (name in Config.updater.checkbox) {
+    for (const name in Config.updater.checkbox) {
       var conf = Config.updater.checkbox[name];
-      el = UI.checkbox(name, name);
+      const el = UI.checkbox(name, name);
       el.title = conf[1];
       var input = el.firstElementChild;
       $.on(input, 'change', $.cb.checked);
@@ -170,7 +171,7 @@ var ThreadUpdater = {
       if (e) { return $.cb.value.call(this); }
     },
 
-    load() {
+    load(this: XMLHttpRequest) {
       if (this !== ThreadUpdater.req) { return; } // aborted
       switch (this.status) {
         case 200:
@@ -198,13 +199,12 @@ var ThreadUpdater = {
               confirmed = false;
             }
             if (confirmed) {
-              return ThreadUpdater.kill();
+              ThreadUpdater.kill();
             } else {
-              return ThreadUpdater.error(this);
+              ThreadUpdater.error(this);
             }
           }
-        }
-          );
+          });
         default:
           return ThreadUpdater.error(this);
       }
@@ -334,11 +334,11 @@ var ThreadUpdater = {
     return new Notice('info', `The thread is ${change}.`, 30);
   },
 
-  parse(req) {
+  parse(req: XMLHttpRequest) {
     let ID, ipCountEl, post;
     const postObjects = req.response.posts;
     const OP = postObjects[0];
-    const {thread} = ThreadUpdater;
+    const thread: Thread = ThreadUpdater.thread;
     const {board} = thread;
     const lastPost = ThreadUpdater.postIDs[ThreadUpdater.postIDs.length - 1];
 

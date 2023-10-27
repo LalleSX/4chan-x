@@ -44,9 +44,11 @@ export const g: {
   VERSION:   string,
   NAMESPACE: string,
   sites:     (typeof SWTinyboard)[],
+  boardID?:  string,
   boards:    Board[],
   posts?:    SimpleDict<Post>,
-  threads?:  SimpleDict<Thread>
+  threads?:  SimpleDict<Thread>,
+  threadID?: number,
   THREADID?: number,
   SITE?:     typeof SWTinyboard,
   BOARD?:    Board,

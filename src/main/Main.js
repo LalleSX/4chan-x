@@ -88,9 +88,9 @@ import Menu from "../Menu/Menu";
 import BoardConfig from "../General/BoardConfig";
 import CaptchaReplace from "../Posting/Captcha.replace";
 import Get from "../General/Get";
-import Captcha from "../Posting/Captcha";
 import { dict, platform } from "../platform/helpers";
 import Polyfill from "../General/Polyfill";
+import RestoreDeletedFromArchive from "../Archive/RestoreDeletedFromArchive";
 // import Test from "../General/Test";
 
 /*
@@ -952,7 +952,8 @@ User agent: ${navigator.userAgent}\
     ['Announcements',             PSA],
     ['Flash Features',            Flash],
     ['Reply Pruning',             ReplyPruning],
-    ['Mod Contact Links',         ModContact]
+    ['Mod Contact Links',         ModContact],
+    ['Restore deleted posts from archive', RestoreDeletedFromArchive],
   ]
 };
 export default Main;

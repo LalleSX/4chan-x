@@ -161,9 +161,9 @@ var Unread = {
   },
 
   addPost() {
-    if (this.isFetchedQuote || this.isClone) { return; }
+    if (this.isFetchedQuote || this.isClone || (this.ID <= Unread.lastReadPost)) return;
     Unread.order.push(this);
-    if ((this.ID <= Unread.lastReadPost) || this.isHidden || QuoteYou.isYou(this)) { return; }
+    if (this.isHidden || QuoteYou.isYou(this)) return;
     Unread.posts.add((Unread.posts.last = this.ID));
     Unread.addPostQuotingYou(this);
     return Unread.position != null ? Unread.position : (Unread.position = Unread.order[this.ID]);

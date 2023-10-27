@@ -1,4 +1,6 @@
 import Notice from '../classes/Notice.js';
+import type { default as Post, File } from '../classes/Post.js';
+import type Thread from '../classes/Thread.js';
 import { Conf } from '../globals/globals.js';
 import $ from '../platform/$.js';
 import CrossOrigin from '../platform/CrossOrigin.js';
@@ -12,6 +14,11 @@ import archives from './archives.json';
 
 var Redirect = {
   archives,
+  data: null as {
+    thread: Record<any, Thread>,
+    post: Record<any, Post>,
+    file: Record<any, File>,
+  },
 
   init() {
     this.selectArchives();
@@ -128,8 +135,12 @@ var Redirect = {
     return cb?.();
   },
 
-  to(dest, data) {
-    const archive = (['search', 'board'].includes(dest) ? Redirect.data.thread : Redirect.data[dest])[data.boardID];
+  to(
+    dest: 'post' | 'thread' | 'threadJSON' | 'file' | 'board' | 'search',
+    data: { boardID: string, threadID?: string | number, postID?: string | number }
+  ): string {
+    const archive =
+      (['search', 'board', 'threadJSON'].includes(dest) ? Redirect.data.thread : Redirect.data[dest])[data.boardID];
     if (!archive) { return ''; }
     return Redirect[dest](archive, data);
   },
@@ -160,6 +171,10 @@ var Redirect = {
         `#p${postID}`;
     }
     return `${Redirect.protocol(archive)}${archive.domain}/${path}`;
+  },
+
+  threadJSON(archive, { boardID, threadID }) {
+    return `${Redirect.protocol(archive)}${archive.domain}/_/api/chan/thread/?board=${boardID}&num=${threadID}`;
   },
 
   post(archive, {boardID, postID}) {

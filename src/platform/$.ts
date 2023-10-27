@@ -389,14 +389,14 @@ $.before = (root, el) => root.parentNode.insertBefore($.nodes(el), root);
 
 $.replace = (root, el) => root.parentNode.replaceChild($.nodes(el), root);
 
-$.el = function(tag, properties, properties2) {
+$.el = function (tag: string, properties?: Record<string, any>, properties2?: Record<string, any>) {
   const el = d.createElement(tag);
   if (properties) { $.extend(el, properties); }
   if (properties2) { $.extend(el, properties2); }
   return el;
 };
 
-$.on = function(el, events, handler) {
+$.on = function (el: Element, events: string, handler: (event: Event) => void) {
   for (var event of events.split(' ')) {
     el.addEventListener(event, handler, false);
   }

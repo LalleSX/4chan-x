@@ -1,6 +1,8 @@
 import SimpleDict from "./SimpleDict";
 import $ from "../platform/$";
 import { g } from "../globals/globals";
+import type Board from "./Board";
+import type Post from "./Post";
 
 /*
  * decaffeinate suggestions:
@@ -8,9 +10,30 @@ import { g } from "../globals/globals";
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
 export default class Thread {
+  declare board: Board;
+  declare ID: number;
+  declare threadID: number;
+  declare boardID: string | number;
+  declare siteID: string;
+  declare fullID: string;
+  declare posts: SimpleDict<Post>;
+  declare isDead: boolean;
+  declare isHidden: boolean;
+  declare isSticky: boolean;
+  declare isClosed: boolean;
+  declare isArchived: boolean;
+  declare postLimit: boolean;
+  declare fileLimit: boolean;
+  declare lastPost: number;
+  declare ipCount: number;
+  declare json: any;
+  declare OP: any;
+  declare catalogView: any
+  declare nodes: any
+
   toString() { return this.ID; }
 
-  constructor(ID, board) {
+  constructor(ID: string, board: Board) {
     this.board = board;
     this.ID         = +ID;
     this.threadID   = this.ID;

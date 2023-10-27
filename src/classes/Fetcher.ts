@@ -6,11 +6,9 @@ import $ from "../platform/$";
 import Main from "../main/Main";
 import Index from "../General/Index";
 import { E, g, Conf, d } from "../globals/globals";
-import ImageHost from "../Images/ImageHost";
 import CrossOrigin from "../platform/CrossOrigin";
 import Get from "../General/Get";
-import { dict } from "../platform/helpers";
-import { isEscaped } from "../globals/jsx";
+import parseArchivePost from "../Archive/Parse";
 
 /*
  * decaffeinate suggestions:
@@ -45,8 +43,14 @@ export default class Fetcher {
     '[/blue]':    {innerHTML: "</span>"}
   };
 
-  constructor(boardID, threadID, postID, root, quoter) {
-    let post, thread;
+  declare boardID: string;
+  declare threadID: number;
+  declare postID: string;
+  declare root: HTMLElement;
+  declare quoter: Post;
+
+  constructor(boardID: string, threadID: number, postID: string, root: HTMLElement, quoter: Post) {
+    let post: Post, thread: Thread;
     this.boardID = boardID;
     this.threadID = threadID;
     this.postID = postID;
@@ -175,7 +179,7 @@ export default class Fetcher {
   }
 
   archivedPost() {
-    let url;
+    let url: string;
     if (!Conf['Resurrect Quotes']) { return false; }
     if (!(url = Redirect.to('post', {boardID: this.boardID, postID: this.postID}))) { return false; }
     const archive = Redirect.data.post[this.boardID];
@@ -203,7 +207,7 @@ export default class Fetcher {
   parseArchivedPost(data, url, archive) {
     // In case of multiple callbacks for the same request,
     // don't parse the same original post more than once.
-    let post;
+    let post: Post;
     if (post = g.posts.get(`${this.boardID}.${this.postID}`)) {
       this.insert(post);
       return;
@@ -221,94 +225,8 @@ export default class Fetcher {
       return;
     }
 
-    // https://github.com/eksopl/asagi/blob/v0.4.0b74/src/main/java/net/easymodo/asagi/YotsubaAbstract.java#L82-L129
-    // https://github.com/FoolCode/FoolFuuka/blob/800bd090835489e7e24371186db6e336f04b85c0/src/Model/Comment.php#L368-L428
-    // https://github.com/bstats/b-stats/blob/6abe7bffaf6e5f523498d760e54b110df5331fbb/inc/classes/Yotsuba.php#L157-L168
-    let comment = (data.comment || '').split(/(\n|\[\/?(?:b|spoiler|code|moot|banned|fortune(?: color="#\w+")?|i|red|green|blue)\])/);
-    comment = comment.map((text, i) => {
-      if ((i % 2) === 1) {
-        var tag = Fetcher.archiveTags[text.replace(/\ .*\]/, ']')];
-        return (typeof tag === 'function') ? tag(text) : tag;
-      } else {
-        var greentext = text[0] === '>';
-        text = text
-          .replace(/(\[\/?[a-z]+):lit(\])/g, '$1$2')
-          .split(/(>>(?:>\/[a-z\d]+\/)?\d+)/g)
-          .map((text2, j) => ((j % 2) ? `<span class="deadlink">${E(text2)}</span>`: E(text2)))
-          .join('');
-        return {innerHTML: (greentext ? `<span class="quote">${text}</span>` : text)};
-      }
-    });
-    comment = { innerHTML: E.cat(comment), [isEscaped]: true };
-
     this.threadID = +data.thread_num;
-    const o = {
-      ID:       this.postID,
-      threadID: this.threadID,
-      boardID:  this.boardID,
-      isReply:  this.postID !== this.threadID
-    };
-    o.info = {
-      subject:  data.title,
-      email:    data.email,
-      name:     data.name || '',
-      tripcode: data.trip,
-      capcode:  (() => { switch (data.capcode) {
-        // https://github.com/pleebe/FoolFuuka/blob/bf4224eed04637a4d0bd4411c2bf5f9945dfec0b/assets/themes/foolz/foolfuuka-theme-fuuka/src/Partial/Board.php#L77
-        case 'M': return 'Mod';
-        case 'A': return 'Admin';
-        case 'D': return 'Developer';
-        case 'V': return 'Verified';
-        case 'F': return 'Founder';
-        case 'G': return 'Manager';
-      } })(),
-      uniqueID: data.poster_hash,
-      flagCode: data.poster_country,
-      flagCodeTroll: data.troll_country_code,
-      flag:     data.poster_country_name || data.troll_country_name,
-      dateUTC:  data.timestamp,
-      dateText: data.fourchan_date,
-      commentHTML: comment
-    };
-    if (o.info.capcode) { delete o.info.uniqueID; }
-    if (data.media && !!+data.media.banned) {
-      o.fileDeleted = true;
-    } else if (data.media?.media_filename) {
-      let {thumb_link} = data.media;
-      // Fix URLs missing origin
-      if (thumb_link?.[0] === '/') { thumb_link = url.split('/', 3).join('/') + thumb_link; }
-      if (!Redirect.securityCheck(thumb_link)) { thumb_link = ''; }
-      let media_link = Redirect.to('file', {boardID: this.boardID, filename: data.media.media_orig});
-      if (!Redirect.securityCheck(media_link)) { media_link = ''; }
-      o.file = {
-        name:      data.media.media_filename,
-        url:       media_link ||
-                     (this.boardID === 'f' ?
-                       `${location.protocol}//${ImageHost.flashHost()}/${this.boardID}/${encodeURIComponent(E(data.media.media_filename))}`
-                     :
-                       `${location.protocol}//${ImageHost.host()}/${this.boardID}/${data.media.media_orig}`),
-        height:    data.media.media_h,
-        width:     data.media.media_w,
-        MD5:       data.media.media_hash,
-        size:      $.bytesToString(data.media.media_size),
-        thumbURL:  thumb_link || `${location.protocol}//${ImageHost.thumbHost()}/${this.boardID}/${data.media.preview_orig}`,
-        theight:   data.media.preview_h,
-        twidth:    data.media.preview_w,
-        isSpoiler: data.media.spoiler === '1'
-      };
-      if (!/\.pdf$/.test(o.file.url)) { o.file.dimensions = `${o.file.width}x${o.file.height}`; }
-      if ((this.boardID === 'f') && data.media.exif) { o.file.tag = JSON.parse(data.media.exif).Tag; }
-    }
-    o.extra = dict();
-
-    const board = g.boards[this.boardID] ||
-      new Board(this.boardID);
-    const thread = g.threads.get(`${this.boardID}.${this.threadID}`) ||
-      new Thread(this.threadID, board);
-    post = new Post(g.SITE.Build.post(o), thread, board, {isFetchedQuote: true});
-    post.kill();
-    if (post.file) { post.file.thumbURL = o.file.thumbURL; }
-    Main.callbackNodes('Post', [post]);
+    post = parseArchivePost(data);
     return this.insert(post);
   }
 }

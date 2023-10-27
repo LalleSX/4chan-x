@@ -3,8 +3,10 @@
 4chan XT uses a different user script namespace, so to migrate you need to export settings from 4chan X, and import them
 in XT.
 
-### Unreleased
+### XT v2.2.0 (2023-10-27)
 
+- Added ability to restore deleted posts from an external archive. This can be found in the drop down menu at the top
+  right. [#8](https://github.com/TuxedoTako/4chan-xt/issues/8)
 - Also minify css in the minified build.
 
 ### XT v2.1.4 (2023-09-02)

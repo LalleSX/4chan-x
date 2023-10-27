@@ -16,6 +16,7 @@ export interface File {
   sizeInBytes: number,
   isDead:      boolean,
   url:         string,
+  thumbURL?:   string,
   name:        string,
   isImage:     boolean,
   isVideo:     boolean,
@@ -24,6 +25,13 @@ export interface File {
   fullImage?:  HTMLImageElement | HTMLVideoElement,
   audio?:      HTMLAudioElement,
   audioSlider?:HTMLSpanElement,
+  dimensions?: string,
+  height?:     string,
+  width?:      string,
+  theight:     string,
+  twidth:      string,
+  MD5?:        string,
+  isSpoiler?:  boolean,
 };
 
 export default class Post {
@@ -336,7 +344,7 @@ export default class Post {
     return file as File;
   }
 
-  kill(file, index=0) {
+  kill(file = false, index = 0) {
     let strong;
     if (file) {
       if (this.isDead || this.files[index].isDead) { return; }

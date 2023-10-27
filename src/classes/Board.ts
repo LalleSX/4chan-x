@@ -1,6 +1,8 @@
 import BoardConfig from "../General/BoardConfig";
 import { d, g } from "../globals/globals";
 import SimpleDict from "./SimpleDict";
+import type Post from "./Post";
+import type Thread from "./Thread";
 
 /*
  * decaffeinate suggestions:
@@ -8,6 +10,13 @@ import SimpleDict from "./SimpleDict";
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
 export default class Board {
+  declare ID: string;
+  declare boardID: string;
+  declare siteID: string;
+  declare threads: SimpleDict<Thread>;
+  declare posts: SimpleDict<Post>;
+  declare config: any;
+
   toString() { return this.ID; }
 
   constructor(ID) {

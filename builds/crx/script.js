@@ -79,8 +79,8 @@
   'use strict';
 
   var version = {
-    "version": "XT 2.1.4",
-    "date": "2023-09-02T15:03:39.080Z"
+    "version": "XT 2.2.0",
+    "date": "2023-10-27T13:58:44.136Z"
   };
 
   var meta = {
@@ -2238,116 +2238,117 @@ https://*.hcaptcha.com
    * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
    */
   class Thread {
-    toString() { return this.ID; }
-
-    constructor(ID, board) {
-      this.board = board;
-      this.ID         = +ID;
-      this.threadID   = this.ID;
-      this.boardID    = this.board.ID;
-      this.siteID     = g.SITE.ID;
-      this.fullID     = `${this.board}.${this.ID}`;
-      this.posts      = new SimpleDict();
-      this.isDead     = false;
-      this.isHidden   = false;
-      this.isSticky   = false;
-      this.isClosed   = false;
-      this.isArchived = false;
-      this.postLimit  = false;
-      this.fileLimit  = false;
-      this.lastPost   = 0;
-      this.ipCount    = undefined;
-      this.json       = null;
-
-      this.OP = null;
-      this.catalogView = null;
-
-      this.nodes =
-        {root: null};
-
-      this.board.threads.push(this.ID, this);
-      g.threads.push(this.fullID, this);
-    }
-
-    setPage(pageNum) {
-      let icon;
-      const {info, reply} = this.OP.nodes;
-      if (!(icon = $$1('.page-num', info))) {
-        icon = $$1.el('span', {className: 'page-num'});
-        $$1.replace(reply.parentNode.previousSibling, [$$1.tn(' '), icon, $$1.tn(' ')]);
+      toString() { return this.ID; }
+      constructor(ID, board) {
+          this.board = board;
+          this.ID = +ID;
+          this.threadID = this.ID;
+          this.boardID = this.board.ID;
+          this.siteID = g.SITE.ID;
+          this.fullID = `${this.board}.${this.ID}`;
+          this.posts = new SimpleDict();
+          this.isDead = false;
+          this.isHidden = false;
+          this.isSticky = false;
+          this.isClosed = false;
+          this.isArchived = false;
+          this.postLimit = false;
+          this.fileLimit = false;
+          this.lastPost = 0;
+          this.ipCount = undefined;
+          this.json = null;
+          this.OP = null;
+          this.catalogView = null;
+          this.nodes =
+              { root: null };
+          this.board.threads.push(this.ID, this);
+          g.threads.push(this.fullID, this);
       }
-      icon.title       = `This thread is on page ${pageNum} in the original index.`;
-      icon.textContent = `[${pageNum}]`;
-      if (this.catalogView) { return this.catalogView.nodes.pageCount.textContent = pageNum; }
-    }
-
-    setCount(type, count, reachedLimit) {
-      if (!this.catalogView) { return; }
-      const el = this.catalogView.nodes[`${type}Count`];
-      el.textContent = count;
-      return (reachedLimit ? $$1.addClass : $$1.rmClass)(el, 'warning');
-    }
-
-    setStatus(type, status) {
-      const name = `is${type}`;
-      if (this[name] === status) { return; }
-      this[name] = status;
-      if (!this.OP) { return; }
-      this.setIcon('Sticky',   this.isSticky);
-      this.setIcon('Closed',   this.isClosed && !this.isArchived);
-      return this.setIcon('Archived', this.isArchived);
-    }
-
-    setIcon(type, status) {
-      const typeLC = type.toLowerCase();
-      let icon = $$1(`.${typeLC}Icon`, this.OP.nodes.info);
-      if (!!icon === status) { return; }
-
-      if (!status) {
-        $$1.rm(icon.previousSibling);
-        $$1.rm(icon);
-        if (this.catalogView) { $$1.rm($$1(`.${typeLC}Icon`, this.catalogView.nodes.icons)); }
-        return;
+      setPage(pageNum) {
+          let icon;
+          const { info, reply } = this.OP.nodes;
+          if (!(icon = $$1('.page-num', info))) {
+              icon = $$1.el('span', { className: 'page-num' });
+              $$1.replace(reply.parentNode.previousSibling, [$$1.tn(' '), icon, $$1.tn(' ')]);
+          }
+          icon.title = `This thread is on page ${pageNum} in the original index.`;
+          icon.textContent = `[${pageNum}]`;
+          if (this.catalogView) {
+              return this.catalogView.nodes.pageCount.textContent = pageNum;
+          }
       }
-      icon = $$1.el('img', {
-        src: `${g.SITE.Build.staticPath}${typeLC}${g.SITE.Build.gifIcon}`,
-        alt:   type,
-        title: type,
-        className: `${typeLC}Icon retina`
+      setCount(type, count, reachedLimit) {
+          if (!this.catalogView) {
+              return;
+          }
+          const el = this.catalogView.nodes[`${type}Count`];
+          el.textContent = count;
+          return (reachedLimit ? $$1.addClass : $$1.rmClass)(el, 'warning');
       }
-      );
-      if (g.BOARD.ID === 'f') {
-        icon.style.cssText = 'height: 18px; width: 18px;';
+      setStatus(type, status) {
+          const name = `is${type}`;
+          if (this[name] === status) {
+              return;
+          }
+          this[name] = status;
+          if (!this.OP) {
+              return;
+          }
+          this.setIcon('Sticky', this.isSticky);
+          this.setIcon('Closed', this.isClosed && !this.isArchived);
+          return this.setIcon('Archived', this.isArchived);
       }
-
-      const root = (type !== 'Sticky') && this.isSticky ?
-        $$1('.stickyIcon', this.OP.nodes.info)
-      :
-        $$1('.page-num', this.OP.nodes.info) || this.OP.nodes.quote;
-      $$1.after(root, [$$1.tn(' '), icon]);
-
-      if (!this.catalogView) { return; }
-      return ((type === 'Sticky') && this.isClosed ? $$1.prepend : $$1.add)(this.catalogView.nodes.icons, icon.cloneNode());
-    }
-
-    kill() {
-      return this.isDead = true;
-    }
-
-    collect() {
-      let n = 0;
-      this.posts.forEach(function(post) {
-        if (post.clones.length) {
-          return n++;
-        } else {
-          return post.collect();
-        }
-      });
-      if (!n) {
-        g.threads.rm(this.fullID);
-        return this.board.threads.rm(this);
+      setIcon(type, status) {
+          const typeLC = type.toLowerCase();
+          let icon = $$1(`.${typeLC}Icon`, this.OP.nodes.info);
+          if (!!icon === status) {
+              return;
+          }
+          if (!status) {
+              $$1.rm(icon.previousSibling);
+              $$1.rm(icon);
+              if (this.catalogView) {
+                  $$1.rm($$1(`.${typeLC}Icon`, this.catalogView.nodes.icons));
+              }
+              return;
+          }
+          icon = $$1.el('img', {
+              src: `${g.SITE.Build.staticPath}${typeLC}${g.SITE.Build.gifIcon}`,
+              alt: type,
+              title: type,
+              className: `${typeLC}Icon retina`
+          });
+          if (g.BOARD.ID === 'f') {
+              icon.style.cssText = 'height: 18px; width: 18px;';
+          }
+          const root = (type !== 'Sticky') && this.isSticky ?
+              $$1('.stickyIcon', this.OP.nodes.info)
+              :
+                  $$1('.page-num', this.OP.nodes.info) || this.OP.nodes.quote;
+          $$1.after(root, [$$1.tn(' '), icon]);
+          if (!this.catalogView) {
+              return;
+          }
+          return ((type === 'Sticky') && this.isClosed ? $$1.prepend : $$1.add)(this.catalogView.nodes.icons, icon.cloneNode());
       }
-    }
+      kill() {
+          return this.isDead = true;
+      }
+      collect() {
+          let n = 0;
+          this.posts.forEach(function (post) {
+              if (post.clones.length) {
+                  return n++;
+              }
+              else {
+                  return post.collect();
+              }
+          });
+          if (!n) {
+              g.threads.rm(this.fullID);
+              return this.board.threads.rm(this);
+          }
+      }
   }
 
   class CatalogThread {
@@ -3980,7 +3981,7 @@ https://*.hcaptcha.com
           file.sizeInBytes = size;
           return file;
       }
-      kill(file, index = 0) {
+      kill(file = false, index = 0) {
           let strong;
           if (file) {
               if (this.isDead || this.files[index].isDead) {
@@ -4851,35 +4852,32 @@ https://*.hcaptcha.com
    * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
    */
   class Board {
-    toString() { return this.ID; }
-
-    constructor(ID) {
-      this.ID = ID;
-      this.boardID = this.ID;
-      this.siteID  = g.SITE.ID;
-      this.threads = new SimpleDict();
-      this.posts   = new SimpleDict();
-      this.config  = BoardConfig.boards?.[this.ID] || {};
-
-      g.boards[this] = this;
-    }
-
-    cooldowns() {
-      const c2 = (this.config || {}).cooldowns || {};
-      const c = {
-        thread: c2.threads || 0,
-        reply:  c2.replies || 0,
-        image:  c2.images  || 0,
-        thread_global: 300 // inter-board thread cooldown
-      };
-      // Pass users have reduced cooldowns.
-      if (d$1.cookie.indexOf('pass_enabled=1') >= 0) {
-        for (var key of ['reply', 'image']) {
-          c[key] = Math.ceil(c[key] / 2);
-        }
+      toString() { return this.ID; }
+      constructor(ID) {
+          this.ID = ID;
+          this.boardID = this.ID;
+          this.siteID = g.SITE.ID;
+          this.threads = new SimpleDict();
+          this.posts = new SimpleDict();
+          this.config = BoardConfig.boards?.[this.ID] || {};
+          g.boards[this] = this;
       }
-      return c;
-    }
+      cooldowns() {
+          const c2 = (this.config || {}).cooldowns || {};
+          const c = {
+              thread: c2.threads || 0,
+              reply: c2.replies || 0,
+              image: c2.images || 0,
+              thread_global: 300 // inter-board thread cooldown
+          };
+          // Pass users have reduced cooldowns.
+          if (d$1.cookie.indexOf('pass_enabled=1') >= 0) {
+              for (var key of ['reply', 'image']) {
+                  c[key] = Math.ceil(c[key] / 2);
+              }
+          }
+          return c;
+      }
   }
 
   /*
@@ -5445,9 +5443,9 @@ https://*.hcaptcha.com
     },
 
     addPost() {
-      if (this.isFetchedQuote || this.isClone) { return; }
+      if (this.isFetchedQuote || this.isClone || (this.ID <= Unread.lastReadPost)) return;
       Unread.order.push(this);
-      if ((this.ID <= Unread.lastReadPost) || this.isHidden || QuoteYou.isYou(this)) { return; }
+      if (this.isHidden || QuoteYou.isYou(this)) return;
       Unread.posts.add((Unread.posts.last = this.ID));
       Unread.addPostQuotingYou(this);
       return Unread.position != null ? Unread.position : (Unread.position = Unread.order[this.ID]);
@@ -6881,6 +6879,116 @@ https://*.hcaptcha.com
       return { innerHTML, [isEscaped]: true };
   }
 
+  const parseArchivePost = (data) => {
+      // https://github.com/eksopl/asagi/blob/v0.4.0b74/src/main/java/net/easymodo/asagi/YotsubaAbstract.java#L82-L129
+      // https://github.com/FoolCode/FoolFuuka/blob/800bd090835489e7e24371186db6e336f04b85c0/src/Model/Comment.php#L368-L428
+      // https://github.com/bstats/b-stats/blob/6abe7bffaf6e5f523498d760e54b110df5331fbb/inc/classes/Yotsuba.php#L157-L168
+      let comment = (data.comment || '').split(/(\n|\[\/?(?:b|spoiler|code|moot|banned|fortune(?: color="#\w+")?|i|red|green|blue)\])/);
+      comment = comment.map((text, i) => {
+          if ((i % 2) === 1) {
+              var tag = Fetcher.archiveTags[text.replace(/\ .*\]/, ']')];
+              return (typeof tag === 'function') ? tag(text) : tag;
+          }
+          else {
+              var greentext = text[0] === '>';
+              text = text
+                  .replace(/(\[\/?[a-z]+):lit(\])/g, '$1$2')
+                  .split(/(>>(?:>\/[a-z\d]+\/)?\d+)/g)
+                  .map((text2, j) => ((j % 2) ? `<span class="deadlink">${E(text2)}</span>` : E(text2)))
+                  .join('');
+              return { innerHTML: (greentext ? `<span class="quote">${text}</span>` : text) };
+          }
+      });
+      comment = { innerHTML: E.cat(comment), [isEscaped]: true };
+      const o = {
+          ID: data.num,
+          threadID: data.thread_num,
+          boardID: data.board.shortname,
+          isReply: data.num !== data.thread_num,
+          fileDeleted: false,
+          info: {
+              subject: data.title,
+              email: data.email,
+              name: data.name || '',
+              tripcode: data.trip,
+              capcode: (() => {
+                  switch (data.capcode) {
+                      // https://github.com/pleebe/FoolFuuka/blob/bf4224eed04637a4d0bd4411c2bf5f9945dfec0b/assets/themes/foolz/foolfuuka-theme-fuuka/src/Partial/Board.php#L77
+                      case 'M': return 'Mod';
+                      case 'A': return 'Admin';
+                      case 'D': return 'Developer';
+                      case 'V': return 'Verified';
+                      case 'F': return 'Founder';
+                      case 'G': return 'Manager';
+                  }
+              })(),
+              uniqueID: data.poster_hash,
+              flagCode: data.poster_country,
+              flagCodeTroll: data.troll_country_code,
+              flag: data.poster_country_name || data.troll_country_name,
+              dateUTC: data.timestamp,
+              dateText: data.fourchan_date,
+              commentHTML: comment,
+          },
+          file: null,
+          extra: null,
+      };
+      if (o.info.capcode) {
+          delete o.info.uniqueID;
+      }
+      if (data.media && !!+data.media.banned) {
+          o.fileDeleted = true;
+      }
+      else if (data.media?.media_filename) {
+          let { thumb_link } = data.media;
+          // Fix URLs missing origin
+          if (thumb_link?.[0] === '/') {
+              thumb_link = url.split('/', 3).join('/') + thumb_link;
+          }
+          if (!Redirect$1.securityCheck(thumb_link)) {
+              thumb_link = '';
+          }
+          let media_link = Redirect$1.to('file', { boardID: o.boardID, filename: data.media.media_orig });
+          if (!Redirect$1.securityCheck(media_link)) {
+              media_link = '';
+          }
+          o.file = {
+              name: data.media.media_filename,
+              url: media_link ||
+                  (o.boardID === 'f' ?
+                      `${location.protocol}//${ImageHost.flashHost()}/${o.boardID}/${encodeURIComponent(E(data.media.media_filename))}`
+                      :
+                          `${location.protocol}//${ImageHost.host()}/${o.boardID}/${data.media.media_orig}`),
+              height: data.media.media_h,
+              width: data.media.media_w,
+              MD5: data.media.media_hash,
+              size: $$1.bytesToString(data.media.media_size),
+              thumbURL: thumb_link || `${location.protocol}//${ImageHost.thumbHost()}/${o.boardID}/${data.media.preview_orig}`,
+              theight: data.media.preview_h,
+              twidth: data.media.preview_w,
+              isSpoiler: data.media.spoiler === '1'
+          };
+          if (!/\.pdf$/.test(o.file.url)) {
+              o.file.dimensions = `${o.file.width}x${o.file.height}`;
+          }
+          if ((o.boardID === 'f') && data.media.exif) {
+              o.file.tag = JSON.parse(data.media.exif).Tag;
+          }
+      }
+      o.extra = dict();
+      const board = g.boards[o.boardID] ||
+          new Board(o.boardID);
+      const thread = g.threads.get(`${o.boardID}.${o.threadID}`) ||
+          new Thread(o.threadID, board);
+      const post = new Post(g.SITE.Build.post(o), thread, board, { isFetchedQuote: true });
+      post.kill();
+      if (post.file) {
+          post.file.thumbURL = o.file.thumbURL;
+      }
+      Main$1.callbackNodes('Post', [post]);
+      return post;
+  };
+
   /*
    * decaffeinate suggestions:
    * DS102: Remove unnecessary code created because of implicit returns
@@ -6890,297 +6998,206 @@ https://*.hcaptcha.com
    * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
    */
   class Fetcher {
-    static archiveTags = {
-      '\n':         {innerHTML: "<br>"},
-      '[b]':        {innerHTML: "<b>"},
-      '[/b]':       {innerHTML: "</b>"},
-      '[spoiler]':  {innerHTML: "<s>"},
-      '[/spoiler]': {innerHTML: "</s>"},
-      '[code]':     {innerHTML: "<pre class=\"prettyprint\">"},
-      '[/code]':    {innerHTML: "</pre>"},
-      '[moot]':     {innerHTML: "<div style=\"padding:5px;margin-left:.5em;border-color:#faa;border:2px dashed rgba(255,0,0,.1);border-radius:2px\">"},
-      '[/moot]':    {innerHTML: "</div>"},
-      '[banned]':   {innerHTML: "<strong style=\"color: red;\">"},
-      '[/banned]':  {innerHTML: "</strong>"},
-      '[fortune]'(text) { return {innerHTML: "<span class=\"fortune\" style=\"color:" + E(text.match(/#\w+|$/)[0]) + "\"><b>"}; },
-      '[/fortune]': {innerHTML: "</b></span>"},
-      '[i]':        {innerHTML: "<span class=\"mu-i\">"},
-      '[/i]':       {innerHTML: "</span>"},
-      '[red]':      {innerHTML: "<span class=\"mu-r\">"},
-      '[/red]':     {innerHTML: "</span>"},
-      '[green]':    {innerHTML: "<span class=\"mu-g\">"},
-      '[/green]':   {innerHTML: "</span>"},
-      '[blue]':     {innerHTML: "<span class=\"mu-b\">"},
-      '[/blue]':    {innerHTML: "</span>"}
-    };
-
-    constructor(boardID, threadID, postID, root, quoter) {
-      let post, thread;
-      this.boardID = boardID;
-      this.threadID = threadID;
-      this.postID = postID;
-      this.root = root;
-      this.quoter = quoter;
-      if (post = g.posts.get(`${this.boardID}.${this.postID}`)) {
-        this.insert(post);
-        return;
-      }
-
-      // 4chan X catalog data
-      if ((post = Index$1.replyData?.[`${this.boardID}.${this.postID}`]) && (thread = g.threads.get(`${this.boardID}.${this.threadID}`))) {
-        const board  = g.boards[this.boardID];
-        post = new Post(g.SITE.Build.postFromObject(post, this.boardID), thread, board, {isFetchedQuote: true});
-        Main$1.callbackNodes('Post', [post]);
-        this.insert(post);
-        return;
-      }
-
-      this.root.textContent = `Loading post No.${this.postID}...`;
-      if (this.threadID) {
-        const that = this;
-        $$1.cache(g.SITE.urls.threadJSON({boardID: this.boardID, threadID: this.threadID}), function({isCached}) {
-          return that.fetchedPost(this, isCached);
-        });
-      } else {
-        this.archivedPost();
-      }
-    }
-
-    insert(post) {
-      // Stop here if the container has been removed while loading.
-      if (!this.root.parentNode) { return; }
-      if (!this.quoter) { this.quoter = post; }
-      const clone = post.addClone(this.quoter.context, ($$1.hasClass(this.root, 'dialog')));
-      Main$1.callbackNodes('Post', [clone]);
-
-      // Get rid of the side arrows/stubs.
-      const {nodes} = clone;
-      $$1.rmAll(nodes.root);
-      $$1.add(nodes.root, nodes.post);
-
-      // Indicate links to the containing post.
-      const quotes = [...clone.nodes.quotelinks, ...clone.nodes.backlinks];
-      for (var quote of quotes) {
-        var {boardID, postID} = Get$1.postDataFromLink(quote);
-        if ((postID === this.quoter.ID) && (boardID === this.quoter.board.ID)) {
-          $$1.addClass(quote, 'forwardlink');
-        }
-      }
-
-      // Set up flag CSS for cross-board links to boards with flags
-      if (clone.nodes.flag && !(Fetcher.flagCSS || (Fetcher.flagCSS = $$1('link[href^="//s.4cdn.org/css/flags."]')))) {
-        const cssVersion = $$1('link[href^="//s.4cdn.org/css/"]')?.href.match(/\d+(?=\.css$)|$/)[0] || Date.now();
-        Fetcher.flagCSS = $$1.el('link', {
-          rel: 'stylesheet',
-          href: `//s.4cdn.org/css/flags.${cssVersion}.css`
-        }
-        );
-        $$1.add(d$1.head, Fetcher.flagCSS);
-      }
-
-      $$1.rmAll(this.root);
-      $$1.add(this.root, nodes.root);
-      return $$1.event('PostsInserted', null, this.root);
-    }
-
-    fetchedPost(req, isCached) {
-      // In case of multiple callbacks for the same request,
-      // don't parse the same original post more than once.
-      let post;
-      if (post = g.posts.get(`${this.boardID}.${this.postID}`)) {
-        this.insert(post);
-        return;
-      }
-
-      const {status} = req;
-      if (status !== 200) {
-        // The thread can die by the time we check a quote.
-        if (status && this.archivedPost()) { return; }
-
-        $$1.addClass(this.root, 'warning');
-        this.root.textContent =
-          status === 404 ?
-            `Thread No.${this.threadID} 404'd.`
-          : !status ?
-            'Connection Error'
-          :
-            `Error ${req.statusText} (${req.status}).`;
-        return;
-      }
-
-      const {posts} = req.response;
-      g.SITE.Build.spoilerRange[this.boardID] = posts[0].custom_spoiler;
-      for (post of posts) {
-        if (post.no === this.postID) { break; }
-      } // we found it!
-
-      if (post.no !== this.postID) {
-        // Cached requests can be stale and must be rechecked.
-        if (isCached) {
-          const api = g.SITE.urls.threadJSON({boardID: this.boardID, threadID: this.threadID});
-          $$1.cleanCache(url => url === api);
-          const that = this;
-          $$1.cache(api, function() {
-            return that.fetchedPost(this, false);
-          });
-          return;
-        }
-
-        // The post can be deleted by the time we check a quote.
-        if (this.archivedPost()) { return; }
-
-        $$1.addClass(this.root, 'warning');
-        this.root.textContent = `Post No.${this.postID} was not found.`;
-        return;
-      }
-
-      const board = g.boards[this.boardID] ||
-        new Board(this.boardID);
-      const thread = g.threads.get(`${this.boardID}.${this.threadID}`) ||
-        new Thread(this.threadID, board);
-      post = new Post(g.SITE.Build.postFromObject(post, this.boardID), thread, board, {isFetchedQuote: true});
-      Main$1.callbackNodes('Post', [post]);
-      return this.insert(post);
-    }
-
-    archivedPost() {
-      let url;
-      if (!Conf['Resurrect Quotes']) { return false; }
-      if (!(url = Redirect$1.to('post', {boardID: this.boardID, postID: this.postID}))) { return false; }
-      const archive = Redirect$1.data.post[this.boardID];
-      const encryptionOK = /^https:\/\//.test(url) || (location.protocol === 'http:');
-      if (encryptionOK || Conf['Exempt Archives from Encryption']) {
-        const that = this;
-        CrossOrigin$1.cache(url, function() {
-          if (!encryptionOK && this.response?.media) {
-            const {media} = this.response;
-            for (var key in media) {
-              // Image/thumbnail URLs loaded over HTTP can be modified in transit.
-              // Require them to be from an HTTP host so that no referrer is sent to them from an HTTPS page.
-              if (/_link$/.test(key)) {
-                if (!$$1.getOwn(media, key)?.match(/^http:\/\//)) { delete media[key]; }
-              }
-            }
+      constructor(boardID, threadID, postID, root, quoter) {
+          let post, thread;
+          this.boardID = boardID;
+          this.threadID = threadID;
+          this.postID = postID;
+          this.root = root;
+          this.quoter = quoter;
+          if (post = g.posts.get(`${this.boardID}.${this.postID}`)) {
+              this.insert(post);
+              return;
           }
-          return that.parseArchivedPost(this.response, url, archive);
-        });
-        return true;
+          // 4chan X catalog data
+          if ((post = Index$1.replyData?.[`${this.boardID}.${this.postID}`]) && (thread = g.threads.get(`${this.boardID}.${this.threadID}`))) {
+              const board = g.boards[this.boardID];
+              post = new Post(g.SITE.Build.postFromObject(post, this.boardID), thread, board, { isFetchedQuote: true });
+              Main$1.callbackNodes('Post', [post]);
+              this.insert(post);
+              return;
+          }
+          this.root.textContent = `Loading post No.${this.postID}...`;
+          if (this.threadID) {
+              const that = this;
+              $$1.cache(g.SITE.urls.threadJSON({ boardID: this.boardID, threadID: this.threadID }), function ({ isCached }) {
+                  return that.fetchedPost(this, isCached);
+              });
+          }
+          else {
+              this.archivedPost();
+          }
       }
-      return false;
-    }
-
-    parseArchivedPost(data, url, archive) {
-      // In case of multiple callbacks for the same request,
-      // don't parse the same original post more than once.
-      let post;
-      if (post = g.posts.get(`${this.boardID}.${this.postID}`)) {
-        this.insert(post);
-        return;
+      insert(post) {
+          // Stop here if the container has been removed while loading.
+          if (!this.root.parentNode) {
+              return;
+          }
+          if (!this.quoter) {
+              this.quoter = post;
+          }
+          const clone = post.addClone(this.quoter.context, ($$1.hasClass(this.root, 'dialog')));
+          Main$1.callbackNodes('Post', [clone]);
+          // Get rid of the side arrows/stubs.
+          const { nodes } = clone;
+          $$1.rmAll(nodes.root);
+          $$1.add(nodes.root, nodes.post);
+          // Indicate links to the containing post.
+          const quotes = [...clone.nodes.quotelinks, ...clone.nodes.backlinks];
+          for (var quote of quotes) {
+              var { boardID, postID } = Get$1.postDataFromLink(quote);
+              if ((postID === this.quoter.ID) && (boardID === this.quoter.board.ID)) {
+                  $$1.addClass(quote, 'forwardlink');
+              }
+          }
+          // Set up flag CSS for cross-board links to boards with flags
+          if (clone.nodes.flag && !(Fetcher.flagCSS || (Fetcher.flagCSS = $$1('link[href^="//s.4cdn.org/css/flags."]')))) {
+              const cssVersion = $$1('link[href^="//s.4cdn.org/css/"]')?.href.match(/\d+(?=\.css$)|$/)[0] || Date.now();
+              Fetcher.flagCSS = $$1.el('link', {
+                  rel: 'stylesheet',
+                  href: `//s.4cdn.org/css/flags.${cssVersion}.css`
+              });
+              $$1.add(d$1.head, Fetcher.flagCSS);
+          }
+          $$1.rmAll(this.root);
+          $$1.add(this.root, nodes.root);
+          return $$1.event('PostsInserted', null, this.root);
       }
-
-      if (data == null) {
-        $$1.addClass(this.root, 'warning');
-        this.root.textContent = `Error fetching Post No.${this.postID} from ${archive.name}.`;
-        return;
+      fetchedPost(req, isCached) {
+          // In case of multiple callbacks for the same request,
+          // don't parse the same original post more than once.
+          let post;
+          if (post = g.posts.get(`${this.boardID}.${this.postID}`)) {
+              this.insert(post);
+              return;
+          }
+          const { status } = req;
+          if (status !== 200) {
+              // The thread can die by the time we check a quote.
+              if (status && this.archivedPost()) {
+                  return;
+              }
+              $$1.addClass(this.root, 'warning');
+              this.root.textContent =
+                  status === 404 ?
+                      `Thread No.${this.threadID} 404'd.`
+                      : !status ?
+                          'Connection Error'
+                          :
+                              `Error ${req.statusText} (${req.status}).`;
+              return;
+          }
+          const { posts } = req.response;
+          g.SITE.Build.spoilerRange[this.boardID] = posts[0].custom_spoiler;
+          for (post of posts) {
+              if (post.no === this.postID) {
+                  break;
+              }
+          } // we found it!
+          if (post.no !== this.postID) {
+              // Cached requests can be stale and must be rechecked.
+              if (isCached) {
+                  const api = g.SITE.urls.threadJSON({ boardID: this.boardID, threadID: this.threadID });
+                  $$1.cleanCache(url => url === api);
+                  const that = this;
+                  $$1.cache(api, function () {
+                      return that.fetchedPost(this, false);
+                  });
+                  return;
+              }
+              // The post can be deleted by the time we check a quote.
+              if (this.archivedPost()) {
+                  return;
+              }
+              $$1.addClass(this.root, 'warning');
+              this.root.textContent = `Post No.${this.postID} was not found.`;
+              return;
+          }
+          const board = g.boards[this.boardID] ||
+              new Board(this.boardID);
+          const thread = g.threads.get(`${this.boardID}.${this.threadID}`) ||
+              new Thread(this.threadID, board);
+          post = new Post(g.SITE.Build.postFromObject(post, this.boardID), thread, board, { isFetchedQuote: true });
+          Main$1.callbackNodes('Post', [post]);
+          return this.insert(post);
       }
-
-      if (data.error) {
-        $$1.addClass(this.root, 'warning');
-        this.root.textContent = data.error;
-        return;
+      archivedPost() {
+          let url;
+          if (!Conf['Resurrect Quotes']) {
+              return false;
+          }
+          if (!(url = Redirect$1.to('post', { boardID: this.boardID, postID: this.postID }))) {
+              return false;
+          }
+          const archive = Redirect$1.data.post[this.boardID];
+          const encryptionOK = /^https:\/\//.test(url) || (location.protocol === 'http:');
+          if (encryptionOK || Conf['Exempt Archives from Encryption']) {
+              const that = this;
+              CrossOrigin$1.cache(url, function () {
+                  if (!encryptionOK && this.response?.media) {
+                      const { media } = this.response;
+                      for (var key in media) {
+                          // Image/thumbnail URLs loaded over HTTP can be modified in transit.
+                          // Require them to be from an HTTP host so that no referrer is sent to them from an HTTPS page.
+                          if (/_link$/.test(key)) {
+                              if (!$$1.getOwn(media, key)?.match(/^http:\/\//)) {
+                                  delete media[key];
+                              }
+                          }
+                      }
+                  }
+                  return that.parseArchivedPost(this.response, url, archive);
+              });
+              return true;
+          }
+          return false;
       }
-
-      // https://github.com/eksopl/asagi/blob/v0.4.0b74/src/main/java/net/easymodo/asagi/YotsubaAbstract.java#L82-L129
-      // https://github.com/FoolCode/FoolFuuka/blob/800bd090835489e7e24371186db6e336f04b85c0/src/Model/Comment.php#L368-L428
-      // https://github.com/bstats/b-stats/blob/6abe7bffaf6e5f523498d760e54b110df5331fbb/inc/classes/Yotsuba.php#L157-L168
-      let comment = (data.comment || '').split(/(\n|\[\/?(?:b|spoiler|code|moot|banned|fortune(?: color="#\w+")?|i|red|green|blue)\])/);
-      comment = comment.map((text, i) => {
-        if ((i % 2) === 1) {
-          var tag = Fetcher.archiveTags[text.replace(/\ .*\]/, ']')];
-          return (typeof tag === 'function') ? tag(text) : tag;
-        } else {
-          var greentext = text[0] === '>';
-          text = text
-            .replace(/(\[\/?[a-z]+):lit(\])/g, '$1$2')
-            .split(/(>>(?:>\/[a-z\d]+\/)?\d+)/g)
-            .map((text2, j) => ((j % 2) ? `<span class="deadlink">${E(text2)}</span>`: E(text2)))
-            .join('');
-          return {innerHTML: (greentext ? `<span class="quote">${text}</span>` : text)};
-        }
-      });
-      comment = { innerHTML: E.cat(comment), [isEscaped]: true };
-
-      this.threadID = +data.thread_num;
-      const o = {
-        ID:       this.postID,
-        threadID: this.threadID,
-        boardID:  this.boardID,
-        isReply:  this.postID !== this.threadID
-      };
-      o.info = {
-        subject:  data.title,
-        email:    data.email,
-        name:     data.name || '',
-        tripcode: data.trip,
-        capcode:  (() => { switch (data.capcode) {
-          // https://github.com/pleebe/FoolFuuka/blob/bf4224eed04637a4d0bd4411c2bf5f9945dfec0b/assets/themes/foolz/foolfuuka-theme-fuuka/src/Partial/Board.php#L77
-          case 'M': return 'Mod';
-          case 'A': return 'Admin';
-          case 'D': return 'Developer';
-          case 'V': return 'Verified';
-          case 'F': return 'Founder';
-          case 'G': return 'Manager';
-        } })(),
-        uniqueID: data.poster_hash,
-        flagCode: data.poster_country,
-        flagCodeTroll: data.troll_country_code,
-        flag:     data.poster_country_name || data.troll_country_name,
-        dateUTC:  data.timestamp,
-        dateText: data.fourchan_date,
-        commentHTML: comment
-      };
-      if (o.info.capcode) { delete o.info.uniqueID; }
-      if (data.media && !!+data.media.banned) {
-        o.fileDeleted = true;
-      } else if (data.media?.media_filename) {
-        let {thumb_link} = data.media;
-        // Fix URLs missing origin
-        if (thumb_link?.[0] === '/') { thumb_link = url.split('/', 3).join('/') + thumb_link; }
-        if (!Redirect$1.securityCheck(thumb_link)) { thumb_link = ''; }
-        let media_link = Redirect$1.to('file', {boardID: this.boardID, filename: data.media.media_orig});
-        if (!Redirect$1.securityCheck(media_link)) { media_link = ''; }
-        o.file = {
-          name:      data.media.media_filename,
-          url:       media_link ||
-                       (this.boardID === 'f' ?
-                         `${location.protocol}//${ImageHost.flashHost()}/${this.boardID}/${encodeURIComponent(E(data.media.media_filename))}`
-                       :
-                         `${location.protocol}//${ImageHost.host()}/${this.boardID}/${data.media.media_orig}`),
-          height:    data.media.media_h,
-          width:     data.media.media_w,
-          MD5:       data.media.media_hash,
-          size:      $$1.bytesToString(data.media.media_size),
-          thumbURL:  thumb_link || `${location.protocol}//${ImageHost.thumbHost()}/${this.boardID}/${data.media.preview_orig}`,
-          theight:   data.media.preview_h,
-          twidth:    data.media.preview_w,
-          isSpoiler: data.media.spoiler === '1'
-        };
-        if (!/\.pdf$/.test(o.file.url)) { o.file.dimensions = `${o.file.width}x${o.file.height}`; }
-        if ((this.boardID === 'f') && data.media.exif) { o.file.tag = JSON.parse(data.media.exif).Tag; }
+      parseArchivedPost(data, url, archive) {
+          // In case of multiple callbacks for the same request,
+          // don't parse the same original post more than once.
+          let post;
+          if (post = g.posts.get(`${this.boardID}.${this.postID}`)) {
+              this.insert(post);
+              return;
+          }
+          if (data == null) {
+              $$1.addClass(this.root, 'warning');
+              this.root.textContent = `Error fetching Post No.${this.postID} from ${archive.name}.`;
+              return;
+          }
+          if (data.error) {
+              $$1.addClass(this.root, 'warning');
+              this.root.textContent = data.error;
+              return;
+          }
+          this.threadID = +data.thread_num;
+          post = parseArchivePost(data);
+          return this.insert(post);
       }
-      o.extra = dict();
-
-      const board = g.boards[this.boardID] ||
-        new Board(this.boardID);
-      const thread = g.threads.get(`${this.boardID}.${this.threadID}`) ||
-        new Thread(this.threadID, board);
-      post = new Post(g.SITE.Build.post(o), thread, board, {isFetchedQuote: true});
-      post.kill();
-      if (post.file) { post.file.thumbURL = o.file.thumbURL; }
-      Main$1.callbackNodes('Post', [post]);
-      return this.insert(post);
-    }
   }
+  Fetcher.archiveTags = {
+      '\n': { innerHTML: "<br>" },
+      '[b]': { innerHTML: "<b>" },
+      '[/b]': { innerHTML: "</b>" },
+      '[spoiler]': { innerHTML: "<s>" },
+      '[/spoiler]': { innerHTML: "</s>" },
+      '[code]': { innerHTML: "<pre class=\"prettyprint\">" },
+      '[/code]': { innerHTML: "</pre>" },
+      '[moot]': { innerHTML: "<div style=\"padding:5px;margin-left:.5em;border-color:#faa;border:2px dashed rgba(255,0,0,.1);border-radius:2px\">" },
+      '[/moot]': { innerHTML: "</div>" },
+      '[banned]': { innerHTML: "<strong style=\"color: red;\">" },
+      '[/banned]': { innerHTML: "</strong>" },
+      '[fortune]'(text) { return { innerHTML: "<span class=\"fortune\" style=\"color:" + E(text.match(/#\w+|$/)[0]) + "\"><b>" }; },
+      '[/fortune]': { innerHTML: "</b></span>" },
+      '[i]': { innerHTML: "<span class=\"mu-i\">" },
+      '[/i]': { innerHTML: "</span>" },
+      '[red]': { innerHTML: "<span class=\"mu-r\">" },
+      '[/red]': { innerHTML: "</span>" },
+      '[green]': { innerHTML: "<span class=\"mu-g\">" },
+      '[/green]': { innerHTML: "</span>" },
+      '[blue]': { innerHTML: "<span class=\"mu-b\">" },
+      '[/blue]': { innerHTML: "</span>" }
+  };
 
   /*
    * decaffeinate suggestions:
@@ -14605,446 +14622,427 @@ $\
    * DS207: Consider shorter variations of null checks
    * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
    */
-
   var ThreadUpdater = {
-    init() {
-      let el, name, sc;
-      if ((g.VIEW !== 'thread') || !Conf['Thread Updater']) { return; }
-      this.enabled = true;
-
-      // Chromium won't play audio created in an inactive tab until the tab has been focused, so set it up now.
-      // XXX Sometimes the loading stalls in Firefox, esp. when opening in private browsing window followed by normal window.
-      // Don't let it keep the loading icon on indefinitely.
-      this.audio = $$1.el('audio');
-      if ($$1.engine !== 'gecko') { this.audio.src = this.beep; }
-
-      if (Conf['Updater and Stats in Header']) {
-        this.dialog = (sc = $$1.el('span',
-          {id:        'updater'}));
-        $$1.extend(sc, {innerHTML: '<span id="update-status" class="empty"></span><span id="update-timer" class="empty" title="Update now"></span>'});
-        Header$1.addShortcut('updater', sc, 100);
-      } else {
-        this.dialog = (sc = UI.dialog('updater',
-          {innerHTML: '<div class="move"></div><span id="update-status" class="empty"></span><span id="update-timer" class="empty" title="Update now"></span>'}));
-        $$1.addClass(doc$1, 'float');
-        $$1.ready(() => $$1.add(d$1.body, sc));
-      }
-
-      this.checkPostCount = 0;
-
-      this.timer  = $$1('#update-timer', sc);
-      this.status = $$1('#update-status', sc);
-
-      $$1.on(this.timer,  'click', this.update);
-      $$1.on(this.status, 'click', this.update);
-
-      const updateLink = $$1.el('span',
-        {className: 'brackets-wrap updatelink'});
-      $$1.extend(updateLink, {innerHTML: '<a href="javascript:;">Update</a>'});
-      Main$1.ready(function() {
-        let navLinksBot;
-        if (navLinksBot = $$1('.navLinksBot')) { return $$1.add(navLinksBot, [$$1.tn(' '), updateLink]); }
-      });
-      $$1.on(updateLink.firstElementChild, 'click', this.update);
-
-      const subEntries = [];
-      for (name in Config.updater.checkbox) {
-        var conf = Config.updater.checkbox[name];
-        el = UI.checkbox(name, name);
-        el.title = conf[1];
-        var input = el.firstElementChild;
-        $$1.on(input, 'change', $$1.cb.checked);
-        if (input.name === 'Scroll BG') {
-          $$1.on(input, 'change', this.cb.scrollBG);
-          this.cb.scrollBG();
-        } else if (input.name === 'Auto Update') {
-          $$1.on(input, 'change', this.setInterval);
-        }
-        subEntries.push({el});
-      }
-
-      this.settings = $$1.el('span',
-        {innerHTML: '<a href="javascript:;">Interval</a>'});
-
-      $$1.on(this.settings, 'click', this.intervalShortcut);
-
-      subEntries.push({el: this.settings});
-
-      Header$1.menu.addEntry(this.entry = {
-        el: $$1.el('span',
-          {textContent: 'Updater'}),
-        order: 110,
-        subEntries
-      }
-      );
-
-      return Callbacks.Thread.push({
-        name: 'Thread Updater',
-        cb:   this.node
-      });
-    },
-
-    node() {
-      ThreadUpdater.thread       = this;
-      ThreadUpdater.root         = this.nodes.root;
-      ThreadUpdater.outdateCount = 0;
-
-      // We must keep track of our own list of live posts/files
-      // to provide an accurate deletedPosts/deletedFiles on update
-      // as posts may be `kill`ed elsewhere.
-      ThreadUpdater.postIDs = [];
-      ThreadUpdater.fileIDs = [];
-      this.posts.forEach(function(post) {
-        ThreadUpdater.postIDs.push(post.ID);
-        if (post.file) { return ThreadUpdater.fileIDs.push(post.ID); }
-      });
-
-      ThreadUpdater.cb.interval.call($$1.el('input', {value: Conf['Interval']}));
-
-      $$1.on(d$1,      'QRPostSuccessful', ThreadUpdater.cb.checkpost);
-      $$1.on(d$1,      'visibilitychange', ThreadUpdater.cb.visibility);
-
-      return ThreadUpdater.setInterval();
-    },
-
-    /*
-    http://freesound.org/people/pierrecartoons1979/sounds/90112/
-    cc-by-nc-3.0
-    */
-    beep: `data:audio/wav;base64,${Beep}`,
-
-    playBeep() {
-      const {audio} = ThreadUpdater;
-      if (!audio.src) { audio.src = ThreadUpdater.beep; }
-      if (audio.paused) {
-        return audio.play();
-      } else {
-        return $$1.one(audio, 'ended', ThreadUpdater.playBeep);
-      }
-    },
-
-    cb: {
-      checkpost(e) {
-        if (e.detail.threadID !== ThreadUpdater.thread.ID) { return; }
-        ThreadUpdater.postID = e.detail.postID;
-        ThreadUpdater.checkPostCount = 0;
-        ThreadUpdater.outdateCount = 0;
-        return ThreadUpdater.setInterval();
+      init() {
+          let sc;
+          if ((g.VIEW !== 'thread') || !Conf['Thread Updater']) {
+              return;
+          }
+          this.enabled = true;
+          // Chromium won't play audio created in an inactive tab until the tab has been focused, so set it up now.
+          // XXX Sometimes the loading stalls in Firefox, esp. when opening in private browsing window followed by normal window.
+          // Don't let it keep the loading icon on indefinitely.
+          this.audio = $$1.el('audio');
+          if ($$1.engine !== 'gecko') {
+              this.audio.src = this.beep;
+          }
+          if (Conf['Updater and Stats in Header']) {
+              this.dialog = (sc = $$1.el('span', { id: 'updater' }));
+              $$1.extend(sc, { innerHTML: '<span id="update-status" class="empty"></span><span id="update-timer" class="empty" title="Update now"></span>' });
+              Header$1.addShortcut('updater', sc, 100);
+          }
+          else {
+              this.dialog = (sc = UI.dialog('updater', { innerHTML: '<div class="move"></div><span id="update-status" class="empty"></span><span id="update-timer" class="empty" title="Update now"></span>' }));
+              $$1.addClass(doc$1, 'float');
+              $$1.ready(() => $$1.add(d$1.body, sc));
+          }
+          this.checkPostCount = 0;
+          this.timer = $$1('#update-timer', sc);
+          this.status = $$1('#update-status', sc);
+          $$1.on(this.timer, 'click', this.update);
+          $$1.on(this.status, 'click', this.update);
+          const updateLink = $$1.el('span', { className: 'brackets-wrap updatelink' });
+          $$1.extend(updateLink, { innerHTML: '<a href="javascript:;">Update</a>' });
+          Main$1.ready(function () {
+              let navLinksBot;
+              if (navLinksBot = $$1('.navLinksBot')) {
+                  return $$1.add(navLinksBot, [$$1.tn(' '), updateLink]);
+              }
+          });
+          $$1.on(updateLink.firstElementChild, 'click', this.update);
+          const subEntries = [];
+          for (const name in Config.updater.checkbox) {
+              var conf = Config.updater.checkbox[name];
+              const el = UI.checkbox(name, name);
+              el.title = conf[1];
+              var input = el.firstElementChild;
+              $$1.on(input, 'change', $$1.cb.checked);
+              if (input.name === 'Scroll BG') {
+                  $$1.on(input, 'change', this.cb.scrollBG);
+                  this.cb.scrollBG();
+              }
+              else if (input.name === 'Auto Update') {
+                  $$1.on(input, 'change', this.setInterval);
+              }
+              subEntries.push({ el });
+          }
+          this.settings = $$1.el('span', { innerHTML: '<a href="javascript:;">Interval</a>' });
+          $$1.on(this.settings, 'click', this.intervalShortcut);
+          subEntries.push({ el: this.settings });
+          Header$1.menu.addEntry(this.entry = {
+              el: $$1.el('span', { textContent: 'Updater' }),
+              order: 110,
+              subEntries
+          });
+          return Callbacks.Thread.push({
+              name: 'Thread Updater',
+              cb: this.node
+          });
       },
-
-      visibility() {
-        if (d$1.hidden) { return; }
-        // Reset the counter when we focus this tab.
-        ThreadUpdater.outdateCount = 0;
-        if (ThreadUpdater.seconds > ThreadUpdater.interval) {
+      node() {
+          ThreadUpdater.thread = this;
+          ThreadUpdater.root = this.nodes.root;
+          ThreadUpdater.outdateCount = 0;
+          // We must keep track of our own list of live posts/files
+          // to provide an accurate deletedPosts/deletedFiles on update
+          // as posts may be `kill`ed elsewhere.
+          ThreadUpdater.postIDs = [];
+          ThreadUpdater.fileIDs = [];
+          this.posts.forEach(function (post) {
+              ThreadUpdater.postIDs.push(post.ID);
+              if (post.file) {
+                  return ThreadUpdater.fileIDs.push(post.ID);
+              }
+          });
+          ThreadUpdater.cb.interval.call($$1.el('input', { value: Conf['Interval'] }));
+          $$1.on(d$1, 'QRPostSuccessful', ThreadUpdater.cb.checkpost);
+          $$1.on(d$1, 'visibilitychange', ThreadUpdater.cb.visibility);
           return ThreadUpdater.setInterval();
-        }
       },
-
-      scrollBG() {
-        return ThreadUpdater.scrollBG = Conf['Scroll BG'] ?
-          () => true
-        :
-          () => !d$1.hidden;
+      /*
+      http://freesound.org/people/pierrecartoons1979/sounds/90112/
+      cc-by-nc-3.0
+      */
+      beep: `data:audio/wav;base64,${Beep}`,
+      playBeep() {
+          const { audio } = ThreadUpdater;
+          if (!audio.src) {
+              audio.src = ThreadUpdater.beep;
+          }
+          if (audio.paused) {
+              return audio.play();
+          }
+          else {
+              return $$1.one(audio, 'ended', ThreadUpdater.playBeep);
+          }
       },
-
-      interval(e) {
-        let val = parseInt(this.value, 10);
-        if (val < 1) { val = 1; }
-        ThreadUpdater.interval = (this.value = val);
-        if (e) { return $$1.cb.value.call(this); }
-      },
-
-      load() {
-        if (this !== ThreadUpdater.req) { return; } // aborted
-        switch (this.status) {
-          case 200:
-            ThreadUpdater.parse(this);
-            if (ThreadUpdater.thread.isArchived) {
-              return ThreadUpdater.kill();
-            } else {
+      cb: {
+          checkpost(e) {
+              if (e.detail.threadID !== ThreadUpdater.thread.ID) {
+                  return;
+              }
+              ThreadUpdater.postID = e.detail.postID;
+              ThreadUpdater.checkPostCount = 0;
+              ThreadUpdater.outdateCount = 0;
               return ThreadUpdater.setInterval();
-            }
-          case 404:
-            // XXX workaround for 4chan sending false 404s
-            return $$1.ajax(g.SITE.urls.catalogJSON({boardID: ThreadUpdater.thread.board.ID}), { onloadend() {
-              let confirmed;
-              if (this.status === 200) {
-                confirmed = true;
-                for (var page of this.response) {
-                  for (var thread of page.threads) {
-                    if (thread.no === ThreadUpdater.thread.ID) {
-                      confirmed = false;
-                      break;
-                    }
+          },
+          visibility() {
+              if (d$1.hidden) {
+                  return;
+              }
+              // Reset the counter when we focus this tab.
+              ThreadUpdater.outdateCount = 0;
+              if (ThreadUpdater.seconds > ThreadUpdater.interval) {
+                  return ThreadUpdater.setInterval();
+              }
+          },
+          scrollBG() {
+              return ThreadUpdater.scrollBG = Conf['Scroll BG'] ?
+                  () => true
+                  :
+                      () => !d$1.hidden;
+          },
+          interval(e) {
+              let val = parseInt(this.value, 10);
+              if (val < 1) {
+                  val = 1;
+              }
+              ThreadUpdater.interval = (this.value = val);
+              if (e) {
+                  return $$1.cb.value.call(this);
+              }
+          },
+          load() {
+              if (this !== ThreadUpdater.req) {
+                  return;
+              } // aborted
+              switch (this.status) {
+                  case 200:
+                      ThreadUpdater.parse(this);
+                      if (ThreadUpdater.thread.isArchived) {
+                          return ThreadUpdater.kill();
+                      }
+                      else {
+                          return ThreadUpdater.setInterval();
+                      }
+                  case 404:
+                      // XXX workaround for 4chan sending false 404s
+                      return $$1.ajax(g.SITE.urls.catalogJSON({ boardID: ThreadUpdater.thread.board.ID }), { onloadend() {
+                              let confirmed;
+                              if (this.status === 200) {
+                                  confirmed = true;
+                                  for (var page of this.response) {
+                                      for (var thread of page.threads) {
+                                          if (thread.no === ThreadUpdater.thread.ID) {
+                                              confirmed = false;
+                                              break;
+                                          }
+                                      }
+                                  }
+                              }
+                              else {
+                                  confirmed = false;
+                              }
+                              if (confirmed) {
+                                  ThreadUpdater.kill();
+                              }
+                              else {
+                                  ThreadUpdater.error(this);
+                              }
+                          }
+                      });
+                  default:
+                      return ThreadUpdater.error(this);
+              }
+          }
+      },
+      kill() {
+          ThreadUpdater.thread.kill();
+          ThreadUpdater.setInterval();
+          return $$1.event('ThreadUpdate', {
+              404: true,
+              threadID: ThreadUpdater.thread.fullID
+          });
+      },
+      error(req) {
+          if (req.status === 304) {
+              ThreadUpdater.set('status', '');
+          }
+          ThreadUpdater.setInterval();
+          if (!req.status) {
+              return ThreadUpdater.set('status', 'Connection Error', 'warning');
+          }
+          else if (req.status !== 304) {
+              return ThreadUpdater.set('status', `${req.statusText} (${req.status})`, 'warning');
+          }
+      },
+      setInterval() {
+          clearTimeout(ThreadUpdater.timeoutID);
+          if (ThreadUpdater.thread.isDead) {
+              ThreadUpdater.set('status', (ThreadUpdater.thread.isArchived ? 'Archived' : '404'), 'warning');
+              ThreadUpdater.set('timer', '');
+              return;
+          }
+          // Fetching your own posts after posting
+          if (ThreadUpdater.postID && (ThreadUpdater.checkPostCount < 5)) {
+              ThreadUpdater.set('timer', '...', 'loading');
+              ThreadUpdater.timeoutID = setTimeout(ThreadUpdater.update, ++ThreadUpdater.checkPostCount * SECOND);
+              return;
+          }
+          if (!Conf['Auto Update']) {
+              ThreadUpdater.set('timer', 'Update');
+              return;
+          }
+          const { interval } = ThreadUpdater;
+          if (Conf['Optional Increase']) {
+              // Lower the max refresh rate limit on visible tabs.
+              const limit = d$1.hidden ? 10 : 5;
+              const j = Math.min(ThreadUpdater.outdateCount, limit);
+              // 1 second to 100, 30 to 300.
+              const cur = (Math.floor(interval * 0.1) || 1) * j * j;
+              ThreadUpdater.seconds = $$1.minmax(cur, interval, 300);
+          }
+          else {
+              ThreadUpdater.seconds = interval;
+          }
+          return ThreadUpdater.timeout();
+      },
+      intervalShortcut() {
+          Settings.open('Advanced');
+          const settings = $$1.id('fourchanx-settings');
+          return $$1('input[name=Interval]', settings).focus();
+      },
+      set(name, text, klass) {
+          let node;
+          const el = ThreadUpdater[name];
+          if ((node = el.firstChild)) {
+              // Prevent the creation of a new DOM Node
+              // by setting the text node's data.
+              node.data = text;
+          }
+          else {
+              el.textContent = text;
+          }
+          return el.className = klass ?? (text === '' ? 'empty' : '');
+      },
+      timeout() {
+          if (ThreadUpdater.seconds) {
+              ThreadUpdater.set('timer', ThreadUpdater.seconds);
+              ThreadUpdater.timeoutID = setTimeout(ThreadUpdater.timeout, 1000);
+          }
+          else {
+              ThreadUpdater.outdateCount++;
+              ThreadUpdater.update();
+          }
+          return ThreadUpdater.seconds--;
+      },
+      update() {
+          let oldReq;
+          clearTimeout(ThreadUpdater.timeoutID);
+          ThreadUpdater.set('timer', '...', 'loading');
+          if (oldReq = ThreadUpdater.req) {
+              delete ThreadUpdater.req;
+              oldReq.abort();
+          }
+          return ThreadUpdater.req = $$1.whenModified(g.SITE.urls.threadJSON({ boardID: ThreadUpdater.thread.board.ID, threadID: ThreadUpdater.thread.ID }), 'ThreadUpdater', ThreadUpdater.cb.load, { timeout: MINUTE });
+      },
+      updateThreadStatus(type, status) {
+          if (!(ThreadUpdater.thread[`is${type}`] !== status)) {
+              return;
+          }
+          ThreadUpdater.thread.setStatus(type, status);
+          if ((type === 'Closed') && ThreadUpdater.thread.isArchived) {
+              return;
+          }
+          const change = type === 'Sticky' ?
+              status ?
+                  'now a sticky'
+                  :
+                      'not a sticky anymore'
+              :
+                  status ?
+                      'now closed'
+                      :
+                          'not closed anymore';
+          return new Notice('info', `The thread is ${change}.`, 30);
+      },
+      parse(req) {
+          let ID, ipCountEl, post;
+          const postObjects = req.response.posts;
+          const OP = postObjects[0];
+          const thread = ThreadUpdater.thread;
+          const { board } = thread;
+          const lastPost = ThreadUpdater.postIDs[ThreadUpdater.postIDs.length - 1];
+          // XXX Reject updates that falsely delete the last post.
+          if ((postObjects[postObjects.length - 1].no < lastPost) &&
+              ((new Date(req.getResponseHeader('Last-Modified')) - thread.posts.get(lastPost).info.date) < (30 * SECOND))) {
+              return;
+          }
+          g.SITE.Build.spoilerRange[board] = OP.custom_spoiler;
+          thread.setStatus('Archived', !!OP.archived);
+          ThreadUpdater.updateThreadStatus('Sticky', !!OP.sticky);
+          ThreadUpdater.updateThreadStatus('Closed', !!OP.closed);
+          thread.postLimit = !!OP.bumplimit;
+          thread.fileLimit = !!OP.imagelimit;
+          if (OP.unique_ips != null) {
+              thread.ipCount = OP.unique_ips;
+          }
+          const posts = []; // new post objects
+          const index = []; // existing posts
+          const files = []; // existing files
+          const newPosts = []; // new post fullID list for API
+          // Build the index, create posts.
+          for (var postObject of postObjects) {
+              ID = postObject.no;
+              index.push(ID);
+              if (postObject.fsize) {
+                  files.push(ID);
+              }
+              // Insert new posts, not older ones.
+              if (ID <= lastPost) {
+                  continue;
+              }
+              // XXX Resurrect wrongly deleted posts.
+              if ((post = thread.posts.get(ID)) && !post.isFetchedQuote) {
+                  post.resurrect();
+                  continue;
+              }
+              newPosts.push(`${board}.${ID}`);
+              var node = g.SITE.Build.postFromObject(postObject, board.ID);
+              posts.push(new Post(node, thread, board));
+              // Fetching your own posts after posting
+              if (ThreadUpdater.postID === ID) {
+                  delete ThreadUpdater.postID;
+              }
+          }
+          // Check for deleted posts.
+          const deletedPosts = [];
+          for (ID of ThreadUpdater.postIDs) {
+              if (!index.includes(ID)) {
+                  thread.posts.get(ID).kill();
+                  deletedPosts.push(`${board}.${ID}`);
+              }
+          }
+          ThreadUpdater.postIDs = index;
+          // Check for deleted files.
+          const deletedFiles = [];
+          for (ID of ThreadUpdater.fileIDs) {
+              if (!(files.includes(ID) || deletedPosts.includes(`${board}.${ID}`))) {
+                  thread.posts.get(ID).kill(true);
+                  deletedFiles.push(`${board}.${ID}`);
+              }
+          }
+          ThreadUpdater.fileIDs = files;
+          if (!posts.length) {
+              ThreadUpdater.set('status', '');
+          }
+          else {
+              ThreadUpdater.set('status', `+${posts.length}`, 'new');
+              ThreadUpdater.outdateCount = 0;
+              const unreadCount = Unread.posts?.size;
+              const unreadQYCount = Unread.postsQuotingYou?.size;
+              Main$1.callbackNodes('Post', posts);
+              if (d$1.hidden || !d$1.hasFocus()) {
+                  if (Conf['Beep Quoting You'] && (Unread.postsQuotingYou?.size > unreadQYCount)) {
+                      ThreadUpdater.playBeep();
+                      if (Conf['Beep']) {
+                          ThreadUpdater.playBeep();
+                      }
                   }
-                }
-              } else {
-                confirmed = false;
+                  else if (Conf['Beep'] && (Unread.posts?.size > 0) && (unreadCount === 0)) {
+                      ThreadUpdater.playBeep();
+                  }
               }
-              if (confirmed) {
-                return ThreadUpdater.kill();
-              } else {
-                return ThreadUpdater.error(this);
+              const scroll = Conf['Auto Scroll'] && ThreadUpdater.scrollBG() &&
+                  ((ThreadUpdater.root.getBoundingClientRect().bottom - doc$1.clientHeight) < 25);
+              let firstPost = null;
+              for (post of posts) {
+                  if (!QuoteThreading.insert(post)) {
+                      if (!firstPost) {
+                          firstPost = post.nodes.root;
+                      }
+                      $$1.add(ThreadUpdater.root, post.nodes.root);
+                  }
               }
-            }
+              $$1.event('PostsInserted', null, ThreadUpdater.root);
+              if (scroll) {
+                  if (Conf['Bottom Scroll']) {
+                      window.scrollTo(0, d$1.body.clientHeight);
+                  }
+                  else {
+                      if (firstPost) {
+                          Header$1.scrollTo(firstPost);
+                      }
+                  }
+              }
           }
-            );
-          default:
-            return ThreadUpdater.error(this);
-        }
-      }
-    },
-
-    kill() {
-      ThreadUpdater.thread.kill();
-      ThreadUpdater.setInterval();
-      return $$1.event('ThreadUpdate', {
-        404: true,
-        threadID: ThreadUpdater.thread.fullID
-      }
-      );
-    },
-
-    error(req) {
-      if (req.status === 304) {
-        ThreadUpdater.set('status', '');
-      }
-      ThreadUpdater.setInterval();
-      if (!req.status) {
-        return ThreadUpdater.set('status', 'Connection Error', 'warning');
-      } else if (req.status !== 304) {
-        return ThreadUpdater.set('status', `${req.statusText} (${req.status})`, 'warning');
-      }
-    },
-
-    setInterval() {
-      clearTimeout(ThreadUpdater.timeoutID);
-
-      if (ThreadUpdater.thread.isDead) {
-        ThreadUpdater.set('status', (ThreadUpdater.thread.isArchived ? 'Archived' : '404'), 'warning');
-        ThreadUpdater.set('timer', '');
-        return;
-      }
-
-      // Fetching your own posts after posting
-      if (ThreadUpdater.postID && (ThreadUpdater.checkPostCount < 5)) {
-        ThreadUpdater.set('timer', '...', 'loading');
-        ThreadUpdater.timeoutID = setTimeout(ThreadUpdater.update, ++ThreadUpdater.checkPostCount * SECOND);
-        return;
-      }
-
-      if (!Conf['Auto Update']) {
-        ThreadUpdater.set('timer', 'Update');
-        return;
-      }
-
-      const {interval} = ThreadUpdater;
-      if (Conf['Optional Increase']) {
-        // Lower the max refresh rate limit on visible tabs.
-        const limit = d$1.hidden ? 10 : 5;
-        const j     = Math.min(ThreadUpdater.outdateCount, limit);
-
-        // 1 second to 100, 30 to 300.
-        const cur = (Math.floor(interval * 0.1) || 1) * j * j;
-        ThreadUpdater.seconds = $$1.minmax(cur, interval, 300);
-      } else {
-        ThreadUpdater.seconds = interval;
-      }
-
-      return ThreadUpdater.timeout();
-    },
-
-    intervalShortcut() {
-      Settings.open('Advanced');
-      const settings = $$1.id('fourchanx-settings');
-      return $$1('input[name=Interval]', settings).focus();
-    },
-
-    set(name, text, klass) {
-      let node;
-      const el = ThreadUpdater[name];
-      if ((node = el.firstChild)) {
-        // Prevent the creation of a new DOM Node
-        // by setting the text node's data.
-        node.data = text;
-      } else {
-        el.textContent = text;
-      }
-      return el.className = klass ?? (text === '' ? 'empty' : '');
-    },
-
-    timeout() {
-      if (ThreadUpdater.seconds) {
-        ThreadUpdater.set('timer', ThreadUpdater.seconds);
-        ThreadUpdater.timeoutID = setTimeout(ThreadUpdater.timeout, 1000);
-      } else {
-        ThreadUpdater.outdateCount++;
-        ThreadUpdater.update();
-      }
-      return ThreadUpdater.seconds--;
-    },
-
-    update() {
-      let oldReq;
-      clearTimeout(ThreadUpdater.timeoutID);
-      ThreadUpdater.set('timer', '...', 'loading');
-      if (oldReq = ThreadUpdater.req) {
-        delete ThreadUpdater.req;
-        oldReq.abort();
-      }
-      return ThreadUpdater.req = $$1.whenModified(
-        g.SITE.urls.threadJSON({boardID: ThreadUpdater.thread.board.ID, threadID: ThreadUpdater.thread.ID}),
-        'ThreadUpdater',
-        ThreadUpdater.cb.load,
-        { timeout: MINUTE }
-      );
-    },
-
-    updateThreadStatus(type, status) {
-      if (!(ThreadUpdater.thread[`is${type}`] !== status)) { return; }
-      ThreadUpdater.thread.setStatus(type, status);
-      if ((type === 'Closed') && ThreadUpdater.thread.isArchived) { return; }
-      const change = type === 'Sticky' ?
-        status ?
-          'now a sticky'
-        :
-          'not a sticky anymore'
-      :
-        status ?
-          'now closed'
-        :
-          'not closed anymore';
-      return new Notice('info', `The thread is ${change}.`, 30);
-    },
-
-    parse(req) {
-      let ID, ipCountEl, post;
-      const postObjects = req.response.posts;
-      const OP = postObjects[0];
-      const {thread} = ThreadUpdater;
-      const {board} = thread;
-      const lastPost = ThreadUpdater.postIDs[ThreadUpdater.postIDs.length - 1];
-
-      // XXX Reject updates that falsely delete the last post.
-      if ((postObjects[postObjects.length-1].no < lastPost) &&
-        ((new Date(req.getResponseHeader('Last-Modified')) - thread.posts.get(lastPost).info.date) < (30 * SECOND))) { return; }
-
-      g.SITE.Build.spoilerRange[board] = OP.custom_spoiler;
-      thread.setStatus('Archived', !!OP.archived);
-      ThreadUpdater.updateThreadStatus('Sticky', !!OP.sticky);
-      ThreadUpdater.updateThreadStatus('Closed', !!OP.closed);
-      thread.postLimit = !!OP.bumplimit;
-      thread.fileLimit = !!OP.imagelimit;
-      if (OP.unique_ips != null) { thread.ipCount   = OP.unique_ips; }
-
-      const posts    = []; // new post objects
-      const index    = []; // existing posts
-      const files    = []; // existing files
-      const newPosts = []; // new post fullID list for API
-
-      // Build the index, create posts.
-      for (var postObject of postObjects) {
-        ID = postObject.no;
-        index.push(ID);
-        if (postObject.fsize) { files.push(ID); }
-
-        // Insert new posts, not older ones.
-        if (ID <= lastPost) { continue; }
-
-        // XXX Resurrect wrongly deleted posts.
-        if ((post = thread.posts.get(ID)) && !post.isFetchedQuote) {
-          post.resurrect();
-          continue;
-        }
-
-        newPosts.push(`${board}.${ID}`);
-        var node = g.SITE.Build.postFromObject(postObject, board.ID);
-        posts.push(new Post(node, thread, board));
-        // Fetching your own posts after posting
-        if (ThreadUpdater.postID === ID) { delete ThreadUpdater.postID; }
-      }
-
-      // Check for deleted posts.
-      const deletedPosts = [];
-      for (ID of ThreadUpdater.postIDs) {
-        if (!index.includes(ID)) {
-          thread.posts.get(ID).kill();
-          deletedPosts.push(`${board}.${ID}`);
-        }
-      }
-      ThreadUpdater.postIDs = index;
-
-      // Check for deleted files.
-      const deletedFiles = [];
-      for (ID of ThreadUpdater.fileIDs) {
-        if (!(files.includes(ID) || deletedPosts.includes(`${board}.${ID}`))) {
-          thread.posts.get(ID).kill(true);
-          deletedFiles.push(`${board}.${ID}`);
-        }
-      }
-      ThreadUpdater.fileIDs = files;
-
-      if (!posts.length) {
-        ThreadUpdater.set('status', '');
-      } else {
-        ThreadUpdater.set('status', `+${posts.length}`, 'new');
-        ThreadUpdater.outdateCount = 0;
-
-        const unreadCount   = Unread.posts?.size;
-        const unreadQYCount = Unread.postsQuotingYou?.size;
-
-        Main$1.callbackNodes('Post', posts);
-
-        if (d$1.hidden || !d$1.hasFocus()) {
-          if (Conf['Beep Quoting You'] && (Unread.postsQuotingYou?.size > unreadQYCount)) {
-            ThreadUpdater.playBeep();
-            if (Conf['Beep']) { ThreadUpdater.playBeep(); }
-          } else if (Conf['Beep'] && (Unread.posts?.size > 0) && (unreadCount === 0)) {
-            ThreadUpdater.playBeep();
+          // Update IP count in original post form.
+          if ((OP.unique_ips != null) && (ipCountEl = $$1.id('unique-ips'))) {
+              ipCountEl.textContent = OP.unique_ips;
+              ipCountEl.previousSibling.textContent = ipCountEl.previousSibling.textContent.replace(/\b(?:is|are)\b/, OP.unique_ips === 1 ? 'is' : 'are');
+              ipCountEl.nextSibling.textContent = ipCountEl.nextSibling.textContent.replace(/\bposters?\b/, OP.unique_ips === 1 ? 'poster' : 'posters');
           }
-        }
-
-        const scroll = Conf['Auto Scroll'] && ThreadUpdater.scrollBG() &&
-          ((ThreadUpdater.root.getBoundingClientRect().bottom - doc$1.clientHeight) < 25);
-
-        let firstPost = null;
-        for (post of posts) {
-          if (!QuoteThreading.insert(post)) {
-            if (!firstPost) { firstPost = post.nodes.root; }
-            $$1.add(ThreadUpdater.root, post.nodes.root);
-          }
-        }
-        $$1.event('PostsInserted', null, ThreadUpdater.root);
-
-        if (scroll) {
-          if (Conf['Bottom Scroll']) {
-            window.scrollTo(0, d$1.body.clientHeight);
-          } else {
-            if (firstPost) { Header$1.scrollTo(firstPost); }
-          }
-        }
+          return $$1.event('ThreadUpdate', {
+              404: false,
+              threadID: thread.fullID,
+              newPosts,
+              deletedPosts,
+              deletedFiles,
+              postCount: OP.replies + 1,
+              fileCount: OP.images + !!OP.fsize,
+              ipCount: OP.unique_ips
+          });
       }
-
-      // Update IP count in original post form.
-      if ((OP.unique_ips != null) && (ipCountEl = $$1.id('unique-ips'))) {
-        ipCountEl.textContent = OP.unique_ips;
-        ipCountEl.previousSibling.textContent = ipCountEl.previousSibling.textContent.replace(/\b(?:is|are)\b/, OP.unique_ips === 1 ? 'is' : 'are');
-        ipCountEl.nextSibling.textContent = ipCountEl.nextSibling.textContent.replace(/\bposters?\b/, OP.unique_ips === 1 ? 'poster' : 'posters');
-      }
-
-      return $$1.event('ThreadUpdate', {
-        404: false,
-        threadID: thread.fullID,
-        newPosts,
-        deletedPosts,
-        deletedFiles,
-        postCount: OP.replies + 1,
-        fileCount: OP.images + !!OP.fsize,
-        ipCount: OP.unique_ips
-      }
-      );
-    }
   };
 
   /*
@@ -20873,976 +20871,1012 @@ vp-replace
    * DS207: Consider shorter variations of null checks
    * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
    */
-
   // not chainable
   const $ = (selector, root = document.body) => root.querySelector(selector);
-
   $.id = id => d$1.getElementById(id);
-
-  $.ready = function(fc) {
-    if (d$1.readyState !== 'loading') {
-      $.queueTask(fc);
-      return;
-    }
-    var cb = function() {
-      $.off(d$1, 'DOMContentLoaded', cb);
-      return fc();
-    };
-    return $.on(d$1, 'DOMContentLoaded', cb);
-  };
-
-  $.formData = function(form) {
-    if (form instanceof HTMLFormElement) {
-      return new FormData(form);
-    }
-    const fd = new FormData();
-    for (var key in form) {
-      var val = form[key];
-      if (val) {
-        if ((typeof val === 'object') && 'newName' in val) {
-          fd.append(key, val, val.newName);
-        } else {
-          fd.append(key, val);
-        }
+  $.ready = function (fc) {
+      if (d$1.readyState !== 'loading') {
+          $.queueTask(fc);
+          return;
       }
-    }
-    return fd;
-  };
-
-  $.extend = function(object, properties) {
-    for (var key in properties) {
-      var val = properties[key];
-      object[key] = val;
-    }
-  };
-
-  $.hasOwn = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
-
-  $.getOwn = function(obj, key) {
-    if (Object.prototype.hasOwnProperty.call(obj, key)) { return obj[key]; } else { return undefined; }
-  };
-
-  $.ajax = (function() {
-    let pageXHR;
-    if (window.wrappedJSObject && !XMLHttpRequest.wrappedJSObject) {
-      pageXHR = XPCNativeWrapper(window.wrappedJSObject.XMLHttpRequest);
-    } else {
-      pageXHR = XMLHttpRequest;
-    }
-
-    const r = (function (url, options={}) {
-      if (options.responseType == null) { options.responseType = 'json'; }
-      if (!options.type) { options.type = (options.form && 'post') || 'get'; }
-      // XXX https://forums.lanik.us/viewtopic.php?f=64&t=24173&p=78310
-      url = url.replace(/^((?:https?:)?\/\/(?:\w+\.)?(?:4chan|4channel|4cdn)\.org)\/adv\//, '$1//adv/');
-      if (platform === 'crx') {
-        // XXX https://bugs.chromium.org/p/chromium/issues/detail?id=920638
-        if (Conf['Work around CORB Bug'] && g.SITE.software === 'yotsuba' && !options.testCORB && FormData.prototype.entries) {
-          return $.ajaxPage(url, options);
-        }
-      }
-      const {onloadend, timeout, responseType, withCredentials, type, onprogress, form, headers} = options;
-      const r = new pageXHR();
-      try {
-        r.open(type, url, true);
-        const object = headers || {};
-        for (var key in object) {
-          var value = object[key];
-          r.setRequestHeader(key, value);
-        }
-        $.extend(r, {onloadend, timeout, responseType, withCredentials});
-        $.extend(r.upload, {onprogress});
-        // connection error or content blocker
-        $.on(r, 'error', function() { if (!r.status) { return c.warn(`4chan X failed to load: ${url}`); } });
-        if (platform === 'crx') {
-          // https://bugs.chromium.org/p/chromium/issues/detail?id=920638
-          $.on(r, 'load', () => {
-            if (!Conf['Work around CORB Bug'] && r.readyState === 4 && r.status === 200 && r.statusText === '' && r.response === null) {
-              $.set('Work around CORB Bug', (Conf['Work around CORB Bug'] = Date.now()));
-            }
-          });
-        }
-        r.send(form);
-      } catch (err) {
-        // XXX Some content blockers in Firefox (e.g. Adblock Plus and NoScript) throw an exception instead of simulating a connection error.
-        if (err.result !== 0x805e0006) { throw err; }
-        r.onloadend = onloadend;
-        $.queueTask($.event, 'error',   null, r);
-        $.queueTask($.event, 'loadend', null, r);
-      }
-      return r;
-    });
-
-    if (platform === 'userscript') {
-      return r;
-    } else {
-      // # XXX https://bugs.chromium.org/p/chromium/issues/detail?id=920638
-      let requestID = 0;
-      const requests = dict();
-
-      $.ajaxPageInit = function() {
-        $.global(function() {
-          window.FCX.requests = Object.create(null);
-
-          document.addEventListener('4chanXAjax', function(e) {
-            let fd, r;
-            const {url, timeout, responseType, withCredentials, type, onprogress, form, headers, id} = e.detail;
-            window.FCX.requests[id] = (r = new XMLHttpRequest());
-            r.open(type, url, true);
-            const object = headers || {};
-            for (var key in object) {
-              var value = object[key];
-              r.setRequestHeader(key, value);
-            }
-            r.responseType = responseType === 'document' ? 'text' : responseType;
-            r.timeout = timeout;
-            r.withCredentials = withCredentials;
-            if (onprogress) {
-              r.upload.onprogress = function(e) {
-                const {loaded, total} = e;
-                const detail = {loaded, total, id};
-                return document.dispatchEvent(new CustomEvent('4chanXAjaxProgress', {bubbles: true, detail}));
-              };
-            }
-            r.onloadend = function() {
-              delete window.FCX.requests[id];
-              const {status, statusText, response} = this;
-              const responseHeaderString = this.getAllResponseHeaders();
-              const detail = {status, statusText, response, responseHeaderString, id};
-              return document.dispatchEvent(new CustomEvent('4chanXAjaxLoadend', {bubbles: true, detail}));
-            };
-            // connection error or content blocker
-            r.onerror = function() {
-              if (!r.status) { return console.warn(`4chan X failed to load: ${url}`); }
-            };
-            if (form) {
-              fd = new FormData();
-              for (var entry of form) {
-                fd.append(entry[0], entry[1]);
-              }
-            } else {
-              fd = null;
-            }
-            return r.send(fd);
-        }
-          , false);
-
-        return document.addEventListener('4chanXAjaxAbort', function(e) {
-          let r;
-          if (!(r = window.FCX.requests[e.detail.id])) { return; }
-          return r.abort();
-        }
-        , false);
-      });
-
-      $.on(d$1, '4chanXAjaxProgress', function(e) {
-        let req;
-        if (!(req = requests[e.detail.id])) { return; }
-        return req.upload.onprogress.call(req.upload, e.detail);
-      });
-
-      return $.on(d$1, '4chanXAjaxLoadend', function(e) {
-        let req;
-        if (!(req = requests[e.detail.id])) { return; }
-        delete requests[e.detail.id];
-        if (e.detail.status) {
-          for (var key of ['status', 'statusText', 'response', 'responseHeaderString']) {
-            req[key] = e.detail[key];
-          }
-          if (req.responseType === 'document') {
-            req.response = new DOMParser().parseFromString(e.detail.response, 'text/html');
-          }
-        }
-        return req.onloadend();
-      });
-    };
-
-    return $.ajaxPage = function(url, options={}) {
-        let req;
-        let {onloadend, timeout, responseType, withCredentials, type, onprogress, form, headers} = options;
-          const id = requestID++;
-          requests[id] = (req = new CrossOrigin$1.Request());
-        $.extend(req, {responseType, onloadend});
-        req.upload = {onprogress};
-        req.abort = () => $.event('4chanXAjaxAbort', {id});
-          if (form) { form = Array.from(form.entries()); }
-        $.event('4chanXAjax', {url, timeout, responseType, withCredentials, type, onprogress: !!onprogress, form, headers, id});
-          return req;
+      var cb = function () {
+          $.off(d$1, 'DOMContentLoaded', cb);
+          return fc();
       };
-    }
+      return $.on(d$1, 'DOMContentLoaded', cb);
+  };
+  $.formData = function (form) {
+      if (form instanceof HTMLFormElement) {
+          return new FormData(form);
+      }
+      const fd = new FormData();
+      for (var key in form) {
+          var val = form[key];
+          if (val) {
+              if ((typeof val === 'object') && 'newName' in val) {
+                  fd.append(key, val, val.newName);
+              }
+              else {
+                  fd.append(key, val);
+              }
+          }
+      }
+      return fd;
+  };
+  $.extend = function (object, properties) {
+      for (var key in properties) {
+          var val = properties[key];
+          object[key] = val;
+      }
+  };
+  $.hasOwn = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
+  $.getOwn = function (obj, key) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+          return obj[key];
+      }
+      else {
+          return undefined;
+      }
+  };
+  $.ajax = (function () {
+      let pageXHR;
+      if (window.wrappedJSObject && !XMLHttpRequest.wrappedJSObject) {
+          pageXHR = XPCNativeWrapper(window.wrappedJSObject.XMLHttpRequest);
+      }
+      else {
+          pageXHR = XMLHttpRequest;
+      }
+      const r = (function (url, options = {}) {
+          if (options.responseType == null) {
+              options.responseType = 'json';
+          }
+          if (!options.type) {
+              options.type = (options.form && 'post') || 'get';
+          }
+          // XXX https://forums.lanik.us/viewtopic.php?f=64&t=24173&p=78310
+          url = url.replace(/^((?:https?:)?\/\/(?:\w+\.)?(?:4chan|4channel|4cdn)\.org)\/adv\//, '$1//adv/');
+          if (platform === 'crx') {
+              // XXX https://bugs.chromium.org/p/chromium/issues/detail?id=920638
+              if (Conf['Work around CORB Bug'] && g.SITE.software === 'yotsuba' && !options.testCORB && FormData.prototype.entries) {
+                  return $.ajaxPage(url, options);
+              }
+          }
+          const { onloadend, timeout, responseType, withCredentials, type, onprogress, form, headers } = options;
+          const r = new pageXHR();
+          try {
+              r.open(type, url, true);
+              const object = headers || {};
+              for (var key in object) {
+                  var value = object[key];
+                  r.setRequestHeader(key, value);
+              }
+              $.extend(r, { onloadend, timeout, responseType, withCredentials });
+              $.extend(r.upload, { onprogress });
+              // connection error or content blocker
+              $.on(r, 'error', function () { if (!r.status) {
+                  return c.warn(`4chan X failed to load: ${url}`);
+              } });
+              if (platform === 'crx') {
+                  // https://bugs.chromium.org/p/chromium/issues/detail?id=920638
+                  $.on(r, 'load', () => {
+                      if (!Conf['Work around CORB Bug'] && r.readyState === 4 && r.status === 200 && r.statusText === '' && r.response === null) {
+                          $.set('Work around CORB Bug', (Conf['Work around CORB Bug'] = Date.now()));
+                      }
+                  });
+              }
+              r.send(form);
+          }
+          catch (err) {
+              // XXX Some content blockers in Firefox (e.g. Adblock Plus and NoScript) throw an exception instead of simulating a connection error.
+              if (err.result !== 0x805e0006) {
+                  throw err;
+              }
+              r.onloadend = onloadend;
+              $.queueTask($.event, 'error', null, r);
+              $.queueTask($.event, 'loadend', null, r);
+          }
+          return r;
+      });
+      if (platform === 'userscript') {
+          return r;
+      }
+      else {
+          // # XXX https://bugs.chromium.org/p/chromium/issues/detail?id=920638
+          let requestID = 0;
+          const requests = dict();
+          $.ajaxPageInit = function () {
+              $.global(function () {
+                  window.FCX.requests = Object.create(null);
+                  document.addEventListener('4chanXAjax', function (e) {
+                      let fd, r;
+                      const { url, timeout, responseType, withCredentials, type, onprogress, form, headers, id } = e.detail;
+                      window.FCX.requests[id] = (r = new XMLHttpRequest());
+                      r.open(type, url, true);
+                      const object = headers || {};
+                      for (var key in object) {
+                          var value = object[key];
+                          r.setRequestHeader(key, value);
+                      }
+                      r.responseType = responseType === 'document' ? 'text' : responseType;
+                      r.timeout = timeout;
+                      r.withCredentials = withCredentials;
+                      if (onprogress) {
+                          r.upload.onprogress = function (e) {
+                              const { loaded, total } = e;
+                              const detail = { loaded, total, id };
+                              return document.dispatchEvent(new CustomEvent('4chanXAjaxProgress', { bubbles: true, detail }));
+                          };
+                      }
+                      r.onloadend = function () {
+                          delete window.FCX.requests[id];
+                          const { status, statusText, response } = this;
+                          const responseHeaderString = this.getAllResponseHeaders();
+                          const detail = { status, statusText, response, responseHeaderString, id };
+                          return document.dispatchEvent(new CustomEvent('4chanXAjaxLoadend', { bubbles: true, detail }));
+                      };
+                      // connection error or content blocker
+                      r.onerror = function () {
+                          if (!r.status) {
+                              return console.warn(`4chan X failed to load: ${url}`);
+                          }
+                      };
+                      if (form) {
+                          fd = new FormData();
+                          for (var entry of form) {
+                              fd.append(entry[0], entry[1]);
+                          }
+                      }
+                      else {
+                          fd = null;
+                      }
+                      return r.send(fd);
+                  }, false);
+                  return document.addEventListener('4chanXAjaxAbort', function (e) {
+                      let r;
+                      if (!(r = window.FCX.requests[e.detail.id])) {
+                          return;
+                      }
+                      return r.abort();
+                  }, false);
+              });
+              $.on(d$1, '4chanXAjaxProgress', function (e) {
+                  let req;
+                  if (!(req = requests[e.detail.id])) {
+                      return;
+                  }
+                  return req.upload.onprogress.call(req.upload, e.detail);
+              });
+              return $.on(d$1, '4chanXAjaxLoadend', function (e) {
+                  let req;
+                  if (!(req = requests[e.detail.id])) {
+                      return;
+                  }
+                  delete requests[e.detail.id];
+                  if (e.detail.status) {
+                      for (var key of ['status', 'statusText', 'response', 'responseHeaderString']) {
+                          req[key] = e.detail[key];
+                      }
+                      if (req.responseType === 'document') {
+                          req.response = new DOMParser().parseFromString(e.detail.response, 'text/html');
+                      }
+                  }
+                  return req.onloadend();
+              });
+          };
+          return $.ajaxPage = function (url, options = {}) {
+              let req;
+              let { onloadend, timeout, responseType, withCredentials, type, onprogress, form, headers } = options;
+              const id = requestID++;
+              requests[id] = (req = new CrossOrigin$1.Request());
+              $.extend(req, { responseType, onloadend });
+              req.upload = { onprogress };
+              req.abort = () => $.event('4chanXAjaxAbort', { id });
+              if (form) {
+                  form = Array.from(form.entries());
+              }
+              $.event('4chanXAjax', { url, timeout, responseType, withCredentials, type, onprogress: !!onprogress, form, headers, id });
+              return req;
+          };
+      }
   })();
-
   // Status Code 304: Not modified
   // With the `If-Modified-Since` header we only receive the HTTP headers and no body for 304 responses.
   // This saves a lot of bandwidth and CPU time for both the users and the servers.
   $.lastModified = dict();
-  $.whenModified = function(url, bucket, cb, options={}) {
-    let t;
-    const {timeout, ajax} = options;
-    const params = [];
-    // XXX https://bugs.chromium.org/p/chromium/issues/detail?id=643659
-    if ($.engine === 'blink') { params.push(`s=${bucket}`); }
-    if (url.split('/')[2] === 'a.4cdn.org') { params.push(`t=${Date.now()}`); }
-    const url0 = url;
-    if (params.length) { url += '?' + params.join('&'); }
-    const headers = dict();
-    if ((t = $.lastModified[bucket]?.[url0]) != null) {
-      headers['If-Modified-Since'] = t;
-    }
-    const r = (ajax || $.ajax)(url, {
-      onloadend() {
-        ($.lastModified[bucket] || ($.lastModified[bucket] = dict()))[url0] = this.getResponseHeader('Last-Modified');
-        return cb.call(this);
-      },
-      timeout,
-      headers
-    });
-    return r;
-  };
-
-  (function() {
-    const reqs = dict();
-    $.cache = function(url, cb, options={}) {
-      let req;
-      const {ajax} = options;
-      if (req = reqs[url]) {
-        if (req.callbacks) {
-          req.callbacks.push(cb);
-        } else {
-          $.queueTask(() => cb.call(req, {isCached: true}));
-        }
-        return req;
+  $.whenModified = function (url, bucket, cb, options = {}) {
+      let t;
+      const { timeout, ajax } = options;
+      const params = [];
+      // XXX https://bugs.chromium.org/p/chromium/issues/detail?id=643659
+      if ($.engine === 'blink') {
+          params.push(`s=${bucket}`);
       }
-      const onloadend = function() {
-        if (!this.status) {
-          delete reqs[url];
-        }
-        for (cb of this.callbacks) {
-          (cb => $.queueTask(() => cb.call(this, {isCached: false})))(cb);
-        }
-        return delete this.callbacks;
-      };
-      req = (ajax || $.ajax)(url, {onloadend});
-      req.callbacks = [cb];
-      return reqs[url] = req;
-    };
-    return $.cleanCache = function(testf) {
-      for (var url in reqs) {
-        if (testf(url)) {
-          delete reqs[url];
-        }
+      if (url.split('/')[2] === 'a.4cdn.org') {
+          params.push(`t=${Date.now()}`);
       }
-    };
-  })();
-
-  $.cb = {
-    checked() {
-      if ($.hasOwn(Conf, this.name)) {
-        $.set(this.name, this.checked);
-        return Conf[this.name] = this.checked;
+      const url0 = url;
+      if (params.length) {
+          url += '?' + params.join('&');
       }
-    },
-    value() {
-      if ($.hasOwn(Conf, this.name)) {
-        $.set(this.name, this.value.trim());
-        return Conf[this.name] = this.value;
+      const headers = dict();
+      if ((t = $.lastModified[bucket]?.[url0]) != null) {
+          headers['If-Modified-Since'] = t;
       }
-    }
+      const r = (ajax || $.ajax)(url, {
+          onloadend() {
+              ($.lastModified[bucket] || ($.lastModified[bucket] = dict()))[url0] = this.getResponseHeader('Last-Modified');
+              return cb.call(this);
+          },
+          timeout,
+          headers
+      });
+      return r;
   };
-
-  $.asap = function(test, cb) {
-    if (test()) {
-      return cb();
-    } else {
-      return setTimeout($.asap, 25, test, cb);
-    }
-  };
-
-  $.onExists = function(root, selector, cb) {
-    let el;
-    if (el = $(selector, root)) {
-      return cb(el);
-    }
-    var observer = new MutationObserver(function() {
-      if (el = $(selector, root)) {
-        observer.disconnect();
-        return cb(el);
-      }
-    });
-    return observer.observe(root, {childList: true, subtree: true});
-  };
-
-  $.addStyle = function(css, id, test='head') {
-    const style = $.el('style',
-      {textContent: css});
-    if (id != null) { style.id = id; }
-    $.onExists(doc$1, test, () => $.add(d$1.head, style));
-    return style;
-  };
-
-  $.addCSP = function(policy) {
-    const meta = $.el('meta', {
-      httpEquiv: 'Content-Security-Policy',
-      content:   policy
-    }
-    );
-    if (d$1.head) {
-      $.add(d$1.head, meta);
-      return $.rm(meta);
-    } else {
-      const head = $.add((doc$1 || d$1), $.el('head'));
-      $.add(head, meta);
-      return $.rm(head);
-    }
-  };
-
-  $.x = function(path, root) {
-    if (!root) { root = d$1.body; }
-    // XPathResult.ANY_UNORDERED_NODE_TYPE === 8
-    return d$1.evaluate(path, root, null, 8, null).singleNodeValue;
-  };
-
-  $.X = function(path, root) {
-    if (!root) { root = d$1.body; }
-    // XPathResult.ORDERED_NODE_SNAPSHOT_TYPE === 7
-    return d$1.evaluate(path, root, null, 7, null);
-  };
-
-  $.addClass = function(el, ...classNames) {
-    for (var className of classNames) { el.classList.add(className); }
-  };
-
-  $.rmClass = function(el, ...classNames) {
-    for (var className of classNames) { el.classList.remove(className); }
-  };
-
-  $.toggleClass = (el, className) => el.classList.toggle(className);
-
-  $.hasClass = (el, className) => el.classList.contains(className);
-
-  $.rm = el => el?.remove();
-
-  $.rmAll = root => // https://gist.github.com/MayhemYDG/8646194
-  root.textContent = null;
-
-  $.tn = s => d$1.createTextNode(s);
-
-  $.frag = () => d$1.createDocumentFragment();
-
-  $.nodes = function(nodes) {
-    if (!(nodes instanceof Array)) {
-      return nodes;
-    }
-    const frag = $.frag();
-    for (var node of nodes) {
-      frag.appendChild(node);
-    }
-    return frag;
-  };
-
-  $.add = (parent, el) => parent.appendChild($.nodes(el));
-
-  $.prepend = (parent, el) => parent.insertBefore($.nodes(el), parent.firstChild);
-
-  $.after = (root, el) => root.parentNode.insertBefore($.nodes(el), root.nextSibling);
-
-  $.before = (root, el) => root.parentNode.insertBefore($.nodes(el), root);
-
-  $.replace = (root, el) => root.parentNode.replaceChild($.nodes(el), root);
-
-  $.el = function(tag, properties, properties2) {
-    const el = d$1.createElement(tag);
-    if (properties) { $.extend(el, properties); }
-    if (properties2) { $.extend(el, properties2); }
-    return el;
-  };
-
-  $.on = function(el, events, handler) {
-    for (var event of events.split(' ')) {
-      el.addEventListener(event, handler, false);
-    }
-  };
-
-  $.off = function(el, events, handler) {
-    for (var event of events.split(' ')) {
-      el.removeEventListener(event, handler, false);
-    }
-  };
-
-  $.one = function(el, events, handler) {
-    var cb = function(e) {
-      $.off(el, events, cb);
-      return handler.call(this, e);
-    };
-    return $.on(el, events, cb);
-  };
-
-  $.event = function(event, detail, root=d$1) {
-    if (!globalThis.chrome?.extension) {
-      if ((detail != null) && (typeof cloneInto === 'function')) {
-        detail = cloneInto(detail, d$1.defaultView);
-      }
-    }
-    return root.dispatchEvent(new CustomEvent(event, {bubbles: true, cancelable: true, detail}));
-  };
-
-  if (platform === 'userscript') {
-    // XXX Make $.event work in Pale Moon with GM 3.x (no cloneInto function).
-    (function() {
-      if (!/PaleMoon\//.test(navigator.userAgent) || (+GM_info?.version?.split('.')[0] < 2) || (typeof cloneInto !== 'undefined')) { return; }
-
-      try {
-        return new CustomEvent('x', {detail: {}});
-      } catch (err) {
-        const unsafeConstructors = {
-          Object: unsafeWindow.Object,
-          Array:  unsafeWindow.Array
-        };
-        var clone = function(obj) {
-          let constructor;
-          if ((obj != null) && (typeof obj === 'object') && (constructor = unsafeConstructors[obj.constructor.name])) {
-            const obj2 = new constructor();
-            for (var key in obj) { var val = obj[key]; obj2[key] = clone(val); }
-            return obj2;
-          } else {
-            return obj;
+  (function () {
+      const reqs = dict();
+      $.cache = function (url, cb, options = {}) {
+          let req;
+          const { ajax } = options;
+          if (req = reqs[url]) {
+              if (req.callbacks) {
+                  req.callbacks.push(cb);
+              }
+              else {
+                  $.queueTask(() => cb.call(req, { isCached: true }));
+              }
+              return req;
           }
-        };
-        return $.event = (event, detail, root=d$1) => root.dispatchEvent(new CustomEvent(event, {bubbles: true, cancelable: true, detail: clone(detail)}));
-      }
-    })();
-  }
-
-  $.modifiedClick = e => e.shiftKey || e.altKey || e.ctrlKey || e.metaKey || (e.button !== 0);
-
-  if (!globalThis.chrome?.extension) {
-    $.open =
-      (GM?.openInTab != null) ?
-        GM.openInTab
-      : (typeof GM_openInTab !== 'undefined' && GM_openInTab !== null) ?
-        GM_openInTab
-      :
-        url => window.open(url, '_blank');
-  } else {
-    $.open =
-      url => window.open(url, '_blank');
-  }
-
-  $.debounce = function(wait, fn) {
-    let lastCall = 0;
-    let timeout  = null;
-    let that     = null;
-    let args     = null;
-    const exec = function() {
-      lastCall = Date.now();
-      return fn.apply(that, args);
-    };
-    return function() {
-      args = arguments;
-      that = this;
-      if (lastCall < (Date.now() - wait)) {
-        return exec();
-      }
-      // stop current reset
-      clearTimeout(timeout);
-      // after wait, let next invocation execute immediately
-      return timeout = setTimeout(exec, wait);
-    };
-  };
-
-  $.queueTask = (function() {
-    const taskQueue = [];
-    const execTask = function() {
-      const [func, ...args] = taskQueue.shift();
-      func(...args);
-    };
-    return function() {
-      taskQueue.push(arguments);
-      // setTimeout is throttled in background tabs on firefox
-      Promise.resolve().then(execTask);
-    };
+          const onloadend = function () {
+              if (!this.status) {
+                  delete reqs[url];
+              }
+              for (cb of this.callbacks) {
+                  (cb => $.queueTask(() => cb.call(this, { isCached: false })))(cb);
+              }
+              return delete this.callbacks;
+          };
+          req = (ajax || $.ajax)(url, { onloadend });
+          req.callbacks = [cb];
+          return reqs[url] = req;
+      };
+      return $.cleanCache = function (testf) {
+          for (var url in reqs) {
+              if (testf(url)) {
+                  delete reqs[url];
+              }
+          }
+      };
   })();
-
-  $.global = function(fn, data) {
-    if (doc$1) {
-      const script = $.el('script',
-        {textContent: `(${fn}).call(document.currentScript.dataset);`});
-      if (data) { $.extend(script.dataset, data); }
-      $.add((d$1.head || doc$1), script);
-      $.rm(script);
-      return script.dataset;
-    } else {
-      // XXX dwb
-      try {
-        fn.call(data);
-      } catch (error) {}
-      return data;
-    }
+  $.cb = {
+      checked() {
+          if ($.hasOwn(Conf, this.name)) {
+              $.set(this.name, this.checked);
+              return Conf[this.name] = this.checked;
+          }
+      },
+      value() {
+          if ($.hasOwn(Conf, this.name)) {
+              $.set(this.name, this.value.trim());
+              return Conf[this.name] = this.value;
+          }
+      }
   };
-
-  $.bytesToString = function(size) {
-    let unit = 0; // Bytes
-    while (size >= 1024) {
-      size /= 1024;
-      unit++;
-    }
-    // Remove trailing 0s.
-    size =
-      unit > 1 ?
-        // Keep the size as a float if the size is greater than 2^20 B.
-        // Round to hundredth.
-        Math.round(size * 100) / 100
-      :
-        // Round to an integer otherwise.
-        Math.round(size);
-    return `${size} ${['B', 'KB', 'MB', 'GB'][unit]}`;
+  $.asap = function (test, cb) {
+      if (test()) {
+          return cb();
+      }
+      else {
+          return setTimeout($.asap, 25, test, cb);
+      }
   };
-
+  $.onExists = function (root, selector, cb) {
+      let el;
+      if (el = $(selector, root)) {
+          return cb(el);
+      }
+      var observer = new MutationObserver(function () {
+          if (el = $(selector, root)) {
+              observer.disconnect();
+              return cb(el);
+          }
+      });
+      return observer.observe(root, { childList: true, subtree: true });
+  };
+  $.addStyle = function (css, id, test = 'head') {
+      const style = $.el('style', { textContent: css });
+      if (id != null) {
+          style.id = id;
+      }
+      $.onExists(doc$1, test, () => $.add(d$1.head, style));
+      return style;
+  };
+  $.addCSP = function (policy) {
+      const meta = $.el('meta', {
+          httpEquiv: 'Content-Security-Policy',
+          content: policy
+      });
+      if (d$1.head) {
+          $.add(d$1.head, meta);
+          return $.rm(meta);
+      }
+      else {
+          const head = $.add((doc$1 || d$1), $.el('head'));
+          $.add(head, meta);
+          return $.rm(head);
+      }
+  };
+  $.x = function (path, root) {
+      if (!root) {
+          root = d$1.body;
+      }
+      // XPathResult.ANY_UNORDERED_NODE_TYPE === 8
+      return d$1.evaluate(path, root, null, 8, null).singleNodeValue;
+  };
+  $.X = function (path, root) {
+      if (!root) {
+          root = d$1.body;
+      }
+      // XPathResult.ORDERED_NODE_SNAPSHOT_TYPE === 7
+      return d$1.evaluate(path, root, null, 7, null);
+  };
+  $.addClass = function (el, ...classNames) {
+      for (var className of classNames) {
+          el.classList.add(className);
+      }
+  };
+  $.rmClass = function (el, ...classNames) {
+      for (var className of classNames) {
+          el.classList.remove(className);
+      }
+  };
+  $.toggleClass = (el, className) => el.classList.toggle(className);
+  $.hasClass = (el, className) => el.classList.contains(className);
+  $.rm = el => el?.remove();
+  $.rmAll = root => // https://gist.github.com/MayhemYDG/8646194
+   root.textContent = null;
+  $.tn = s => d$1.createTextNode(s);
+  $.frag = () => d$1.createDocumentFragment();
+  $.nodes = function (nodes) {
+      if (!(nodes instanceof Array)) {
+          return nodes;
+      }
+      const frag = $.frag();
+      for (var node of nodes) {
+          frag.appendChild(node);
+      }
+      return frag;
+  };
+  $.add = (parent, el) => parent.appendChild($.nodes(el));
+  $.prepend = (parent, el) => parent.insertBefore($.nodes(el), parent.firstChild);
+  $.after = (root, el) => root.parentNode.insertBefore($.nodes(el), root.nextSibling);
+  $.before = (root, el) => root.parentNode.insertBefore($.nodes(el), root);
+  $.replace = (root, el) => root.parentNode.replaceChild($.nodes(el), root);
+  $.el = function (tag, properties, properties2) {
+      const el = d$1.createElement(tag);
+      if (properties) {
+          $.extend(el, properties);
+      }
+      if (properties2) {
+          $.extend(el, properties2);
+      }
+      return el;
+  };
+  $.on = function (el, events, handler) {
+      for (var event of events.split(' ')) {
+          el.addEventListener(event, handler, false);
+      }
+  };
+  $.off = function (el, events, handler) {
+      for (var event of events.split(' ')) {
+          el.removeEventListener(event, handler, false);
+      }
+  };
+  $.one = function (el, events, handler) {
+      var cb = function (e) {
+          $.off(el, events, cb);
+          return handler.call(this, e);
+      };
+      return $.on(el, events, cb);
+  };
+  $.event = function (event, detail, root = d$1) {
+      if (!globalThis.chrome?.extension) {
+          if ((detail != null) && (typeof cloneInto === 'function')) {
+              detail = cloneInto(detail, d$1.defaultView);
+          }
+      }
+      return root.dispatchEvent(new CustomEvent(event, { bubbles: true, cancelable: true, detail }));
+  };
+  if (platform === 'userscript') {
+      // XXX Make $.event work in Pale Moon with GM 3.x (no cloneInto function).
+      (function () {
+          if (!/PaleMoon\//.test(navigator.userAgent) || (+GM_info?.version?.split('.')[0] < 2) || (typeof cloneInto !== 'undefined')) {
+              return;
+          }
+          try {
+              return new CustomEvent('x', { detail: {} });
+          }
+          catch (err) {
+              const unsafeConstructors = {
+                  Object: unsafeWindow.Object,
+                  Array: unsafeWindow.Array
+              };
+              var clone = function (obj) {
+                  let constructor;
+                  if ((obj != null) && (typeof obj === 'object') && (constructor = unsafeConstructors[obj.constructor.name])) {
+                      const obj2 = new constructor();
+                      for (var key in obj) {
+                          var val = obj[key];
+                          obj2[key] = clone(val);
+                      }
+                      return obj2;
+                  }
+                  else {
+                      return obj;
+                  }
+              };
+              return $.event = (event, detail, root = d$1) => root.dispatchEvent(new CustomEvent(event, { bubbles: true, cancelable: true, detail: clone(detail) }));
+          }
+      })();
+  }
+  $.modifiedClick = e => e.shiftKey || e.altKey || e.ctrlKey || e.metaKey || (e.button !== 0);
+  if (!globalThis.chrome?.extension) {
+      $.open =
+          (GM?.openInTab != null) ?
+              GM.openInTab
+              : (typeof GM_openInTab !== 'undefined' && GM_openInTab !== null) ?
+                  GM_openInTab
+                  :
+                      url => window.open(url, '_blank');
+  }
+  else {
+      $.open =
+          url => window.open(url, '_blank');
+  }
+  $.debounce = function (wait, fn) {
+      let lastCall = 0;
+      let timeout = null;
+      let that = null;
+      let args = null;
+      const exec = function () {
+          lastCall = Date.now();
+          return fn.apply(that, args);
+      };
+      return function () {
+          args = arguments;
+          that = this;
+          if (lastCall < (Date.now() - wait)) {
+              return exec();
+          }
+          // stop current reset
+          clearTimeout(timeout);
+          // after wait, let next invocation execute immediately
+          return timeout = setTimeout(exec, wait);
+      };
+  };
+  $.queueTask = (function () {
+      const taskQueue = [];
+      const execTask = function () {
+          const [func, ...args] = taskQueue.shift();
+          func(...args);
+      };
+      return function () {
+          taskQueue.push(arguments);
+          // setTimeout is throttled in background tabs on firefox
+          Promise.resolve().then(execTask);
+      };
+  })();
+  $.global = function (fn, data) {
+      if (doc$1) {
+          const script = $.el('script', { textContent: `(${fn}).call(document.currentScript.dataset);` });
+          if (data) {
+              $.extend(script.dataset, data);
+          }
+          $.add((d$1.head || doc$1), script);
+          $.rm(script);
+          return script.dataset;
+      }
+      else {
+          // XXX dwb
+          try {
+              fn.call(data);
+          }
+          catch (error) { }
+          return data;
+      }
+  };
+  $.bytesToString = function (size) {
+      let unit = 0; // Bytes
+      while (size >= 1024) {
+          size /= 1024;
+          unit++;
+      }
+      // Remove trailing 0s.
+      size =
+          unit > 1 ?
+              // Keep the size as a float if the size is greater than 2^20 B.
+              // Round to hundredth.
+              Math.round(size * 100) / 100
+              :
+                  // Round to an integer otherwise.
+                  Math.round(size);
+      return `${size} ${['B', 'KB', 'MB', 'GB'][unit]}`;
+  };
   $.minmax = (value, min, max) => value < min ?
-    min
-  :
-    value > max ?
-      max
-    :
-      value;
-
-  $.hasAudio = video =>
-    video.mozHasAudio || !!video.webkitAudioDecodedByteCount ||
-    video.nextElementSibling?.tagName === 'AUDIO'; // sound posts
-
+      min
+      :
+          value > max ?
+              max
+              :
+                  value;
+  $.hasAudio = video => video.mozHasAudio || !!video.webkitAudioDecodedByteCount ||
+      video.nextElementSibling?.tagName === 'AUDIO'; // sound posts
   $.luma = rgb => (rgb[0] * 0.299) + (rgb[1] * 0.587) + (rgb[2] * 0.114);
-
-  $.unescape = function(text) {
-    if (text == null) { return text; }
-    return text.replace(/<[^>]*>/g, '').replace(/&(amp|#039|quot|lt|gt|#44);/g, c => ({'&amp;': '&', '&#039;': "'", '&quot;': '"', '&lt;': '<', '&gt;': '>', '&#44;': ','})[c]);
+  $.unescape = function (text) {
+      if (text == null) {
+          return text;
+      }
+      return text.replace(/<[^>]*>/g, '').replace(/&(amp|#039|quot|lt|gt|#44);/g, c => ({ '&amp;': '&', '&#039;': "'", '&quot;': '"', '&lt;': '<', '&gt;': '>', '&#44;': ',' })[c]);
   };
-
   $.isImage = url => /\.(jpe?g|jfif|png|gif|bmp|webp|avif|jxl)$/i.test(url);
   $.isVideo = url => /\.(webm|mp4|ogv)$/i.test(url);
-
-  $.engine = (function() {
-    if (/Edge\//.test(navigator.userAgent)) { return 'edge'; }
-    if (/Chrome\//.test(navigator.userAgent)) { return 'blink'; }
-    if (/WebKit\//.test(navigator.userAgent)) { return 'webkit'; }
-    if (/Gecko\/|Goanna/.test(navigator.userAgent)) { return 'gecko'; } // Goanna = Pale Moon 26+
-  })();
-
-  $.hasStorage = (function() {
-    try {
-      if (localStorage.getItem(g.NAMESPACE + 'hasStorage') === 'true') { return true; }
-      localStorage.setItem(g.NAMESPACE + 'hasStorage', 'true');
-      return localStorage.getItem(g.NAMESPACE + 'hasStorage') === 'true';
-    } catch (error) {
-      return false;
-    }
-  })();
-
-  $.item = function(key, val) {
-    const item = dict();
-    item[key] = val;
-    return item;
-  };
-
-  $.oneItemSugar = fn => (function(key, val, cb) {
-    if (typeof key === 'string') {
-      return fn($.item(key, val), cb);
-    } else {
-      return fn(key, val);
-    }
-  });
-
-  $.syncing = dict();
-
-  $.securityCheck = function(data) {
-    if (location.protocol !== 'https:') {
-      return delete data['Redirect to HTTPS'];
-    }
-  };
-
-  if (platform === 'crx') {
-    // https://developer.chrome.com/extensions/storage.html
-    $.oldValue = {
-      local: dict(),
-      sync:  dict()
-    };
-
-    chrome.storage.onChanged.addListener(function(changes, area) {
-      for (var key in changes) {
-        var oldValue = $.oldValue.local[key] ?? $.oldValue.sync[key];
-        $.oldValue[area][key] = dict.clone(changes[key].newValue);
-        var newValue = $.oldValue.local[key] ?? $.oldValue.sync[key];
-        var cb = $.syncing[key];
-        if (cb && (JSON.stringify(newValue) !== JSON.stringify(oldValue))) {
-          cb(newValue, key);
-        }
+  $.engine = (function () {
+      if (/Edge\//.test(navigator.userAgent)) {
+          return 'edge';
       }
-    });
-    $.sync = (key, cb) => $.syncing[key] = cb;
-    $.forceSync = function() {  };
-
-    $.crxWorking = function() {
+      if (/Chrome\//.test(navigator.userAgent)) {
+          return 'blink';
+      }
+      if (/WebKit\//.test(navigator.userAgent)) {
+          return 'webkit';
+      }
+      if (/Gecko\/|Goanna/.test(navigator.userAgent)) {
+          return 'gecko';
+      } // Goanna = Pale Moon 26+
+  })();
+  $.hasStorage = (function () {
       try {
-        if (chrome.runtime.getManifest()) {
-          return true;
-        }
-      } catch (error) {}
-      if (!$.crxWarningShown) {
-        const msg = $.el('div',
-          {innerHTML: '4chan X seems to have been updated. You will need to <a href="javascript:;">reload</a> the page.'});
-        $.on($('a', msg), 'click', () => location.reload());
-        new Notice('warning', msg);
-        $.crxWarningShown = true;
+          if (localStorage.getItem(g.NAMESPACE + 'hasStorage') === 'true') {
+              return true;
+          }
+          localStorage.setItem(g.NAMESPACE + 'hasStorage', 'true');
+          return localStorage.getItem(g.NAMESPACE + 'hasStorage') === 'true';
       }
-      return false;
-    };
-
-    $.get = $.oneItemSugar(function(data, cb) {
-      if (!$.crxWorking()) { return; }
-      const results = {};
-      const get = function(area) {
-        let keys = Object.keys(data);
-        // XXX slow performance in Firefox
-        if (($.engine === 'gecko') && (area === 'sync') && (keys.length > 3)) {
-          keys = null;
-        }
-        return chrome.storage[area].get(keys, function(result) {
-          let key;
-          result = dict.clone(result);
-          if (chrome.runtime.lastError) {
-            c.error(chrome.runtime.lastError.message);
-          }
-          if (keys === null) {
-            const result2 = dict();
-            for (key in result) { var val = result[key]; if ($.hasOwn(data, key)) { result2[key] = val; } }
-            result = result2;
-          }
-          for (key in data) {
-            $.oldValue[area][key] = result[key];
-          }
-          results[area] = result;
-          if (results.local && results.sync) {
-            $.extend(data, results.sync);
-            $.extend(data, results.local);
-            return cb(data);
-          }
-        });
+      catch (error) {
+          return false;
+      }
+  })();
+  $.item = function (key, val) {
+      const item = dict();
+      item[key] = val;
+      return item;
+  };
+  $.oneItemSugar = fn => (function (key, val, cb) {
+      if (typeof key === 'string') {
+          return fn($.item(key, val), cb);
+      }
+      else {
+          return fn(key, val);
+      }
+  });
+  $.syncing = dict();
+  $.securityCheck = function (data) {
+      if (location.protocol !== 'https:') {
+          return delete data['Redirect to HTTPS'];
+      }
+  };
+  if (platform === 'crx') {
+      // https://developer.chrome.com/extensions/storage.html
+      $.oldValue = {
+          local: dict(),
+          sync: dict()
       };
-      get('local');
-      return get('sync');
-    });
-
-    (function() {
-      const items = {
-        local: dict(),
-        sync:  dict()
-      };
-
-      const exceedsQuota = (key, value) => // bytes in UTF-8
-      unescape(encodeURIComponent(JSON.stringify(key))).length + unescape(encodeURIComponent(JSON.stringify(value))).length > chrome.storage.sync.QUOTA_BYTES_PER_ITEM;
-
-      $.delete = function(keys) {
-        if (!$.crxWorking()) { return; }
-        if (typeof keys === 'string') {
-          keys = [keys];
-        }
-        for (var key of keys) {
-          delete items.local[key];
-          delete items.sync[key];
-        }
-        chrome.storage.local.remove(keys);
-        return chrome.storage.sync.remove(keys);
-      };
-
-      const timeout = {};
-      var setArea = function(area, cb) {
-        const data = dict();
-        $.extend(data, items[area]);
-        if (!Object.keys(data).length || (timeout[area] > Date.now())) { return; }
-        return chrome.storage[area].set(data, function() {
-          let err;
-          let key;
-          if (err = chrome.runtime.lastError) {
-            c.error(err.message);
-            setTimeout(setArea, MINUTE, area);
-            timeout[area] = Date.now() + MINUTE;
-            return cb?.(err);
+      chrome.storage.onChanged.addListener(function (changes, area) {
+          for (var key in changes) {
+              var oldValue = $.oldValue.local[key] ?? $.oldValue.sync[key];
+              $.oldValue[area][key] = dict.clone(changes[key].newValue);
+              var newValue = $.oldValue.local[key] ?? $.oldValue.sync[key];
+              var cb = $.syncing[key];
+              if (cb && (JSON.stringify(newValue) !== JSON.stringify(oldValue))) {
+                  cb(newValue, key);
+              }
           }
-
-          delete timeout[area];
-          for (key in data) { if (items[area][key] === data[key]) { delete items[area][key]; } }
-          if (area === 'local') {
-            for (key in data) { var val = data[key]; if (!exceedsQuota(key, val)) { items.sync[key] = val; } }
-            setSync();
-          } else {
-            chrome.storage.local.remove(((() => {
+      });
+      $.sync = (key, cb) => $.syncing[key] = cb;
+      $.forceSync = function () { };
+      $.crxWorking = function () {
+          try {
+              if (chrome.runtime.getManifest()) {
+                  return true;
+              }
+          }
+          catch (error) { }
+          if (!$.crxWarningShown) {
+              const msg = $.el('div', { innerHTML: '4chan X seems to have been updated. You will need to <a href="javascript:;">reload</a> the page.' });
+              $.on($('a', msg), 'click', () => location.reload());
+              new Notice('warning', msg);
+              $.crxWarningShown = true;
+          }
+          return false;
+      };
+      $.get = $.oneItemSugar(function (data, cb) {
+          if (!$.crxWorking()) {
+              return;
+          }
+          const results = {};
+          const get = function (area) {
+              let keys = Object.keys(data);
+              // XXX slow performance in Firefox
+              if (($.engine === 'gecko') && (area === 'sync') && (keys.length > 3)) {
+                  keys = null;
+              }
+              return chrome.storage[area].get(keys, function (result) {
+                  let key;
+                  result = dict.clone(result);
+                  if (chrome.runtime.lastError) {
+                      c.error(chrome.runtime.lastError.message);
+                  }
+                  if (keys === null) {
+                      const result2 = dict();
+                      for (key in result) {
+                          var val = result[key];
+                          if ($.hasOwn(data, key)) {
+                              result2[key] = val;
+                          }
+                      }
+                      result = result2;
+                  }
+                  for (key in data) {
+                      $.oldValue[area][key] = result[key];
+                  }
+                  results[area] = result;
+                  if (results.local && results.sync) {
+                      $.extend(data, results.sync);
+                      $.extend(data, results.local);
+                      return cb(data);
+                  }
+              });
+          };
+          get('local');
+          return get('sync');
+      });
+      (function () {
+          const items = {
+              local: dict(),
+              sync: dict()
+          };
+          const exceedsQuota = (key, value) => // bytes in UTF-8
+           unescape(encodeURIComponent(JSON.stringify(key))).length + unescape(encodeURIComponent(JSON.stringify(value))).length > chrome.storage.sync.QUOTA_BYTES_PER_ITEM;
+          $.delete = function (keys) {
+              if (!$.crxWorking()) {
+                  return;
+              }
+              if (typeof keys === 'string') {
+                  keys = [keys];
+              }
+              for (var key of keys) {
+                  delete items.local[key];
+                  delete items.sync[key];
+              }
+              chrome.storage.local.remove(keys);
+              return chrome.storage.sync.remove(keys);
+          };
+          const timeout = {};
+          var setArea = function (area, cb) {
+              const data = dict();
+              $.extend(data, items[area]);
+              if (!Object.keys(data).length || (timeout[area] > Date.now())) {
+                  return;
+              }
+              return chrome.storage[area].set(data, function () {
+                  let err;
+                  let key;
+                  if (err = chrome.runtime.lastError) {
+                      c.error(err.message);
+                      setTimeout(setArea, MINUTE, area);
+                      timeout[area] = Date.now() + MINUTE;
+                      return cb?.(err);
+                  }
+                  delete timeout[area];
+                  for (key in data) {
+                      if (items[area][key] === data[key]) {
+                          delete items[area][key];
+                      }
+                  }
+                  if (area === 'local') {
+                      for (key in data) {
+                          var val = data[key];
+                          if (!exceedsQuota(key, val)) {
+                              items.sync[key] = val;
+                          }
+                      }
+                      setSync();
+                  }
+                  else {
+                      chrome.storage.local.remove(((() => {
+                          const result = [];
+                          for (key in data) {
+                              if (!(key in items.local)) {
+                                  result.push(key);
+                              }
+                          }
+                          return result;
+                      })()));
+                  }
+                  return cb?.();
+              });
+          };
+          var setSync = debounce(SECOND, () => setArea('sync'));
+          $.set = $.oneItemSugar(function (data, cb) {
+              if (!$.crxWorking()) {
+                  return;
+              }
+              $.securityCheck(data);
+              $.extend(items.local, data);
+              return setArea('local', cb);
+          });
+          return $.clear = function (cb) {
+              if (!$.crxWorking()) {
+                  return;
+              }
+              items.local = dict();
+              items.sync = dict();
+              let count = 2;
+              let err = null;
+              const done = function () {
+                  if (chrome.runtime.lastError) {
+                      c.error(chrome.runtime.lastError.message);
+                  }
+                  if (err == null) {
+                      err = chrome.runtime.lastError;
+                  }
+                  if (!--count) {
+                      return cb?.(err);
+                  }
+              };
+              chrome.storage.local.clear(done);
+              return chrome.storage.sync.clear(done);
+          };
+      })();
+  }
+  else {
+      // http://wiki.greasespot.net/Main_Page
+      // https://tampermonkey.net/documentation.php
+      if ((GM?.deleteValue != null) && window.BroadcastChannel && (typeof GM_addValueChangeListener === 'undefined' || GM_addValueChangeListener === null)) {
+          $.syncChannel = new BroadcastChannel(g.NAMESPACE + 'sync');
+          $.on($.syncChannel, 'message', e => (() => {
               const result = [];
-              for (key in data) {
-                if (!(key in items.local)) {
-                  result.push(key);
-                }
+              for (var key in e.data) {
+                  var cb;
+                  var val = e.data[key];
+                  if (cb = $.syncing[key]) {
+                      result.push(cb(dict.json(JSON.stringify(val)), key));
+                  }
               }
               return result;
-            })()));
-          }
-          return cb?.();
-        });
-      };
-
-      var setSync = debounce(SECOND, () => setArea('sync'));
-
-      $.set = $.oneItemSugar(function(data, cb) {
-        if (!$.crxWorking()) { return; }
-        $.securityCheck(data);
-        $.extend(items.local, data);
-        return setArea('local', cb);
-      });
-
-      return $.clear = function(cb) {
-        if (!$.crxWorking()) { return; }
-        items.local = dict();
-        items.sync =  dict();
-        let count = 2;
-        let err   = null;
-        const done  = function() {
-          if (chrome.runtime.lastError) {
-            c.error(chrome.runtime.lastError.message);
-          }
-          if (err == null) { err = chrome.runtime.lastError; }
-          if (!--count) { return cb?.(err); }
-        };
-        chrome.storage.local.clear(done);
-        return chrome.storage.sync.clear(done);
-      };
-    })();
-  } else {
-
-    // http://wiki.greasespot.net/Main_Page
-    // https://tampermonkey.net/documentation.php
-
-    if ((GM?.deleteValue != null) && window.BroadcastChannel && (typeof GM_addValueChangeListener === 'undefined' || GM_addValueChangeListener === null)) {
-
-      $.syncChannel = new BroadcastChannel(g.NAMESPACE + 'sync');
-
-      $.on($.syncChannel, 'message', e => (() => {
-        const result = [];
-        for (var key in e.data) {
-          var cb;
-          var val = e.data[key];
-          if (cb = $.syncing[key]) {
-            result.push(cb(dict.json(JSON.stringify(val)), key));
-          }
-        }
-        return result;
-      })());
-
-      $.sync = (key, cb) => $.syncing[key] = cb;
-
-      $.forceSync = function() {};
-
-      $.delete = function(keys, cb) {
-        let key;
-        if (!(keys instanceof Array)) {
-          keys = [keys];
-        }
-        return Promise.all((() => {
-          const result = [];
-          for (key of keys) {         result.push(GM.deleteValue(g.NAMESPACE + key));
-          }
-          return result;
-        })()).then(function() {
-          const items = dict();
-          for (key of keys) { items[key] = undefined; }
-          $.syncChannel.postMessage(items);
-          return cb?.();
-        });
-      };
-
-      $.get = $.oneItemSugar(function(items, cb) {
-        const keys = Object.keys(items);
-        return Promise.all(keys.map((key) => GM.getValue(g.NAMESPACE + key))).then(function(values) {
-          for (let i = 0; i < values.length; i++) {
-            var val = values[i];
-            if (val) {
-              items[keys[i]] = dict.json(val);
-            }
-          }
-          return cb(items);
-        });
-      });
-
-      $.set = $.oneItemSugar(function(items, cb) {
-        $.securityCheck(items);
-        return Promise.all((() => {
-          const result = [];
-          for (var key in items) {
-            var val = items[key];
-            result.push(GM.setValue(g.NAMESPACE + key, JSON.stringify(val)));
-          }
-          return result;
-        })()).then(function() {
-          $.syncChannel.postMessage(items);
-          return cb?.();
-        });
-      });
-
-      $.clear = cb => GM.listValues().then(keys => $.delete(keys.map(key => key.replace(g.NAMESPACE, '')), cb)).catch( () => $.delete(Object.keys(Conf).concat(['previousversion', 'QR Size', 'QR.persona']), cb));
-    } else {
-
-      if (typeof GM_deleteValue === 'undefined' || GM_deleteValue === null) {
-        $.perProtocolSettings = true;
-      }
-
-      if (typeof GM_deleteValue !== 'undefined' && GM_deleteValue !== null) {
-        $.getValue   = GM_getValue;
-        $.listValues = () => GM_listValues(); // error when called if missing
-      } else if ($.hasStorage) {
-        $.getValue = key => localStorage.getItem(key);
-        $.listValues = () => (() => {
-          const result = [];
-          for (var key in localStorage) {
-            if (key.slice(0, g.NAMESPACE.length) === g.NAMESPACE) {
-              result.push(key);
-            }
-          }
-          return result;
-        })();
-      } else {
-        $.getValue   = function() {};
-        $.listValues = () => [];
-      }
-
-      if (typeof GM_addValueChangeListener !== 'undefined' && GM_addValueChangeListener !== null) {
-        $.setValue    = GM_setValue;
-        $.deleteValue = GM_deleteValue;
-      } else if (typeof GM_deleteValue !== 'undefined' && GM_deleteValue !== null) {
-        $.oldValue = dict();
-        $.setValue = function(key, val) {
-          GM_setValue(key, val);
-          if (key in $.syncing) {
-            $.oldValue[key]   = val;
-            if ($.hasStorage) { return localStorage.setItem(key, val); } // for `storage` events
-          }
-        };
-        $.deleteValue = function(key) {
-          GM_deleteValue(key);
-          if (key in $.syncing) {
-            delete $.oldValue[key];
-            if ($.hasStorage) { return localStorage.removeItem(key); } // for `storage` events
-          }
-        };
-        if (!$.hasStorage) { $.cantSync = true; }
-      } else if ($.hasStorage) {
-        $.oldValue = dict();
-        $.setValue = function(key, val) {
-          if (key in $.syncing) { $.oldValue[key]   = val; }
-          return localStorage.setItem(key, val);
-        };
-        $.deleteValue = function(key) {
-          if (key in $.syncing) { delete $.oldValue[key]; }
-          return localStorage.removeItem(key);
-        };
-      } else {
-        $.setValue = function() {};
-        $.deleteValue = function() {};
-        $.cantSync = ($.cantSet = true);
-      }
-
-      if (typeof GM_addValueChangeListener !== 'undefined' && GM_addValueChangeListener !== null) {
-        $.sync = (key, cb) => $.syncing[key] = GM_addValueChangeListener(g.NAMESPACE + key, function(key2, oldValue, newValue, remote) {
-          if (remote) {
-            if (newValue !== undefined) { newValue = dict.json(newValue); }
-            return cb(newValue, key);
-          }
-        });
-        $.forceSync = function() {};
-      } else if ((typeof GM_deleteValue !== 'undefined' && GM_deleteValue !== null) || $.hasStorage) {
-        $.sync = function(key, cb) {
-          key = g.NAMESPACE + key;
-          $.syncing[key] = cb;
-          return $.oldValue[key] = $.getValue(key);
-        };
-
-        (function() {
-          const onChange = function({key, newValue}) {
-            let cb;
-            if (!(cb = $.syncing[key])) { return; }
-            if (newValue != null) {
-              if (newValue === $.oldValue[key]) { return; }
-              $.oldValue[key] = newValue;
-              return cb(dict.json(newValue), key.slice(g.NAMESPACE.length));
-            } else {
-              if ($.oldValue[key] == null) { return; }
-              delete $.oldValue[key];
-              return cb(undefined, key.slice(g.NAMESPACE.length));
-            }
-          };
-          $.on(window, 'storage', onChange);
-
-          return $.forceSync = function(key) {
-            // Storage events don't work across origins
-            // e.g. http://boards.4chan.org and https://boards.4chan.org
-            // so force a check for changes to avoid lost data.
-            key = g.NAMESPACE + key;
-            return onChange({key, newValue: $.getValue(key)});
-          };
-        })();
-      } else {
-        $.sync = function() {};
-        $.forceSync = function() {};
-      }
-
-      $.delete = function(keys) {
-        if (!(keys instanceof Array)) {
-          keys = [keys];
-        }
-        for (var key of keys) {
-          $.deleteValue(g.NAMESPACE + key);
-        }
-      };
-
-      $.get = $.oneItemSugar((items, cb) => $.queueTask($.getSync, items, cb));
-
-      $.getSync = function(items, cb) {
-        for (var key in items) {
-          var val2;
-          if (val2 = $.getValue(g.NAMESPACE + key)) {
-            try {
-              items[key] = dict.json(val2);
-            } catch (err) {
-              // XXX https://github.com/ccd0/4chan-x/issues/2218
-              if (!/^(?:undefined)*$/.test(val2)) {
-                throw err;
+          })());
+          $.sync = (key, cb) => $.syncing[key] = cb;
+          $.forceSync = function () { };
+          $.delete = function (keys, cb) {
+              let key;
+              if (!(keys instanceof Array)) {
+                  keys = [keys];
               }
-            }
+              return Promise.all((() => {
+                  const result = [];
+                  for (key of keys) {
+                      result.push(GM.deleteValue(g.NAMESPACE + key));
+                  }
+                  return result;
+              })()).then(function () {
+                  const items = dict();
+                  for (key of keys) {
+                      items[key] = undefined;
+                  }
+                  $.syncChannel.postMessage(items);
+                  return cb?.();
+              });
+          };
+          $.get = $.oneItemSugar(function (items, cb) {
+              const keys = Object.keys(items);
+              return Promise.all(keys.map((key) => GM.getValue(g.NAMESPACE + key))).then(function (values) {
+                  for (let i = 0; i < values.length; i++) {
+                      var val = values[i];
+                      if (val) {
+                          items[keys[i]] = dict.json(val);
+                      }
+                  }
+                  return cb(items);
+              });
+          });
+          $.set = $.oneItemSugar(function (items, cb) {
+              $.securityCheck(items);
+              return Promise.all((() => {
+                  const result = [];
+                  for (var key in items) {
+                      var val = items[key];
+                      result.push(GM.setValue(g.NAMESPACE + key, JSON.stringify(val)));
+                  }
+                  return result;
+              })()).then(function () {
+                  $.syncChannel.postMessage(items);
+                  return cb?.();
+              });
+          });
+          $.clear = cb => GM.listValues().then(keys => $.delete(keys.map(key => key.replace(g.NAMESPACE, '')), cb)).catch(() => $.delete(Object.keys(Conf).concat(['previousversion', 'QR Size', 'QR.persona']), cb));
+      }
+      else {
+          if (typeof GM_deleteValue === 'undefined' || GM_deleteValue === null) {
+              $.perProtocolSettings = true;
           }
-        }
-        return cb(items);
-      };
-
-      $.set = $.oneItemSugar(function(items, cb) {
-        $.securityCheck(items);
-        return $.queueTask(function() {
-          for (var key in items) {
-            var value = items[key];
-            $.setValue(g.NAMESPACE + key, JSON.stringify(value));
+          if (typeof GM_deleteValue !== 'undefined' && GM_deleteValue !== null) {
+              $.getValue = GM_getValue;
+              $.listValues = () => GM_listValues(); // error when called if missing
           }
-          return cb?.();
-        });
-      });
-
-      $.clear = function(cb) {
-        // XXX https://github.com/greasemonkey/greasemonkey/issues/2033
-        // Also support case where GM_listValues is not defined.
-        $.delete(Object.keys(Conf));
-        $.delete(['previousversion', 'QR Size', 'QR.persona']);
-        try {
-          $.delete($.listValues().map(key => key.replace(g.NAMESPACE, '')));
-        } catch (error) {}
-        return cb?.();
-      };
-    }
+          else if ($.hasStorage) {
+              $.getValue = key => localStorage.getItem(key);
+              $.listValues = () => (() => {
+                  const result = [];
+                  for (var key in localStorage) {
+                      if (key.slice(0, g.NAMESPACE.length) === g.NAMESPACE) {
+                          result.push(key);
+                      }
+                  }
+                  return result;
+              })();
+          }
+          else {
+              $.getValue = function () { };
+              $.listValues = () => [];
+          }
+          if (typeof GM_addValueChangeListener !== 'undefined' && GM_addValueChangeListener !== null) {
+              $.setValue = GM_setValue;
+              $.deleteValue = GM_deleteValue;
+          }
+          else if (typeof GM_deleteValue !== 'undefined' && GM_deleteValue !== null) {
+              $.oldValue = dict();
+              $.setValue = function (key, val) {
+                  GM_setValue(key, val);
+                  if (key in $.syncing) {
+                      $.oldValue[key] = val;
+                      if ($.hasStorage) {
+                          return localStorage.setItem(key, val);
+                      } // for `storage` events
+                  }
+              };
+              $.deleteValue = function (key) {
+                  GM_deleteValue(key);
+                  if (key in $.syncing) {
+                      delete $.oldValue[key];
+                      if ($.hasStorage) {
+                          return localStorage.removeItem(key);
+                      } // for `storage` events
+                  }
+              };
+              if (!$.hasStorage) {
+                  $.cantSync = true;
+              }
+          }
+          else if ($.hasStorage) {
+              $.oldValue = dict();
+              $.setValue = function (key, val) {
+                  if (key in $.syncing) {
+                      $.oldValue[key] = val;
+                  }
+                  return localStorage.setItem(key, val);
+              };
+              $.deleteValue = function (key) {
+                  if (key in $.syncing) {
+                      delete $.oldValue[key];
+                  }
+                  return localStorage.removeItem(key);
+              };
+          }
+          else {
+              $.setValue = function () { };
+              $.deleteValue = function () { };
+              $.cantSync = ($.cantSet = true);
+          }
+          if (typeof GM_addValueChangeListener !== 'undefined' && GM_addValueChangeListener !== null) {
+              $.sync = (key, cb) => $.syncing[key] = GM_addValueChangeListener(g.NAMESPACE + key, function (key2, oldValue, newValue, remote) {
+                  if (remote) {
+                      if (newValue !== undefined) {
+                          newValue = dict.json(newValue);
+                      }
+                      return cb(newValue, key);
+                  }
+              });
+              $.forceSync = function () { };
+          }
+          else if ((typeof GM_deleteValue !== 'undefined' && GM_deleteValue !== null) || $.hasStorage) {
+              $.sync = function (key, cb) {
+                  key = g.NAMESPACE + key;
+                  $.syncing[key] = cb;
+                  return $.oldValue[key] = $.getValue(key);
+              };
+              (function () {
+                  const onChange = function ({ key, newValue }) {
+                      let cb;
+                      if (!(cb = $.syncing[key])) {
+                          return;
+                      }
+                      if (newValue != null) {
+                          if (newValue === $.oldValue[key]) {
+                              return;
+                          }
+                          $.oldValue[key] = newValue;
+                          return cb(dict.json(newValue), key.slice(g.NAMESPACE.length));
+                      }
+                      else {
+                          if ($.oldValue[key] == null) {
+                              return;
+                          }
+                          delete $.oldValue[key];
+                          return cb(undefined, key.slice(g.NAMESPACE.length));
+                      }
+                  };
+                  $.on(window, 'storage', onChange);
+                  return $.forceSync = function (key) {
+                      // Storage events don't work across origins
+                      // e.g. http://boards.4chan.org and https://boards.4chan.org
+                      // so force a check for changes to avoid lost data.
+                      key = g.NAMESPACE + key;
+                      return onChange({ key, newValue: $.getValue(key) });
+                  };
+              })();
+          }
+          else {
+              $.sync = function () { };
+              $.forceSync = function () { };
+          }
+          $.delete = function (keys) {
+              if (!(keys instanceof Array)) {
+                  keys = [keys];
+              }
+              for (var key of keys) {
+                  $.deleteValue(g.NAMESPACE + key);
+              }
+          };
+          $.get = $.oneItemSugar((items, cb) => $.queueTask($.getSync, items, cb));
+          $.getSync = function (items, cb) {
+              for (var key in items) {
+                  var val2;
+                  if (val2 = $.getValue(g.NAMESPACE + key)) {
+                      try {
+                          items[key] = dict.json(val2);
+                      }
+                      catch (err) {
+                          // XXX https://github.com/ccd0/4chan-x/issues/2218
+                          if (!/^(?:undefined)*$/.test(val2)) {
+                              throw err;
+                          }
+                      }
+                  }
+              }
+              return cb(items);
+          };
+          $.set = $.oneItemSugar(function (items, cb) {
+              $.securityCheck(items);
+              return $.queueTask(function () {
+                  for (var key in items) {
+                      var value = items[key];
+                      $.setValue(g.NAMESPACE + key, JSON.stringify(value));
+                  }
+                  return cb?.();
+              });
+          });
+          $.clear = function (cb) {
+              // XXX https://github.com/greasemonkey/greasemonkey/issues/2033
+              // Also support case where GM_listValues is not defined.
+              $.delete(Object.keys(Conf));
+              $.delete(['previousversion', 'QR Size', 'QR.persona']);
+              try {
+                  $.delete($.listValues().map(key => key.replace(g.NAMESPACE, '')));
+              }
+              catch (error) { }
+              return cb?.();
+          };
+      }
   }
-
   var $$1 = $;
 
   /*
@@ -23555,240 +23589,253 @@ vp-replace
    * DS102: Remove unnecessary code created because of implicit returns
    * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
    */
-
   var Redirect = {
-    archives,
-
-    init() {
-      this.selectArchives();
-      if (Conf['archiveAutoUpdate']) {
-        const now = Date.now();
-        if (now - (2 * DAY) >= Conf['lastarchivecheck'] || Conf['lastarchivecheck'] > now) { return this.update(); }
-      }
-    },
-
-    selectArchives() {
-      let boardID, boards, data, files;
-      const o = {
-        thread: dict(),
-        post:   dict(),
-        file:   dict()
-      };
-
-      const archives = dict();
-      for (data of Conf['archives']) {
-        var name, software, uid;
-        for (var key of ['boards', 'files']) {
-          if (!(data[key] instanceof Array)) { data[key] = []; }
-        }
-        ({uid, name, boards, files, software} = data);
-        if (!['fuuka', 'foolfuuka'].includes(software)) { continue; }
-        archives[JSON.stringify(uid ?? name)] = data;
-        for (boardID of boards) {
-          if (!(boardID in o.thread)) { o.thread[boardID] = data; }
-          if (!(boardID in o.post)   && (software === 'foolfuuka')) { o.post[boardID]   = data; }
-          if (!(boardID in o.file)   && files.includes(boardID)) { o.file[boardID]   = data; }
-        }
-      }
-
-      for (boardID in Conf['selectedArchives']) {
-        var record = Conf['selectedArchives'][boardID];
-        for (var type in record) {
-          var archive;
-          var id = record[type];
-          if ((archive = archives[JSON.stringify(id)]) && $$1.hasOwn(o, type)) {
-            boards = type === 'file' ? archive.files : archive.boards;
-            if (boards.includes(boardID)) { o[type][boardID] = archive; }
+      archives,
+      data: null,
+      init() {
+          this.selectArchives();
+          if (Conf['archiveAutoUpdate']) {
+              const now = Date.now();
+              if (now - (2 * DAY) >= Conf['lastarchivecheck'] || Conf['lastarchivecheck'] > now) {
+                  return this.update();
+              }
           }
-        }
-      }
-
-      return Redirect.data = o;
-    },
-
-    update(cb) {
-      let url;
-      const urls = [];
-      const responses = [];
-      let nloaded = 0;
-      for (url of Conf['archiveLists'].split('\n')) {
-        if (url[0] !== '#') {
-          url = url.trim();
-          if (url) { urls.push(url); }
-        }
-      }
-
-      const fail = (url, action, msg) => new Notice('warning', `Error ${action} archive data from\n${url}\n${msg}`, 20);
-
-      const load = i => (function() {
-        if (this.status !== 200) { return fail(urls[i], 'fetching', (this.status ? `Error ${this.statusText} (${this.status})` : 'Connection Error')); }
-        let {response} = this;
-        if (!(response instanceof Array)) { response = [response]; }
-        responses[i] = response;
-        nloaded++;
-        if (nloaded === urls.length) {
-          return Redirect.parse(responses, cb);
-        }
-      });
-
-      if (urls.length) {
-        for (let i = 0; i < urls.length; i++) {
-          url = urls[i];
-          if (['[', '{'].includes(url[0])) {
-            var response;
-            try {
-              response = JSON.parse(url);
-            } catch (err) {
-              fail(url, 'parsing', err.message);
-              continue;
-            }
-            load(i).call({status: 200, response});
-          } else {
-            CrossOrigin$1.ajax(url,
-              {onloadend: load(i)});
+      },
+      selectArchives() {
+          let boardID, boards, data, files;
+          const o = {
+              thread: dict(),
+              post: dict(),
+              file: dict()
+          };
+          const archives = dict();
+          for (data of Conf['archives']) {
+              var name, software, uid;
+              for (var key of ['boards', 'files']) {
+                  if (!(data[key] instanceof Array)) {
+                      data[key] = [];
+                  }
+              }
+              ({ uid, name, boards, files, software } = data);
+              if (!['fuuka', 'foolfuuka'].includes(software)) {
+                  continue;
+              }
+              archives[JSON.stringify(uid ?? name)] = data;
+              for (boardID of boards) {
+                  if (!(boardID in o.thread)) {
+                      o.thread[boardID] = data;
+                  }
+                  if (!(boardID in o.post) && (software === 'foolfuuka')) {
+                      o.post[boardID] = data;
+                  }
+                  if (!(boardID in o.file) && files.includes(boardID)) {
+                      o.file[boardID] = data;
+                  }
+              }
           }
-        }
-      } else {
-        Redirect.parse([], cb);
-      }
-    },
-
-    parse(responses, cb) {
-      const archives = [];
-      const archiveUIDs = dict();
-      for (var response of responses) {
-        for (var data of response) {
-          var uid = JSON.stringify(data.uid ?? data.name);
-          if (uid in archiveUIDs) {
-            $$1.extend(archiveUIDs[uid], data);
-          } else {
-            archiveUIDs[uid] = dict.clone(data);
-            archives.push(data);
+          for (boardID in Conf['selectedArchives']) {
+              var record = Conf['selectedArchives'][boardID];
+              for (var type in record) {
+                  var archive;
+                  var id = record[type];
+                  if ((archive = archives[JSON.stringify(id)]) && $$1.hasOwn(o, type)) {
+                      boards = type === 'file' ? archive.files : archive.boards;
+                      if (boards.includes(boardID)) {
+                          o[type][boardID] = archive;
+                      }
+                  }
+              }
           }
-        }
+          return Redirect.data = o;
+      },
+      update(cb) {
+          let url;
+          const urls = [];
+          const responses = [];
+          let nloaded = 0;
+          for (url of Conf['archiveLists'].split('\n')) {
+              if (url[0] !== '#') {
+                  url = url.trim();
+                  if (url) {
+                      urls.push(url);
+                  }
+              }
+          }
+          const fail = (url, action, msg) => new Notice('warning', `Error ${action} archive data from\n${url}\n${msg}`, 20);
+          const load = i => (function () {
+              if (this.status !== 200) {
+                  return fail(urls[i], 'fetching', (this.status ? `Error ${this.statusText} (${this.status})` : 'Connection Error'));
+              }
+              let { response } = this;
+              if (!(response instanceof Array)) {
+                  response = [response];
+              }
+              responses[i] = response;
+              nloaded++;
+              if (nloaded === urls.length) {
+                  return Redirect.parse(responses, cb);
+              }
+          });
+          if (urls.length) {
+              for (let i = 0; i < urls.length; i++) {
+                  url = urls[i];
+                  if (['[', '{'].includes(url[0])) {
+                      var response;
+                      try {
+                          response = JSON.parse(url);
+                      }
+                      catch (err) {
+                          fail(url, 'parsing', err.message);
+                          continue;
+                      }
+                      load(i).call({ status: 200, response });
+                  }
+                  else {
+                      CrossOrigin$1.ajax(url, { onloadend: load(i) });
+                  }
+              }
+          }
+          else {
+              Redirect.parse([], cb);
+          }
+      },
+      parse(responses, cb) {
+          const archives = [];
+          const archiveUIDs = dict();
+          for (var response of responses) {
+              for (var data of response) {
+                  var uid = JSON.stringify(data.uid ?? data.name);
+                  if (uid in archiveUIDs) {
+                      $$1.extend(archiveUIDs[uid], data);
+                  }
+                  else {
+                      archiveUIDs[uid] = dict.clone(data);
+                      archives.push(data);
+                  }
+              }
+          }
+          const items = { archives, lastarchivecheck: Date.now() };
+          $$1.set(items);
+          $$1.extend(Conf, items);
+          Redirect.selectArchives();
+          return cb?.();
+      },
+      to(dest, data) {
+          const archive = (['search', 'board', 'threadJSON'].includes(dest) ? Redirect.data.thread : Redirect.data[dest])[data.boardID];
+          if (!archive) {
+              return '';
+          }
+          return Redirect[dest](archive, data);
+      },
+      protocol(archive) {
+          let { protocol } = location;
+          if (!$$1.getOwn(archive, protocol.slice(0, -1))) {
+              protocol = protocol === 'https:' ? 'http:' : 'https:';
+          }
+          return `${protocol}//`;
+      },
+      thread(archive, { boardID, threadID, postID }) {
+          // Keep the post number only if the location.hash was sent f.e.
+          let path = threadID ?
+              `${boardID}/thread/${threadID}`
+              :
+                  `${boardID}/post/${postID}`;
+          if (archive.software === 'foolfuuka') {
+              path += '/';
+          }
+          if (threadID && postID) {
+              path += archive.software === 'foolfuuka' ?
+                  `#${postID}`
+                  :
+                      `#p${postID}`;
+          }
+          return `${Redirect.protocol(archive)}${archive.domain}/${path}`;
+      },
+      threadJSON(archive, { boardID, threadID }) {
+          return `${Redirect.protocol(archive)}${archive.domain}/_/api/chan/thread/?board=${boardID}&num=${threadID}`;
+      },
+      post(archive, { boardID, postID }) {
+          // For fuuka-based archives:
+          // https://github.com/eksopl/fuuka/issues/27
+          const protocol = Redirect.protocol(archive);
+          const url = `${protocol}${archive.domain}/_/api/chan/post/?board=${boardID}&num=${postID}`;
+          if (!Redirect.securityCheck(url)) {
+              return '';
+          }
+          return url;
+      },
+      file(archive, { boardID, filename }) {
+          if (!filename) {
+              return '';
+          }
+          if (boardID === 'f') {
+              filename = encodeURIComponent($$1.unescape(decodeURIComponent(filename)));
+          }
+          else {
+              if (/[sm]\.jpg$/.test(filename)) {
+                  return '';
+              }
+          }
+          return `${Redirect.protocol(archive)}${archive.domain}/${boardID}/full_image/${filename}`;
+      },
+      board(archive, { boardID }) {
+          return `${Redirect.protocol(archive)}${archive.domain}/${boardID}/`;
+      },
+      search(archive, { boardID, type, value }) {
+          type = type === 'name' ?
+              'username'
+              : type === 'MD5' ?
+                  'image'
+                  :
+                      type;
+          if (type === 'capcode') {
+              // https://github.com/pleebe/FoolFuuka/blob/bf4224eed04637a4d0bd4411c2bf5f9945dfec0b/src/Model/Search.php#L363
+              value = $$1.getOwn({
+                  'Developer': 'dev',
+                  'Verified': 'ver'
+              }, value) || value.toLowerCase();
+          }
+          else if (type === 'image') {
+              value = value.replace(/[+/=]/g, c => ({ '+': '-', '/': '_', '=': '' })[c]);
+          }
+          value = encodeURIComponent(value);
+          const path = archive.software === 'foolfuuka' ?
+              `${boardID}/search/${type}/${value}/`
+              : type === 'image' ?
+                  `${boardID}/image/${value}`
+                  :
+                      `${boardID}/?task=search2&search_${type}=${value}`;
+          return `${Redirect.protocol(archive)}${archive.domain}/${path}`;
+      },
+      report(boardID) {
+          const urls = [];
+          for (var archive of Conf['archives']) {
+              var { software, https, reports, boards, name, domain } = archive;
+              if ((software === 'foolfuuka') && https && reports && boards instanceof Array && boards.includes(boardID)) {
+                  urls.push([name, `https://${domain}/_/api/chan/offsite_report/`]);
+              }
+          }
+          return urls;
+      },
+      securityCheck(url) {
+          return /^https:\/\//.test(url) ||
+              (location.protocol === 'http:') ||
+              Conf['Exempt Archives from Encryption'];
+      },
+      navigate(dest, data, alternative) {
+          if (!Redirect.data) {
+              Redirect.init();
+          }
+          const url = Redirect.to(dest, data);
+          if (url && (Redirect.securityCheck(url) ||
+              confirm(`Redirect to ${url}?\n\nYour connection will not be encrypted.`))) {
+              return location.replace(url);
+          }
+          else if (alternative) {
+              return location.replace(alternative);
+          }
       }
-      const items = {archives, lastarchivecheck: Date.now()};
-      $$1.set(items);
-      $$1.extend(Conf, items);
-      Redirect.selectArchives();
-      return cb?.();
-    },
-
-    to(dest, data) {
-      const archive = (['search', 'board'].includes(dest) ? Redirect.data.thread : Redirect.data[dest])[data.boardID];
-      if (!archive) { return ''; }
-      return Redirect[dest](archive, data);
-    },
-
-    protocol(archive) {
-      let {
-        protocol
-      } = location;
-      if (!$$1.getOwn(archive, protocol.slice(0, -1))) {
-        protocol = protocol === 'https:' ? 'http:' : 'https:';
-      }
-      return `${protocol}//`;
-    },
-
-    thread(archive, {boardID, threadID, postID}) {
-      // Keep the post number only if the location.hash was sent f.e.
-      let path = threadID ?
-        `${boardID}/thread/${threadID}`
-      :
-        `${boardID}/post/${postID}`;
-      if (archive.software === 'foolfuuka') {
-        path += '/';
-      }
-      if (threadID && postID) {
-        path += archive.software === 'foolfuuka' ?
-          `#${postID}`
-        :
-          `#p${postID}`;
-      }
-      return `${Redirect.protocol(archive)}${archive.domain}/${path}`;
-    },
-
-    post(archive, {boardID, postID}) {
-      // For fuuka-based archives:
-      // https://github.com/eksopl/fuuka/issues/27
-      const protocol = Redirect.protocol(archive);
-      const url = `${protocol}${archive.domain}/_/api/chan/post/?board=${boardID}&num=${postID}`;
-      if (!Redirect.securityCheck(url)) { return ''; }
-
-      return url;
-    },
-
-    file(archive, {boardID, filename}) {
-      if (!filename) { return ''; }
-      if (boardID === 'f') {
-        filename = encodeURIComponent($$1.unescape(decodeURIComponent(filename)));
-      } else {
-        if (/[sm]\.jpg$/.test(filename)) { return ''; }
-      }
-      return `${Redirect.protocol(archive)}${archive.domain}/${boardID}/full_image/${filename}`;
-    },
-
-    board(archive, {boardID}) {
-      return `${Redirect.protocol(archive)}${archive.domain}/${boardID}/`;
-    },
-
-    search(archive, {boardID, type, value}) {
-      type = type === 'name' ?
-        'username'
-      : type === 'MD5' ?
-        'image'
-      :
-        type;
-      if (type === 'capcode') {
-        // https://github.com/pleebe/FoolFuuka/blob/bf4224eed04637a4d0bd4411c2bf5f9945dfec0b/src/Model/Search.php#L363
-        value = $$1.getOwn({
-          'Developer': 'dev',
-          'Verified':  'ver'
-        }, value) || value.toLowerCase();
-      } else if (type === 'image') {
-        value = value.replace(/[+/=]/g, c => ({'+': '-', '/': '_', '=': ''})[c]);
-      }
-      value = encodeURIComponent(value);
-      const path  = archive.software === 'foolfuuka' ?
-        `${boardID}/search/${type}/${value}/`
-      : type === 'image' ?
-        `${boardID}/image/${value}`
-      :
-        `${boardID}/?task=search2&search_${type}=${value}`;
-      return `${Redirect.protocol(archive)}${archive.domain}/${path}`;
-    },
-
-    report(boardID) {
-      const urls = [];
-      for (var archive of Conf['archives']) {
-        var {software, https, reports, boards, name, domain} = archive;
-        if ((software === 'foolfuuka') && https && reports && boards instanceof Array && boards.includes(boardID)) {
-          urls.push([name, `https://${domain}/_/api/chan/offsite_report/`]);
-        }
-      }
-      return urls;
-    },
-
-    securityCheck(url) {
-      return /^https:\/\//.test(url) ||
-      (location.protocol === 'http:') ||
-      Conf['Exempt Archives from Encryption'];
-    },
-
-    navigate(dest, data, alternative) {
-      if (!Redirect.data) { Redirect.init(); }
-      const url = Redirect.to(dest, data);
-      if (url && (
-        Redirect.securityCheck(url) ||
-        confirm(`Redirect to ${url}?\n\nYour connection will not be encrypted.`)
-      )) {
-        return location.replace(url);
-      } else if (alternative) {
-        return location.replace(alternative);
-      }
-    }
   };
-
   var Redirect$1 = Redirect;
 
   class CatalogThreadNative {
@@ -26362,6 +26409,73 @@ aero|asia|biz|cat|com|coop|dance|info|int|jobs|mobi|moe|museum|name|net|org|post
     }
   };
 
+  const RestoreDeletedFromArchive = {
+      restore() {
+          console.log(g);
+          const url = Redirect$1.to('threadJSON', { boardID: g.boardID, threadID: g.threadID });
+          console.log(url);
+          if (!url) {
+              new Notice('warning', 'No archive found', 3);
+              return;
+          }
+          const encryptionOK = url.startsWith('https://');
+          if (encryptionOK || Conf['Exempt Archives from Encryption']) {
+              CrossOrigin$1.cache(url, function () {
+                  console.log(this);
+                  let nrRestored = 0;
+                  const archivePosts = this.response[g.threadID.toString()].posts;
+                  for (const [postID, raw] of Object.entries(archivePosts)) {
+                      const key = `${g.boardID}.${postID}`;
+                      if (!g.posts.keys.includes(key)) {
+                          const postIdNr = +postID;
+                          let indexOfNext = g.posts.keys.findIndex(key => +(key.split('.')[1]) > postIdNr);
+                          if (indexOfNext === -1) {
+                              indexOfNext = g.posts.keys.length;
+                          }
+                          const newPost = parseArchivePost(raw);
+                          newPost.kill();
+                          g.posts.push(key, newPost);
+                          // move key to right position
+                          g.posts.keys.pop();
+                          g.posts.keys.splice(indexOfNext, 0, key);
+                          if (!QuoteThreading.insert(newPost)) {
+                              g.posts.get(g.posts.keys[indexOfNext - 1]).root.insertAdjacentElement('afterend', newPost.root);
+                          }
+                          ++nrRestored;
+                      }
+                  }
+                  let msg;
+                  if (nrRestored === 0) {
+                      msg = 'No removed posts found';
+                  }
+                  else if (nrRestored === 1) {
+                      msg = '1 post restored';
+                  }
+                  else {
+                      msg = `${nrRestored} posts restored`;
+                  }
+                  new Notice('info', msg, 3);
+              });
+          }
+      },
+      init() {
+          if (g.VIEW !== 'thread')
+              return;
+          const menuEntry = $$1.el('a', {
+              href: 'javascript:;',
+              textContent: 'Restore from archive',
+          });
+          $$1.on(menuEntry, 'click', () => {
+              RestoreDeletedFromArchive.restore();
+              Header$1.menu.close();
+          });
+          Header$1.menu.addEntry({
+              el: menuEntry,
+              order: 10,
+          });
+      },
+  };
+
   // import Test from "../General/Test";
 
   /*
@@ -27217,7 +27331,8 @@ User agent: ${navigator.userAgent}\
       ['Announcements',             PSA],
       ['Flash Features',            Flash],
       ['Reply Pruning',             ReplyPruning],
-      ['Mod Contact Links',         ModContact]
+      ['Mod Contact Links',         ModContact],
+      ['Restore deleted posts from archive', RestoreDeletedFromArchive],
     ]
   };
   var Main$1 = Main;
