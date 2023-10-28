@@ -1,9 +1,7 @@
 # 4chan XT
 
-I would prefer that this is merged into [the repo this is forked from](https://github.com/ccd0/4chan-x), but in the mean
-time, you can try this fork as well.
-
-PR to upstream: https://github.com/ccd0/4chan-x/pull/3341.
+Originally forked from [4chan X](https://github.com/ccd0/4chan-x) for [this PR](https://github.com/ccd0/4chan-x/pull/3341),
+this fork started getting some features on its own. See the releases.
 
 The 4chan XT project is a migration of 4chan X from coffeescript to TypeScript/JavaScript. It is named XT both as a continuation of eXTended, and a T for TypeScript. The goals of this project is to first get a working bundle from js/ts files, and then gradually convert js files to ts and add types as needed.
 

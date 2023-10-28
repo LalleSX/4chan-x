@@ -9,9 +9,7 @@ import QuoteThreading from '../Quotelinks/QuoteThreading';
 
 const RestoreDeletedFromArchive = {
   restore() {
-    console.log(g);
     const url = Redirect.to('threadJSON', { boardID: g.boardID, threadID: g.threadID });
-    console.log(url);
     if (!url) {
       new Notice('warning', 'No archive found', 3);
       return;
@@ -19,7 +17,6 @@ const RestoreDeletedFromArchive = {
     const encryptionOK = url.startsWith('https://');
     if (encryptionOK || Conf['Exempt Archives from Encryption']) {
       CrossOrigin.cache(url, function (this: XMLHttpRequest) {
-        console.log(this);
         let nrRestored = 0;
         const archivePosts = this.response[g.threadID.toString()].posts as Record<string, RawArchivePost>;
         for (const [postID, raw] of Object.entries(archivePosts)) {

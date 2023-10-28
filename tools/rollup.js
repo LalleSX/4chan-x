@@ -25,12 +25,14 @@ const minify = process.argv.includes('-min');
 (async () => {
   const packageJson = JSON.parse(await readFile(resolve(__dirname, '../package.json'), 'utf-8'));
 
-  const metadata = await generateMetadata(packageJson, channel);
+  const fileName = `${packageJson.meta.path}${channel}${minify ? '.min' : ''}.user.js`;
+  const metaFileName = `${packageJson.meta.path}${channel}${minify ? '.min' : ''}.meta.js`;
+
+  const metadata = await generateMetadata(packageJson, channel, fileName, metaFileName);
 
   const license = await readFile(resolve(__dirname, '../LICENSE'), 'utf8');
 
   const version = JSON.parse(await readFile(resolve(__dirname, '../version.json'), 'utf-8'));
-
 
   const inlineFile = await setupFileInliner(packageJson);
 
@@ -97,7 +99,7 @@ const minify = process.argv.includes('-min');
     ...sharedBundleOpts,
     banner: metadata + license,
     // file: '../builds/test/rollupOutput.js',
-    file: resolve(buildDir, `${packageJson.meta.path}${channel}.user${minify ? '.min' : ''}.js`),
+    file: resolve(buildDir, fileName),
     plugins: minify ? [terser({
       format: {
         max_line_len: 1000,
@@ -106,6 +108,8 @@ const minify = process.argv.includes('-min');
     })] : [],
     sourcemap: minify,
   });
+
+  await writeFile(resolve(buildDir, metaFileName), metadata);
 
   // chrome extension
   const crxDir = resolve(buildDir, 'crx');
@@ -117,7 +121,11 @@ const minify = process.argv.includes('-min');
 
   await copyFile(resolve(__dirname, '../src/meta/eventPage.js'), resolve(crxDir, 'eventPage.js'));
 
-  writeFile(resolve(crxDir, 'manifest.json'), generateManifestJson(packageJson, version, channel));
+  await writeFile(
+    resolve(crxDir, 'manifest.json'),
+    // There's no auto update for the extension.
+    generateManifestJson(packageJson, version, channel || '-noupdate'),
+  );
 
   for (const file of ['icon16.png', 'icon48.png', 'icon128.png']) {
     await copyFile(resolve(__dirname, '../src/meta/', file), resolve(crxDir, file));

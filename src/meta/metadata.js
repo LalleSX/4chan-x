@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-export default async function generateMetadata(packageJson, channel) {
+export default async function generateMetadata(packageJson, channel, fileName, metaFileName) {
   const meta = packageJson.meta;
 
   const versionFile = await readFile(resolve(__dirname, '../../version.json'));
@@ -82,8 +82,8 @@ export default async function generateMetadata(packageJson, channel) {
 
   if (channel !== '-noupdate') {
     output += `
-// @updateURL    ${meta.downloads}${packageJson.name}${channel}.meta.js
-// @downloadURL  ${meta.downloads}${packageJson.name}${channel}.user.js`;
+// @updateURL    ${meta.downloads}/latest/download/${metaFileName}
+// @downloadURL  ${meta.downloads}/latest/download/${fileName}`;
   }
   output += `
 // @icon         data:image/png;base64,${icon}

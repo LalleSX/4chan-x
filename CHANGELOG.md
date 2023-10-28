@@ -3,6 +3,12 @@
 4chan XT uses a different user script namespace, so to migrate you need to export settings from 4chan X, and import them
 in XT.
 
+### XT v2.2.1 (2023-10-28)
+
+- Fixed thread not scrolling to last read post.
+- Set default 'Exempt Archives from Encryption' to false. This setting will _not_ change automatically when updating.
+- Enabled automatic updates. If you don't want updates, turn them off in your user script manager.
+
 ### XT v2.2.0 (2023-10-27)
 
 - Added ability to restore deleted posts from an external archive. This can be found in the drop down menu at the top

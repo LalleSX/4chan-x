@@ -1,6 +1,6 @@
 ## Reporting bugs
 
-Bug reports and feature requests for 4chan X are tracked at **https://github.com/ccd0/4chan-x/issues?q=is%3Aopen+sort%3Aupdated-desc**.
+Bug reports and feature requests for 4chan XT are tracked at **https://github.com/TuxedoTako/4chan-xt/issues?q=is%3Aopen+sort%3Aupdated-desc**.
 
 You can submit a bug report / feature request via your Github account.
 
@@ -12,38 +12,37 @@ If you're reporting a bug, the more detail you can give, the better. If I can't 
 4. If other people (including me) aren't having your problem, **test whether it happens in a fresh profile**. Here are instructions for [Firefox](https://support.mozilla.org/en-US/kb/profile-manager-create-and-remove-firefox-profiles) and [Chromium](https://developer.chrome.com/devtools/docs/clean-testing-environment).
 5. **Please mention any other extensions / scripts you are using.** To check if a bug is due to a conflict with another extension, temporarily disable any other extensions and userscripts. If the bug goes away, turn them back on one by one until you find the one causing the problem.
 6. To test if the bug occurs under the default settings or only with specific settings, back up your settings and reset them using the **Export** and **Reset Settings** links in the settings panel. If the bug only occurs under specific settings, upload your exported settings to a site like https://paste.installgentoo.com/, and link to it in your bug report. If your settings contains sensitive information (e.g. personas), edit the text file manually.
-7. Test if the bug occurs using the **native extension** with 4chan X disabled. If it does, it's likely a problem with 4chan or your browser rather than with 4chan X.
+7. Test if the bug occurs using the **native extension** with 4chan XT disabled. If it does, it's likely a problem with 4chan or your browser rather than with 4chan X.
 
 ## Development & Contribution
 
 ### Get started
 
-- Install [git](https://git-scm.com/), [node.js](https://nodejs.org/), [npm](https://www.npmjs.com/) (usually distributed with node), and GNU Make (on Windows, the [MinGW](http://www.mingw.org/) port will work, and the [GnuWin](http://gnuwin32.sourceforge.net/) port has been reported to work as well).
-- Clone 4chan X: `git clone https://github.com/ccd0/4chan-x.git`<br>(If this is taking too long, you can add `--depth 100` to fetch only recent history.)
-- Open the directory: `cd 4chan-x`
+- Install [git](https://git-scm.com/), [node.js](https://nodejs.org/), and [npm](https://www.npmjs.com/).
+- Clone 4chan X: `git clone https://github.com/TuxedoTako/4chan-xt.git`<br>(If this is taking too long, you can add `--depth 100` to fetch only recent history.)
+- Open the directory: `cd 4chan-xt`
 - Fetch needed dependencies with: `npm install`
 
 ### Build
 
-- Build with `make`.
+- Build with `npm run build`.
 
 ### Contribute
 
-- 4chan X is mostly written in [CoffeeScript](http://coffeescript.org/). If you're already familiar with Javascript, it doesn't take long to pick up.
+- Use TypeScript for new files. If you want to convert a .js file to .ts, use a separate commit so the file history is
+  tracked past the rename
 - Edit the sources in the src/ directory (not the compiled scripts in builds/).
 - Fetch needed dependencies with: `npm install`
-- Compile the script with: `make`
-- Install the compiled script (found in the testbuilds/ directory), and test your changes.
+- Compile the script with: `npm run build`
+- Install the compiled script (found in the build/ directory), and test your changes.
 - Make sure you have set your name and email as you want them, as they will be published in your commit message:<br>`git config user.name yourname`<br>`git config user.email youremail`
 - Commit your changes: `git commit -a`
-- Open a pull request by doing any of the following:
-  - Fork this repository on Github, push your changes to your fork, and make a pull request through the Github website.
-  - Push your changes to any online Git repository, and send an email with an explanation of your changes and the URL, branch, and commit you want me to pull from.
-  - Export your changes via `git bundle` (e.g. `git bundle create file.bundle master..your-branch`), and upload them to a file host. Then send an email with an explanation of your changes and the URL of the file.
+- Open a pull request on GitHub.
 
 Pull requests to archive.json should be sent upstream: https://github.com/4chenz/archives.json
-4chan X updates from there automatically.
+4chan XT updates from there automatically.
 
 ### More info
 
-Further documentation is available at https://github.com/ccd0/4chan-x/wiki/Developer-Documentation.
+Further documentation is available at the wiki for the original 4chan X: https://github.com/ccd0/4chan-x/wiki/Developer-Documentation.
+At the moment 4chan XT doesn't have its own wiki yet.
