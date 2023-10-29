@@ -3,6 +3,10 @@
 4chan XT uses a different user script namespace, so to migrate you need to export settings from 4chan X, and import them
 in XT.
 
+### XT v2.2.2 (2023-10-29)
+
+- Fixed trying to get thread JSON from unsupported archives.
+
 ### XT v2.2.1 (2023-10-28)
 
 - Fixed thread not scrolling to last read post.

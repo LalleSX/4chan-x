@@ -1,70 +1,68 @@
 import Notice from '../classes/Notice.js';
-import type { default as Post, File } from '../classes/Post.js';
-import type Thread from '../classes/Thread.js';
 import { Conf } from '../globals/globals.js';
 import $ from '../platform/$.js';
 import CrossOrigin from '../platform/CrossOrigin.js';
 import { DAY, dict } from '../platform/helpers.js';
 import archives from './archives.json';
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
+
+type Archive = (typeof archives)[number];
 
 var Redirect = {
   archives,
+  /** List of archives by compatible functions. */
   data: null as {
-    thread: Record<any, Thread>,
-    post: Record<any, Post>,
-    file: Record<any, File>,
+    thread: Map<string, Archive>,
+    threadJSON: Map<string, Archive>,
+    post: Map<string, Archive>,
+    file: Map<string, Archive>,
   },
 
   init() {
     this.selectArchives();
     if (Conf['archiveAutoUpdate']) {
       const now = Date.now();
-      if (now - (2 * DAY) >= Conf['lastarchivecheck'] || Conf['lastarchivecheck'] > now) { return this.update(); }
+      if (now - (2 * DAY) >= Conf['lastarchivecheck'] || Conf['lastarchivecheck'] > now) this.update();
     }
   },
 
   selectArchives() {
-    let boardID, boards, data, files;
     const o = {
-      thread: dict(),
-      post:   dict(),
-      file:   dict()
+      thread: new Map<string, Archive>(),
+      threadJSON: new Map<string, Archive>(),
+      post: new Map<string, Archive>(),
+      file: new Map<string, Archive>(),
     };
 
     const archives = dict();
-    for (data of Conf['archives']) {
-      var name, software, uid;
+    for (const data of Conf['archives']) {
       for (var key of ['boards', 'files']) {
         if (!(data[key] instanceof Array)) { data[key] = []; }
       }
-      ({uid, name, boards, files, software} = data);
+      const { uid, name, boards, files, software } = data;
       if (!['fuuka', 'foolfuuka'].includes(software)) { continue; }
       archives[JSON.stringify(uid ?? name)] = data;
-      for (boardID of boards) {
-        if (!(boardID in o.thread)) { o.thread[boardID] = data; }
-        if (!(boardID in o.post)   && (software === 'foolfuuka')) { o.post[boardID]   = data; }
-        if (!(boardID in o.file)   && files.includes(boardID)) { o.file[boardID]   = data; }
-      }
-    }
-
-    for (boardID in Conf['selectedArchives']) {
-      var record = Conf['selectedArchives'][boardID];
-      for (var type in record) {
-        var archive;
-        var id = record[type];
-        if ((archive = archives[JSON.stringify(id)]) && $.hasOwn(o, type)) {
-          boards = type === 'file' ? archive.files : archive.boards;
-          if (boards.includes(boardID)) { o[type][boardID] = archive; }
+      for (const boardID of boards) {
+        if (!o.thread.has(boardID)) o.thread.set(boardID, data);
+        if (!o.file.has(boardID) && files.includes(boardID)) o.file.set(boardID, data);
+        if (software === 'foolfuuka') {
+          if (!o.threadJSON.has(boardID)) o.threadJSON.set(boardID, data);
+          if (!o.post.has(boardID)) o.post.set(boardID, data);
         }
       }
     }
 
-    return Redirect.data = o;
+    for (const boardID in Conf['selectedArchives']) {
+      var record = Conf['selectedArchives'][boardID];
+      for (const [type, id] of Object.entries(record)) {
+        var archive;
+        if ((archive = archives[JSON.stringify(id)]) && $.hasOwn(o, type)) {
+          const boards = type === 'file' ? archive.files : archive.boards;
+          if (boards.includes(boardID)) { o[type].set(boardID, archive); }
+        }
+      }
+    }
+
+    Redirect.data = o;
   },
 
   update(cb) {
@@ -139,8 +137,7 @@ var Redirect = {
     dest: 'post' | 'thread' | 'threadJSON' | 'file' | 'board' | 'search',
     data: { boardID: string, threadID?: string | number, postID?: string | number }
   ): string {
-    const archive =
-      (['search', 'board', 'threadJSON'].includes(dest) ? Redirect.data.thread : Redirect.data[dest])[data.boardID];
+    const archive = (['search', 'board'].includes(dest) ? Redirect.data.thread : Redirect.data[dest]).get(data.boardID);
     if (!archive) { return ''; }
     return Redirect[dest](archive, data);
   },
