@@ -80,8 +80,8 @@
   'use strict';
 
   var version = {
-    "version": "XT 2.2.2",
-    "date": "2023-10-29T13:00:14.753Z"
+    "version": "XT 2.2.3",
+    "date": "2023-11-08T16:25:49.335Z"
   };
 
   var meta = {
@@ -1755,25 +1755,20 @@ https://*.hcaptcha.com
 
   const $$ = (selector, root = d$1.body) => Array.from(root.querySelectorAll(selector));
 
-  /*
-   * decaffeinate suggestions:
-   * DS102: Remove unnecessary code created because of implicit returns
-   * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
-   */
   const CaptchaReplace = {
     init() {
       if ((g.SITE.software !== 'yotsuba') || (d$1.cookie.indexOf('pass_enabled=1') >= 0)) { return; }
 
       if (Conf['Force Noscript Captcha'] && Main$1.jsEnabled) {
-        $$1.ready(Captcha.replace.noscript);
+        $$1.ready(this.noscript);
         return;
       }
 
       if (Conf['captchaLanguage'].trim()) {
         if (['boards.4chan.org', 'boards.4channel.org'].includes(location.hostname)) {
-          return $$1.onExists(doc$1, '#captchaFormPart', node => $$1.onExists(node, 'iframe[src^="https://www.google.com/recaptcha/"]', Captcha.replace.iframe));
+          $$1.onExists(doc$1, '#captchaFormPart', node => $$1.onExists(node, 'iframe[src^="https://www.google.com/recaptcha/"]', this.iframe));
         } else {
-          return $$1.onExists(doc$1, 'iframe[src^="https://www.google.com/recaptcha/"]', Captcha.replace.iframe);
+          $$1.onExists(doc$1, 'iframe[src^="https://www.google.com/recaptcha/"]', this.iframe);
         }
       }
     },
@@ -1787,12 +1782,12 @@ https://*.hcaptcha.com
       $$1.rm(original);
       const insert = function() {
         span.innerHTML = noscript.textContent;
-        return Captcha.replace.iframe($$1('iframe[src^="https://www.google.com/recaptcha/"]', span));
+        this.iframe($$1('iframe[src^="https://www.google.com/recaptcha/"]', span));
       };
       if (toggle = $$1('#togglePostFormLink a, #form-link')) {
-        return $$1.on(toggle, 'click', insert);
+        $$1.on(toggle, 'click', insert);
       } else {
-        return insert();
+        insert();
       }
     },
 

@@ -3,6 +3,10 @@
 4chan XT uses a different user script namespace, so to migrate you need to export settings from 4chan X, and import them
 in XT.
 
+### XT v2.2.3 (2023-11-08)
+
+- Fixed error when "Force Noscript Captcha" is enabled.
+
 ### XT v2.2.2 (2023-10-29)
 
 - Fixed trying to get thread JSON from unsupported archives.
