@@ -37,7 +37,7 @@ const minify = process.argv.includes('-min');
   const inlineFile = await setupFileInliner(packageJson);
 
   const bundle = await rollup({
-    input: resolve(__dirname, '../src/main/Main.js'),
+    input: resolve(__dirname, '../src/main/Main.ts'),
     plugins: [
       typescript(),
       inlineFile({
