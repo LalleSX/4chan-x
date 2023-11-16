@@ -1,20 +1,20 @@
-import Redirect from "../Archive/Redirect";
-import PassMessage from "../Miscellaneous/PassMessage";
-import Report from "../Miscellaneous/Report";
-import $ from "../platform/$";
-import $$ from "../platform/$$";
-import Captcha from "../Posting/Captcha";
-import PostSuccessful from "../Posting/PostSuccessful";
-import ImageHost from "../Images/ImageHost";
-import { g, Conf, E, d, doc } from "../globals/globals";
-import BoardConfig from "../General/BoardConfig";
-import CSS from "../css/CSS";
+import Redirect from '../Archive/Redirect'
+import PassMessage from '../Miscellaneous/PassMessage'
+import Report from '../Miscellaneous/Report'
+import $ from '../platform/$'
+import $$ from '../platform/$$'
+import Captcha from '../Posting/Captcha'
+import PostSuccessful from '../Posting/PostSuccessful'
+import ImageHost from '../Images/ImageHost'
+import { g, Conf, E, d, doc } from '../globals/globals'
+import BoardConfig from '../General/BoardConfig'
+import CSS from '../css/CSS'
 
-import generatePostInfoHtml from './SW.yotsuba.Build/PostInfoHtml';
-import generateFileHtml from "./SW.yotsuba.Build/FileHtml";
-import generateCatalogThreadHtml from "./SW.yotsuba.Build/CatalogThreadHtml";
-import h, { hFragment, isEscaped } from "../globals/jsx";
-import { dict, MINUTE } from "../platform/helpers";
+import generatePostInfoHtml from './SW.yotsuba.Build/PostInfoHtml'
+import generateFileHtml from './SW.yotsuba.Build/FileHtml'
+import generateCatalogThreadHtml from './SW.yotsuba.Build/CatalogThreadHtml'
+import h, { hFragment, isEscaped } from '../globals/jsx'
+import { dict, MINUTE } from '../platform/helpers'
 
 /*
  * decaffeinate suggestions:
@@ -28,28 +28,28 @@ const SWYotsuba = {
   archivedBoardsKnown: true,
 
   urls: {
-    thread({boardID, threadID}) { return `${location.protocol}//${BoardConfig.domain(boardID)}/${boardID}/thread/${threadID}`; },
-    post({postID})            { return `#p${postID}`; },
-    index({boardID})           { return `${location.protocol}//${BoardConfig.domain(boardID)}/${boardID}/`; },
-    catalog({boardID})           { if (boardID === 'f') { return undefined; } else { return `${location.protocol}//${BoardConfig.domain(boardID)}/${boardID}/catalog`; } },
-    archive({boardID})           { if (BoardConfig.isArchived(boardID)) { return `${location.protocol}//${BoardConfig.domain(boardID)}/${boardID}/archive`; } else { return undefined; } },
-    threadJSON({boardID, threadID}) { return `${location.protocol}//a.4cdn.org/${boardID}/thread/${threadID}.json`; },
-    threadsListJSON({boardID})      { return `${location.protocol}//a.4cdn.org/${boardID}/threads.json`; },
-    archiveListJSON({boardID})      { if (BoardConfig.isArchived(boardID)) { return `${location.protocol}//a.4cdn.org/${boardID}/archive.json`; } else { return ''; } },
-    catalogJSON({boardID})      { return `${location.protocol}//a.4cdn.org/${boardID}/catalog.json`; },
+    thread({boardID, threadID}) { return `${location.protocol}//${BoardConfig.domain(boardID)}/${boardID}/thread/${threadID}` },
+    post({postID})            { return `#p${postID}` },
+    index({boardID})           { return `${location.protocol}//${BoardConfig.domain(boardID)}/${boardID}/` },
+    catalog({boardID})           { if (boardID === 'f') { return undefined } else { return `${location.protocol}//${BoardConfig.domain(boardID)}/${boardID}/catalog` } },
+    archive({boardID})           { if (BoardConfig.isArchived(boardID)) { return `${location.protocol}//${BoardConfig.domain(boardID)}/${boardID}/archive` } else { return undefined } },
+    threadJSON({boardID, threadID}) { return `${location.protocol}//a.4cdn.org/${boardID}/thread/${threadID}.json` },
+    threadsListJSON({boardID})      { return `${location.protocol}//a.4cdn.org/${boardID}/threads.json` },
+    archiveListJSON({boardID})      { if (BoardConfig.isArchived(boardID)) { return `${location.protocol}//a.4cdn.org/${boardID}/archive.json` } else { return '' } },
+    catalogJSON({boardID})      { return `${location.protocol}//a.4cdn.org/${boardID}/catalog.json` },
     file({boardID}, filename) {
-      const hostname = boardID === 'f' ? ImageHost.flashHost() : ImageHost.host();
-      return `${location.protocol}//${hostname}/${boardID}/${filename}`;
+      const hostname = boardID === 'f' ? ImageHost.flashHost() : ImageHost.host()
+      return `${location.protocol}//${hostname}/${boardID}/${filename}`
     },
     thumb({boardID}, filename) {
-      return `${location.protocol}//${ImageHost.thumbHost()}/${boardID}/${filename}`;
+      return `${location.protocol}//${ImageHost.thumbHost()}/${boardID}/${filename}`
     }
   },
 
-  isPrunedByAge({boardID}) { return boardID === 'f'; },
-  areMD5sDeferred({boardID}) { return boardID === 'f'; },
-  isOnePage({boardID}) { return boardID === 'f'; },
-  noAudio({boardID}) { return BoardConfig.noAudio(boardID); },
+  isPrunedByAge({boardID}) { return boardID === 'f' },
+  areMD5sDeferred({boardID}) { return boardID === 'f' },
+  isOnePage({boardID}) { return boardID === 'f' },
+  noAudio({boardID}) { return BoardConfig.noAudio(boardID) },
 
   selectors: {
     board:         '.board',
@@ -124,7 +124,7 @@ const SWYotsuba = {
 
   regexp: {
     quotelink:
-      new RegExp(`\
+      new RegExp('\
 ^https?://boards\\.4chan(?:nel)?\\.org/+\
 ([^/]+)\
 /+thread/+\
@@ -134,7 +134,7 @@ const SWYotsuba = {
 (\\d+)\
 )?\
 $\
-`),
+'),
     quotelinkHTML:
       /<a [^>]*\bhref="(?:(?:\/\/boards\.4chan(?:nel)?\.org)?\/([^\/]+)\/thread\/)?(\d+)?(?:#p(\d+))?"/g,
     pass:
@@ -144,7 +144,7 @@ $\
   },
 
   bgColoredEl() {
-    return $.el('div', {className: 'reply'});
+    return $.el('div', {className: 'reply'})
   },
 
   isThisPageLegit() {
@@ -152,87 +152,87 @@ $\
     return ['boards.4chan.org', 'boards.4channel.org'].includes(location.hostname) &&
     d.doctype &&
     !$('link[href*="favicon-status.ico"]', d.head) &&
-    !['4chan - Temporarily Offline', '4chan - Error', '504 Gateway Time-out', 'MathJax Equation Source'].includes(d.title);
+    !['4chan - Temporarily Offline', '4chan - Error', '504 Gateway Time-out', 'MathJax Equation Source'].includes(d.title)
   },
 
   is404() {
     // XXX Sometimes threads don't 404 but are left over as stubs containing one garbage reply post.
-    return ['4chan - Temporarily Offline', '4chan - 404 Not Found'].includes(d.title) || ((g.VIEW === 'thread') && $('.board') && !$('.opContainer'));
+    return ['4chan - Temporarily Offline', '4chan - 404 Not Found'].includes(d.title) || ((g.VIEW === 'thread') && $('.board') && !$('.opContainer'))
   },
 
   isIncomplete() {
-    return ['index', 'thread'].includes(g.VIEW) && !$('.board + *');
+    return ['index', 'thread'].includes(g.VIEW) && !$('.board + *')
   },
 
   isBoardlessPage(url) {
-    return ['www.4chan.org', 'www.4channel.org'].includes(url.hostname);
+    return ['www.4chan.org', 'www.4channel.org'].includes(url.hostname)
   },
 
   isAuxiliaryPage(url) {
-    return !['boards.4chan.org', 'boards.4channel.org'].includes(url.hostname);
+    return !['boards.4chan.org', 'boards.4channel.org'].includes(url.hostname)
   },
 
   isFileURL(url) {
-    return ImageHost.test(url.hostname);
+    return ImageHost.test(url.hostname)
   },
 
   initAuxiliary() {
     switch (location.hostname) {
       case 'www.4chan.org': case 'www.4channel.org':
         if (SWYotsuba.regexp.pass.test(location.href)) {
-          PassMessage.init();
+          PassMessage.init()
         } else {
-          $.onExists(doc, 'body', () => $.addStyle(CSS.www));
-          Captcha.replace.init();
+          $.onExists(doc, 'body', () => $.addStyle(CSS.www))
+          Captcha.replace.init()
         }
-        return;
+        return
       case 'sys.4chan.org': case 'sys.4channel.org':
-        var pathname = location.pathname.split(/\/+/);
+        var pathname = location.pathname.split(/\/+/)
         if (pathname[2] === 'imgboard.php') {
-          let match;
+          let match
           if (/\bmode=report\b/.test(location.search)) {
-            Report.init();
+            Report.init()
           } else if (match = location.search.match(/\bres=(\d+)/)) {
             $.ready(function() {
               if (Conf['404 Redirect'] && ($.id('errmsg')?.textContent === 'Error: Specified thread does not exist.')) {
                 return Redirect.navigate('thread', {
                   boardID: g.BOARD.ID,
                   postID:  +match[1]
-                });
-              }});
+                })
+              }})
           }
         } else if (pathname[2] === 'post') {
-          PostSuccessful.init();
+          PostSuccessful.init()
         }
-        return;
+        return
     }
   },
 
   scriptData() {
-    for (var script of $$('script:not([src])', d.head)) {
-      if (/\bcooldowns *=/.test(script.textContent)) { return script.textContent; }
+    for (const script of $$('script:not([src])', d.head)) {
+      if (/\bcooldowns *=/.test(script.textContent)) { return script.textContent }
     }
-    return '';
+    return ''
   },
 
   parseThreadMetadata(thread) {
-    let m;
-    const scriptData = this.scriptData();
-    thread.postLimit = /\bbumplimit *= *1\b/.test(scriptData);
-    thread.fileLimit = /\bimagelimit *= *1\b/.test(scriptData);
-    thread.ipCount   = (m = scriptData.match(/\bunique_ips *= *(\d+)\b/)) ? +m[1] : undefined;
+    let m
+    const scriptData = this.scriptData()
+    thread.postLimit = /\bbumplimit *= *1\b/.test(scriptData)
+    thread.fileLimit = /\bimagelimit *= *1\b/.test(scriptData)
+    thread.ipCount   = (m = scriptData.match(/\bunique_ips *= *(\d+)\b/)) ? +m[1] : undefined
 
     if ((g.BOARD.ID === 'f') && thread.OP.file) {
-      const {file} = thread.OP;
+      const {file} = thread.OP
       return $.ajax(this.urls.threadJSON({boardID: 'f', threadID: thread.ID}), {
         timeout: MINUTE,
         onloadend() {
           if (this.response) {
-            return file.text.dataset.md5 = (file.MD5 = this.response.posts[0].md5);
+            return file.text.dataset.md5 = (file.MD5 = this.response.posts[0].md5)
           }
         }
       }
-      );
+      )
     }
   },
 
@@ -240,26 +240,26 @@ $\
     // Add CSS classes to sticky/closed icons on /f/ to match other boards.
     if (post.boardID === 'f') {
       return (() => {
-        const result = [];
-        for (var type of ['Sticky', 'Closed']) {
-          var icon;
+        const result = []
+        for (const type of ['Sticky', 'Closed']) {
+          var icon
           if (icon = $(`img[alt=${type}]`, nodes.info)) {
-            result.push($.addClass(icon, `${type.toLowerCase()}Icon`, 'retina'));
+            result.push($.addClass(icon, `${type.toLowerCase()}Icon`, 'retina'))
           }
         }
-        return result;
-      })();
+        return result
+      })()
     }
   },
 
   parseDate(node) {
-    return new Date(node.dataset.utc * 1000);
+    return new Date(node.dataset.utc * 1000)
   },
 
   parseFile(post, file) {
-    let info;
-    const {text, link, thumb} = file;
-    if (!(info = link.nextSibling?.textContent.match(/\(([\d.]+ [KMG]?B).*\)/))) { return false; }
+    let info
+    const {text, link, thumb} = file
+    if (!(info = link.nextSibling?.textContent.match(/\(([\d.]+ [KMG]?B).*\)/))) { return false }
     $.extend(file, {
       name:       text.title || link.title || link.textContent,
       size:       info[1],
@@ -267,103 +267,103 @@ $\
       tag:        info[0].match(/,[^,]*, ([a-z]+)\)/i)?.[1],
       MD5:        text.dataset.md5
     }
-    );
+    )
     if (thumb) {
       $.extend(file, {
         thumbURL:  thumb.src,
         MD5:       thumb.dataset.md5,
         isSpoiler: $.hasClass(thumb.parentNode, 'imgspoiler')
       }
-      );
+      )
       if (file.isSpoiler) {
-        let m;
-        file.thumbURL = (m = link.href.match(/\d+(?=\.\w+$)/)) ? `${location.protocol}//${ImageHost.thumbHost()}/${post.board}/${m[0]}s.jpg` : undefined;
+        let m
+        file.thumbURL = (m = link.href.match(/\d+(?=\.\w+$)/)) ? `${location.protocol}//${ImageHost.thumbHost()}/${post.board}/${m[0]}s.jpg` : undefined
       }
     }
-    return true;
+    return true
   },
 
   cleanComment(bq) {
-    let abbr;
+    let abbr
     if (abbr = $('.abbr', bq)) { // 'Comment too long' or 'EXIF data available'
-      for (var node of $$('.abbr + br, .exif', bq)) {
-        $.rm(node);
+      for (const node of $$('.abbr + br, .exif', bq)) {
+        $.rm(node)
       }
       for (let i = 0; i < 2; i++) {
-        var br;
-        if ((br = abbr.previousSibling) && (br.nodeName === 'BR')) { $.rm(br); }
+        var br
+        if ((br = abbr.previousSibling) && (br.nodeName === 'BR')) { $.rm(br) }
       }
-      return $.rm(abbr);
+      return $.rm(abbr)
     }
   },
 
   cleanCommentDisplay(bq) {
-    let b;
-    if ((b = $('b', bq)) && /^Rolled /.test(b.textContent)) { $.rm(b); }
-    return $.rm($('.fortune', bq));
+    let b
+    if ((b = $('b', bq)) && /^Rolled /.test(b.textContent)) { $.rm(b) }
+    return $.rm($('.fortune', bq))
   },
 
   insertTags(bq) {
-    let node;
+    let node
     for (node of $$('s, .removed-spoiler', bq)) {
-      $.replace(node, [$.tn('[spoiler]'), ...node.childNodes, $.tn('[/spoiler]')]);
+      $.replace(node, [$.tn('[spoiler]'), ...node.childNodes, $.tn('[/spoiler]')])
     }
     for (node of $$('.prettyprint', bq)) {
-      $.replace(node, [$.tn('[code]'), ...node.childNodes, $.tn('[/code]')]);
+      $.replace(node, [$.tn('[code]'), ...node.childNodes, $.tn('[/code]')])
     }
   },
 
   hasCORS(url) {
-    return url.split('/').slice(0, 3).join('/') === (location.protocol + '//a.4cdn.org');
+    return url.split('/').slice(0, 3).join('/') === (location.protocol + '//a.4cdn.org')
   },
 
   sfwBoards(sfw) {
-    return BoardConfig.sfwBoards(sfw);
+    return BoardConfig.sfwBoards(sfw)
   },
 
   uidColor(uid) {
-    let msg = 0;
-    let i = 0;
+    let msg = 0
+    let i = 0
     while (i < 8) {
-      msg = ((msg << 5) - msg) + uid.charCodeAt(i++);
+      msg = ((msg << 5) - msg) + uid.charCodeAt(i++)
     }
-    return (msg >> 8) & 0xFFFFFF;
+    return (msg >> 8) & 0xFFFFFF
   },
 
   isLinkified(link) {
-    return ImageHost.test(link.hostname);
+    return ImageHost.test(link.hostname)
   },
 
   testNativeExtension() {
     return $.global(function() {
-      if (window.Parser?.postMenuIcon) { return this.enabled = 'true'; }
-    });
+      if (window.Parser?.postMenuIcon) { return this.enabled = 'true' }
+    })
   },
 
   transformBoardList() {
-    let node;
-    const nodes = [];
-    const spacer = () => $.el('span', {className: 'spacer'});
-    const items = $.X('.//a|.//text()[not(ancestor::a)]', $(SWYotsuba.selectors.boardList));
-    let i = 0;
+    let node
+    const nodes = []
+    const spacer = () => $.el('span', {className: 'spacer'})
+    const items = $.X('.//a|.//text()[not(ancestor::a)]', $(SWYotsuba.selectors.boardList))
+    let i = 0
     while ((node = items.snapshotItem(i++))) {
       switch (node.nodeName) {
         case '#text':
-          for (var chr of node.nodeValue) {
-            var span = $.el('span', {textContent: chr});
-            if (chr === ' ') { span.className = 'space'; }
-            if (chr === ']') { nodes.push(spacer()); }
-            nodes.push(span);
-            if (chr === '[') { nodes.push(spacer()); }
+          for (const chr of node.nodeValue) {
+            const span = $.el('span', {textContent: chr})
+            if (chr === ' ') { span.className = 'space' }
+            if (chr === ']') { nodes.push(spacer()) }
+            nodes.push(span)
+            if (chr === '[') { nodes.push(spacer()) }
           }
-          break;
+          break
         case 'A':
-          var a = node.cloneNode(true);
-          nodes.push(a);
-          break;
+          var a = node.cloneNode(true)
+          nodes.push(a)
+          break
       }
     }
-    return nodes;
+    return nodes
   },
 
   Build: {
@@ -372,40 +372,40 @@ $\
     spoilerRange: Object.create(null),
 
     shortFilename(filename) {
-      const ext = filename.match(/\.?[^\.]*$/)[0];
+      const ext = filename.match(/\.?[^\.]*$/)[0]
       if ((filename.length - ext.length) > 30) {
-        return `${filename.match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^]){0,25}/)[0]}(...)${ext}`;
+        return `${filename.match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^]){0,25}/)[0]}(...)${ext}`
       } else {
-        return filename;
+        return filename
       }
     },
 
     spoilerThumb(boardID) {
-      let spoilerRange;
+      let spoilerRange
       if ((spoilerRange = this.spoilerRange[boardID])) {
         // Randomize the spoiler image.
-        return `${this.staticPath}spoiler-${boardID}${Math.floor(1 + (spoilerRange * Math.random()))}.png`;
+        return `${this.staticPath}spoiler-${boardID}${Math.floor(1 + (spoilerRange * Math.random()))}.png`
       } else {
-        return `${this.staticPath}spoiler.png`;
+        return `${this.staticPath}spoiler.png`
       }
     },
 
     sameThread(boardID, threadID) {
-      return (g.VIEW === 'thread') && (g.BOARD.ID === boardID) && (g.THREADID === +threadID);
+      return (g.VIEW === 'thread') && (g.BOARD.ID === boardID) && (g.THREADID === +threadID)
     },
 
     threadURL(boardID, threadID) {
       if (boardID !== g.BOARD.ID) {
-        return `//${BoardConfig.domain(boardID)}/${boardID}/thread/${threadID}`;
+        return `//${BoardConfig.domain(boardID)}/${boardID}/thread/${threadID}`
       } else if ((g.VIEW !== 'thread') || (+threadID !== g.THREADID)) {
-        return `/${boardID}/thread/${threadID}`;
+        return `/${boardID}/thread/${threadID}`
       } else {
-        return '';
+        return ''
       }
     },
 
     postURL(boardID, threadID, postID) {
-      return `${this.threadURL(boardID, threadID)}#p${postID}`;
+      return `${this.threadURL(boardID, threadID)}#p${postID}`
     },
 
     parseJSON(data, { siteID, boardID }) {
@@ -424,7 +424,7 @@ $\
         // file status
         fileDeleted: !!data.filedeleted,
         filesDeleted: data.filedeleted ? [0] : []
-      };
+      }
       o.info = {
         subject: $.unescape(data.sub),
         email: $.unescape(data.email),
@@ -439,33 +439,33 @@ $\
         dateText: data.now,
         // Yes, we use the raw string here
         commentHTML: { innerHTML: data.com || '', [isEscaped]: true }
-      };
-      if (data.capcode) {
-        o.info.capcode = data.capcode.replace(/_highlight$/, '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-        o.capcodeHighlight = /_highlight$/.test(data.capcode);
-        delete o.info.uniqueID;
       }
-      o.files = [];
+      if (data.capcode) {
+        o.info.capcode = data.capcode.replace(/_highlight$/, '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+        o.capcodeHighlight = /_highlight$/.test(data.capcode)
+        delete o.info.uniqueID
+      }
+      o.files = []
       if (data.ext) {
-        o.file = this.parseJSONFile(data, { siteID, boardID });
-        o.files.push(o.file);
+        o.file = this.parseJSONFile(data, { siteID, boardID })
+        o.files.push(o.file)
       }
       // Temporary JSON properties for events such as April 1 / Halloween
-      o.extra = dict();
-      for (var key in data) {
+      o.extra = dict()
+      for (const key in data) {
         if (key[0] === 'x') {
-          o.extra[key] = data[key];
+          o.extra[key] = data[key]
         }
       }
-      return o;
+      return o
     },
 
     parseJSONFile(data, { siteID, boardID }) {
-      const site = g.sites[siteID];
+      const site = g.sites[siteID]
       const filename = (site.software === 'yotsuba') && (boardID === 'f') ?
         `${encodeURIComponent(data.filename)}${data.ext}`
         :
-        `${data.tim}${data.ext}`;
+        `${data.tim}${data.ext}`
       const o = {
         name: ($.unescape(data.filename)) + data.ext,
         url: site.urls.file({ siteID, boardID }, filename),
@@ -479,89 +479,89 @@ $\
         isSpoiler: !!data.spoiler,
         tag: data.tag,
         hasDownscale: !!data.m_img
-      };
-      if ((data.h != null) && !/\.pdf$/.test(o.url)) { o.dimensions = `${o.width}x${o.height}`; }
-      return o;
+      }
+      if ((data.h != null) && !/\.pdf$/.test(o.url)) { o.dimensions = `${o.width}x${o.height}` }
+      return o
     },
 
     parseComment(html) {
       html = html
         .replace(/<br\b[^<]*>/gi, '\n')
         .replace(/\n\n<span\b[^<]* class="abbr"[^]*$/i, '') // EXIF data (/p/)
-        .replace(/<[^>]*>/g, '');
-      return $.unescape(html);
+        .replace(/<[^>]*>/g, '')
+      return $.unescape(html)
     },
 
     parseCommentDisplay(html) {
       // Hide spoilers.
       if (!Conf['Remove Spoilers'] && !Conf['Reveal Spoilers']) {
-        let html2;
+        let html2
         while ((html2 = html.replace(/<s>(?:(?!<\/?s>).)*<\/s>/g, '[spoiler]')) !== html) {
-          html = html2;
+          html = html2
         }
       }
       html = html
         .replace(/^<b\b[^<]*>Rolled [^<]*<\/b>/i, '')      // Rolls (/tg/, /qst/)
-        .replace(/<span\b[^<]* class="fortune"[^]*$/i, ''); // Fortunes (/s4s/)
+        .replace(/<span\b[^<]* class="fortune"[^]*$/i, '') // Fortunes (/s4s/)
       // Remove preceding and following new lines, trailing spaces.
-      return this.parseComment(html).trim().replace(/\s+$/gm, '');
+      return this.parseComment(html).trim().replace(/\s+$/gm, '')
     },
 
     postFromObject(data, boardID) {
-      const o = this.parseJSON(data, { boardID, siteID: g.SITE.ID });
-      return this.post(o);
+      const o = this.parseJSON(data, { boardID, siteID: g.SITE.ID })
+      return this.post(o)
     },
 
     post(o) {
-      const { ID, threadID, boardID, file } = o;
-      const { subject, email, name, tripcode, capcode, pass, uniqueID, flagCode, flagCodeTroll, flag, dateUTC, dateText, commentHTML } = o.info;
-      const { staticPath, gifIcon } = this;
+      const { ID, threadID, boardID, file } = o
+      const { subject, email, name, tripcode, capcode, pass, uniqueID, flagCode, flagCodeTroll, flag, dateUTC, dateText, commentHTML } = o.info
+      const { staticPath, gifIcon } = this
 
       /* Post Info */
 
-      let capcodeDescription, capcodePlural, capcodeLC;
+      let capcodeDescription, capcodePlural, capcodeLC
       if (capcode) {
-        capcodeLC = capcode.toLowerCase();
+        capcodeLC = capcode.toLowerCase()
         if (capcode === 'Founder') {
-          capcodePlural = 'the Founder';
-          capcodeDescription = "4chan's Founder";
+          capcodePlural = 'the Founder'
+          capcodeDescription = "4chan's Founder"
         } else if (capcode === 'Verified') {
-          capcodePlural = 'Verified Users';
-          capcodeDescription = '';
+          capcodePlural = 'Verified Users'
+          capcodeDescription = ''
         } else {
-          const capcodeLong = $.getOwn({ 'Admin': 'Administrator', 'Mod': 'Moderator' }, capcode) || capcode;
-          capcodePlural = `${capcodeLong}s`;
-          capcodeDescription = `a 4chan ${capcodeLong}`;
+          const capcodeLong = $.getOwn({ 'Admin': 'Administrator', 'Mod': 'Moderator' }, capcode) || capcode
+          capcodePlural = `${capcodeLong}s`
+          capcodeDescription = `a 4chan ${capcodeLong}`
         }
       }
 
-      const url = this.threadURL(boardID, threadID);
-      const postLink = `${url}#p${ID}`;
+      const url = this.threadURL(boardID, threadID)
+      const postLink = `${url}#p${ID}`
       const quoteLink = this.sameThread(boardID, threadID) ?
         `javascript:quote('${+ID}');`
         :
-        `${url}#q${ID}`;
+        `${url}#q${ID}`
 
       const postInfo = generatePostInfoHtml(
         ID, o, subject, capcode, email, name, tripcode, pass, capcodeLC, capcodePlural, staticPath, gifIcon,
         capcodeDescription, uniqueID, flag, flagCode, flagCodeTroll, dateUTC, dateText, postLink, quoteLink, boardID,
         threadID,
-      );
+      )
 
       /* File Info */
-      let protocol, fileURL, shortFilename, fileThumb;
+      let protocol, fileURL, shortFilename, fileThumb
       if (file) {
-        protocol = /^https?:(?=\/\/i\.4cdn\.org\/)/;
-        fileURL = file.url.replace(protocol, '');
-        shortFilename = this.shortFilename(file.name);
-        fileThumb = file.isSpoiler ? this.spoilerThumb(boardID) : file.thumbURL.replace(protocol, '');
+        protocol = /^https?:(?=\/\/i\.4cdn\.org\/)/
+        fileURL = file.url.replace(protocol, '')
+        shortFilename = this.shortFilename(file.name)
+        fileThumb = file.isSpoiler ? this.spoilerThumb(boardID) : file.thumbURL.replace(protocol, '')
       }
 
-      const fileBlock = generateFileHtml(file, ID, boardID, fileURL, shortFilename, fileThumb, o, staticPath, gifIcon);
+      const fileBlock = generateFileHtml(file, ID, boardID, fileURL, shortFilename, fileThumb, o, staticPath, gifIcon)
 
       /* Whole Post */
 
-      const postClass = o.isReply ? 'reply' : 'op';
+      const postClass = o.isReply ? 'reply' : 'op'
 
       const wholePost = <>
         {(o.isReply ? <div class="sideArrows" id={`sa${ID}`}>&gt;&gt;</div> : '')}
@@ -569,38 +569,38 @@ $\
           {(o.isReply ? <>{postInfo}{fileBlock}</> : <>{fileBlock}{postInfo}</>)}
           <blockquote class="postMessage" id={`m${ID}`}>{commentHTML}</blockquote>
         </div>
-      </>;
+      </>
 
       const container = $.el('div', {
         className: `postContainer ${postClass}Container`,
         id: `pc${ID}`
-      });
-      $.extend(container, wholePost);
+      })
+      $.extend(container, wholePost)
 
       // Fix quotelinks
-      for (var quote of $$('.quotelink', container)) {
-        var href = quote.getAttribute('href');
+      for (const quote of $$('.quotelink', container)) {
+        const href = quote.getAttribute('href')
         if (href[0] === '#') {
           if (!this.sameThread(boardID, threadID)) {
-            quote.href = this.threadURL(boardID, threadID) + href;
+            quote.href = this.threadURL(boardID, threadID) + href
           }
         } else {
-          var match;
+          var match
           if ((match = quote.href.match(SWYotsuba.regexp.quotelink)) && (this.sameThread(match[1], match[2]))) {
-            quote.href = href.match(/(#[^#]*)?$/)[0] || '#';
+            quote.href = href.match(/(#[^#]*)?$/)[0] || '#'
           }
         }
       }
 
-      return container;
+      return container
     },
 
     summaryText(status, posts, files) {
-      let text = '';
-      if (status) { text += `${status} `; }
-      text += `${posts} post${posts > 1 ? 's' : ''}`;
-      if (+files) { text += ` and ${files} image repl${files > 1 ? 'ies' : 'y'}`; }
-      return text += ` ${status === '-' ? 'shown' : 'omitted'}.`;
+      let text = ''
+      if (status) { text += `${status} ` }
+      text += `${posts} post${posts > 1 ? 's' : ''}`
+      if (+files) { text += ` and ${files} image repl${files > 1 ? 'ies' : 'y'}` }
+      return text += ` ${status === '-' ? 'shown' : 'omitted'}.`
     },
 
     summary(boardID, threadID, posts, files) {
@@ -609,73 +609,73 @@ $\
         textContent: this.summaryText('', posts, files),
         href: `/${boardID}/thread/${threadID}`
       }
-      );
+      )
     },
 
     thread(thread, data, withReplies) {
-      let root;
+      let root
       if (root = thread.nodes.root) {
-        $.rmAll(root);
+        $.rmAll(root)
       } else {
         thread.nodes.root = (root = $.el('div', {
           className: 'thread',
           id: `t${data.no}`
         }
-        ));
+        ))
       }
-      if (this.hat) { $.add(root, this.hat.cloneNode(false)); }
-      $.add(root, thread.OP.nodes.root);
+      if (this.hat) { $.add(root, this.hat.cloneNode(false)) }
+      $.add(root, thread.OP.nodes.root)
       if (data.omitted_posts || (!withReplies && data.replies)) {
         const [posts, files] = withReplies ?
           // XXX data.omitted_images is not accurate.
           [data.omitted_posts, data.images - data.last_replies.filter(data => !!data.ext).length]
           :
-          [data.replies, data.images];
-        const summary = this.summary(thread.board.ID, data.no, posts, files);
-        $.add(root, summary);
+          [data.replies, data.images]
+        const summary = this.summary(thread.board.ID, data.no, posts, files)
+        $.add(root, summary)
       }
-      return root;
+      return root
     },
 
     catalogThread(thread, data, pageCount) {
-      let cssText, imgClass, src;
-      const { staticPath, gifIcon } = this;
-      const { tn_w, tn_h } = data;
+      let cssText, imgClass, src
+      const { staticPath, gifIcon } = this
+      const { tn_w, tn_h } = data
 
       if (data.spoiler && !Conf['Reveal Spoiler Thumbnails']) {
-        let spoilerRange;
-        src = `${staticPath}spoiler`;
+        let spoilerRange
+        src = `${staticPath}spoiler`
         if (spoilerRange = this.spoilerRange[thread.board]) {
           // Randomize the spoiler image.
-          src += (`-${thread.board}`) + Math.floor(1 + (spoilerRange * Math.random()));
+          src += (`-${thread.board}`) + Math.floor(1 + (spoilerRange * Math.random()))
         }
-        src += '.png';
-        imgClass = 'spoiler-file';
-        cssText = "--tn-w: 100; --tn-h: 100;";
+        src += '.png'
+        imgClass = 'spoiler-file'
+        cssText = '--tn-w: 100; --tn-h: 100;'
       } else if (data.filedeleted) {
-        src = `${staticPath}filedeleted-res${gifIcon}`;
-        imgClass = 'deleted-file';
+        src = `${staticPath}filedeleted-res${gifIcon}`
+        imgClass = 'deleted-file'
       } else if (thread.OP.file) {
-        src = thread.OP.file.thumbURL;
-        const ratio = 250 / Math.max(tn_w, tn_h);
-        cssText = `--tn-w: ${tn_w * ratio}; --tn-h: ${tn_h * ratio};`;
+        src = thread.OP.file.thumbURL
+        const ratio = 250 / Math.max(tn_w, tn_h)
+        cssText = `--tn-w: ${tn_w * ratio}; --tn-h: ${tn_h * ratio};`
       } else {
-        src = `${staticPath}nofile.png`;
-        imgClass = 'no-file';
+        src = `${staticPath}nofile.png`
+        imgClass = 'no-file'
       }
 
-      const postCount = data.replies + 1;
-      const fileCount = data.images + !!data.ext;
+      const postCount = data.replies + 1
+      const fileCount = data.images + !!data.ext
 
       const container = $.el(
         'div',
         generateCatalogThreadHtml(thread, src, imgClass, data, postCount, fileCount, pageCount, staticPath, gifIcon)
-      );
-      $.before(thread.OP.nodes.info, [...container.childNodes]);
+      )
+      $.before(thread.OP.nodes.info, [...container.childNodes])
 
-      for (var br of $$('br', thread.OP.nodes.comment)) {
+      for (const br of $$('br', thread.OP.nodes.comment)) {
         if (br.previousSibling && (br.previousSibling.nodeName === 'BR')) {
-          $.addClass(br, 'extra-linebreak');
+          $.addClass(br, 'extra-linebreak')
         }
       }
 
@@ -683,37 +683,37 @@ $\
         className: 'thread catalog-thread',
         id: `t${thread}`
       }
-      );
-      if (thread.OP.highlights) { $.addClass(root, ...thread.OP.highlights); }
-      if (!thread.OP.file) { $.addClass(root, 'noFile'); }
-      root.style.cssText = cssText || '';
+      )
+      if (thread.OP.highlights) { $.addClass(root, ...thread.OP.highlights) }
+      if (!thread.OP.file) { $.addClass(root, 'noFile') }
+      root.style.cssText = cssText || ''
 
-      return root;
+      return root
     },
 
     catalogReply(thread, data) {
-      let excerpt = '';
+      let excerpt = ''
       if (data.com) {
-        excerpt = this.parseCommentDisplay(data.com).replace(/>>\d+/g, '').trim().replace(/\n+/g, ' // ');
+        excerpt = this.parseCommentDisplay(data.com).replace(/>>\d+/g, '').trim().replace(/\n+/g, ' // ')
       }
       if (data.ext) {
-        if (!excerpt) { excerpt = `${$.unescape(data.filename)}${data.ext}`; }
+        if (!excerpt) { excerpt = `${$.unescape(data.filename)}${data.ext}` }
       }
       if (data.com) {
-        if (!excerpt) { excerpt = $.unescape(data.com.replace(/<br\b[^<]*>/gi, ' // ')); }
+        if (!excerpt) { excerpt = $.unescape(data.com.replace(/<br\b[^<]*>/gi, ' // ')) }
       }
-      if (!excerpt) { excerpt = '\xA0'; }
-      if (excerpt.length > 73) { excerpt = `${excerpt.slice(0, 70)}...`; }
+      if (!excerpt) { excerpt = '\xA0' }
+      if (excerpt.length > 73) { excerpt = `${excerpt.slice(0, 70)}...` }
 
-      const link = this.postURL(thread.board.ID, thread.ID, data.no);
+      const link = this.postURL(thread.board.ID, thread.ID, data.no)
       return $.el('div', { className: 'catalog-reply' },
         <>
           <span><time data-utc={data.time * 1000} data-abbrev="1">...</time>: </span>
           <a class="catalog-reply-excerpt" href={link}>{excerpt}</a>
           <a class="catalog-reply-preview" href={link}>...</a>
         </>
-      );
+      )
     }
   }
-};
-export default SWYotsuba;
+}
+export default SWYotsuba

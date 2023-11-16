@@ -1,5 +1,5 @@
-import { d } from "../globals/globals";
-import $ from "../platform/$";
+import { d } from '../globals/globals'
+import $ from '../platform/$'
 
 /*
  * decaffeinate suggestions:
@@ -9,30 +9,30 @@ import $ from "../platform/$";
 const PostRedirect = {
   init() {
     return $.on(d, 'QRPostSuccessful', e => {
-      if (!e.detail.redirect) { return; }
-      this.event = e;
-      this.delays = 0;
+      if (!e.detail.redirect) { return }
+      this.event = e
+      this.delays = 0
       return $.queueTask(() => {
         if ((e === this.event) && (this.delays === 0)) {
-          return location.href = e.detail.redirect;
+          return location.href = e.detail.redirect
         }
-      });
-    });
+      })
+    })
   },
 
   delays: 0,
 
   delay() {
-    if (!this.event) { return null; }
-    const e = this.event;
-    this.delays++;
+    if (!this.event) { return null }
+    const e = this.event
+    this.delays++
     return () => {
-      if (e !== this.event) { return; }
-      this.delays--;
+      if (e !== this.event) { return }
+      this.delays--
       if (this.delays === 0) {
-        return location.href = e.detail.redirect;
+        return location.href = e.detail.redirect
       }
-    };
+    }
   }
-};
-export default PostRedirect;
+}
+export default PostRedirect

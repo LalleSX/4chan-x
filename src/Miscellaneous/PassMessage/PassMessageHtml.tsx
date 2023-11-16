@@ -1,5 +1,5 @@
-import h from '../../globals/jsx';
-import meta from '../../../package.json';
+import h from '../../globals/jsx'
+import meta from '../../../package.json'
 
 const passMessagePage = <div class="box-inner">
   <div class="boxbar">
@@ -11,5 +11,5 @@ const passMessagePage = <div class="box-inner">
   <div class="boxcontent">
     Check the 4chan X wiki for <a href={`${meta.captchaFAQ}#alternatives`} target="_blank" rel="noopener">alternative solutions</a>.
   </div>
-</div>;
-export default passMessagePage;
+</div>
+export default passMessagePage

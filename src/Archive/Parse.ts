@@ -1,14 +1,14 @@
-import Redirect from './Redirect';
-import { isEscaped } from '../globals/jsx';
-import Main from '../main/Main';
-import ImageHost from '../Images/ImageHost';
-import Board from '../classes/Board';
-import Fetcher from '../classes/Fetcher';
-import Post, { type File } from '../classes/Post';
-import Thread from '../classes/Thread';
-import { E, g } from '../globals/globals';
-import { dict } from '../platform/helpers';
-import $ from '../platform/$';
+import Redirect from './Redirect'
+import { isEscaped } from '../globals/jsx'
+import Main from '../main/Main'
+import ImageHost from '../Images/ImageHost'
+import Board from '../classes/Board'
+import Fetcher from '../classes/Fetcher'
+import Post, { type File } from '../classes/Post'
+import Thread from '../classes/Thread'
+import { E, g } from '../globals/globals'
+import { dict } from '../platform/helpers'
+import $ from '../platform/$'
 
 // Got this from just putting a response in a json to ts converter, it might be incomplete.
 export interface RawArchivePost {
@@ -82,22 +82,22 @@ export const parseArchivePost = (data: RawArchivePost) => {
   // https://github.com/eksopl/asagi/blob/v0.4.0b74/src/main/java/net/easymodo/asagi/YotsubaAbstract.java#L82-L129
   // https://github.com/FoolCode/FoolFuuka/blob/800bd090835489e7e24371186db6e336f04b85c0/src/Model/Comment.php#L368-L428
   // https://github.com/bstats/b-stats/blob/6abe7bffaf6e5f523498d760e54b110df5331fbb/inc/classes/Yotsuba.php#L157-L168
-  let comment = (data.comment || '').split(/(\n|\[\/?(?:b|spoiler|code|moot|banned|fortune(?: color="#\w+")?|i|red|green|blue)\])/);
+  let comment = (data.comment || '').split(/(\n|\[\/?(?:b|spoiler|code|moot|banned|fortune(?: color="#\w+")?|i|red|green|blue)\])/)
   comment = comment.map((text, i) => {
     if ((i % 2) === 1) {
-      var tag = Fetcher.archiveTags[text.replace(/\ .*\]/, ']')];
-      return (typeof tag === 'function') ? tag(text) : tag;
+      const tag = Fetcher.archiveTags[text.replace(/\ .*\]/, ']')]
+      return (typeof tag === 'function') ? tag(text) : tag
     } else {
-      var greentext = text[0] === '>';
+      const greentext = text[0] === '>'
       text = text
         .replace(/(\[\/?[a-z]+):lit(\])/g, '$1$2')
         .split(/(>>(?:>\/[a-z\d]+\/)?\d+)/g)
         .map((text2, j) => ((j % 2) ? `<span class="deadlink">${E(text2)}</span>` : E(text2)))
-        .join('');
-      return { innerHTML: (greentext ? `<span class="quote">${text}</span>` : text) };
+        .join('')
+      return { innerHTML: (greentext ? `<span class="quote">${text}</span>` : text) }
     }
-  });
-  comment = { innerHTML: E.cat(comment), [isEscaped]: true };
+  })
+  comment = { innerHTML: E.cat(comment), [isEscaped]: true }
 
   const o = {
     ID: data.num,
@@ -113,12 +113,12 @@ export const parseArchivePost = (data: RawArchivePost) => {
       capcode: (() => {
         switch (data.capcode) {
           // https://github.com/pleebe/FoolFuuka/blob/bf4224eed04637a4d0bd4411c2bf5f9945dfec0b/assets/themes/foolz/foolfuuka-theme-fuuka/src/Partial/Board.php#L77
-          case 'M': return 'Mod';
-          case 'A': return 'Admin';
-          case 'D': return 'Developer';
-          case 'V': return 'Verified';
-          case 'F': return 'Founder';
-          case 'G': return 'Manager';
+          case 'M': return 'Mod'
+          case 'A': return 'Admin'
+          case 'D': return 'Developer'
+          case 'V': return 'Verified'
+          case 'F': return 'Founder'
+          case 'G': return 'Manager'
         }
       })(),
       uniqueID: data.poster_hash,
@@ -131,17 +131,17 @@ export const parseArchivePost = (data: RawArchivePost) => {
     },
     file: null as File,
     extra: null as any,
-  };
-  if (o.info.capcode) { delete o.info.uniqueID; }
+  }
+  if (o.info.capcode) { delete o.info.uniqueID }
   if (data.media && !!+data.media.banned) {
-    o.fileDeleted = true;
+    o.fileDeleted = true
   } else if (data.media?.media_filename) {
-    let { thumb_link } = data.media;
+    let { thumb_link } = data.media
     // Fix URLs missing origin
-    if (thumb_link?.[0] === '/') { thumb_link = url.split('/', 3).join('/') + thumb_link; }
-    if (!Redirect.securityCheck(thumb_link)) { thumb_link = ''; }
-    let media_link = Redirect.to('file', { boardID: o.boardID, filename: data.media.media_orig });
-    if (!Redirect.securityCheck(media_link)) { media_link = ''; }
+    if (thumb_link?.[0] === '/') { thumb_link = url.split('/', 3).join('/') + thumb_link }
+    if (!Redirect.securityCheck(thumb_link)) { thumb_link = '' }
+    let media_link = Redirect.to('file', { boardID: o.boardID, filename: data.media.media_orig })
+    if (!Redirect.securityCheck(media_link)) { media_link = '' }
     o.file = {
       name: data.media.media_filename,
       url: media_link ||
@@ -157,20 +157,20 @@ export const parseArchivePost = (data: RawArchivePost) => {
       theight: data.media.preview_h,
       twidth: data.media.preview_w,
       isSpoiler: data.media.spoiler === '1'
-    };
-    if (!/\.pdf$/.test(o.file.url)) { o.file.dimensions = `${o.file.width}x${o.file.height}`; }
-    if ((o.boardID === 'f') && data.media.exif) { o.file.tag = JSON.parse(data.media.exif).Tag; }
+    }
+    if (!/\.pdf$/.test(o.file.url)) { o.file.dimensions = `${o.file.width}x${o.file.height}` }
+    if ((o.boardID === 'f') && data.media.exif) { o.file.tag = JSON.parse(data.media.exif).Tag }
   }
-  o.extra = dict();
+  o.extra = dict()
 
   const board = g.boards[o.boardID] ||
-    new Board(o.boardID);
+    new Board(o.boardID)
   const thread = g.threads.get(`${o.boardID}.${o.threadID}`) ||
-    new Thread(o.threadID, board);
-  const post = new Post(g.SITE.Build.post(o), thread, board, { isFetchedQuote: true });
-  post.kill();
-  if (post.file) { post.file.thumbURL = o.file.thumbURL; }
-  Main.callbackNodes('Post', [post]);
-  return post;
-};
-export default parseArchivePost;
+    new Thread(o.threadID, board)
+  const post = new Post(g.SITE.Build.post(o), thread, board, { isFetchedQuote: true })
+  post.kill()
+  if (post.file) { post.file.thumbURL = o.file.thumbURL }
+  Main.callbackNodes('Post', [post])
+  return post
+}
+export default parseArchivePost

@@ -1,13 +1,13 @@
-import $ from "../platform/$";
+import $ from '../platform/$'
 
 export default class CatalogThread {
-  toString() { return this.ID; }
+  toString() { return this.ID }
 
   constructor(root, thread) {
-    this.thread = thread;
-    this.ID    = this.thread.ID;
-    this.board = this.thread.board;
-    const {post} = this.thread.OP.nodes;
+    this.thread = thread
+    this.ID    = this.thread.ID
+    this.board = this.thread.board
+    const {post} = this.thread.OP.nodes
     this.nodes = {
       root,
       thumb:     $('.catalog-thumb', post),
@@ -16,7 +16,7 @@ export default class CatalogThread {
       fileCount: $('.file-count',    post),
       pageCount: $('.page-count',    post),
       replies:   null
-    };
-    this.thread.catalogView = this;
+    }
+    this.thread.catalogView = this
   }
 }

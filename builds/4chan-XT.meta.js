@@ -3,7 +3,7 @@
 // @version      XT 2.2.3
 // @minGMVer     1.14
 // @minFFVer     74
-// @namespace    4chan-XT
+// @namespace    4chan-XZ
 // @description  4chan XT is a script that adds various features to anonymous imageboards.
 // @license      MIT; https://github.com/TuxedoTako/4chan-xt/blob/project-XT/LICENSE
 // @include      http://boards.4chan.org/*

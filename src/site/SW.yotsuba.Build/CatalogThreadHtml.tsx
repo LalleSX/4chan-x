@@ -1,4 +1,4 @@
-import h, { hFragment, EscapedHtml } from "../../globals/jsx";
+import h, { hFragment, EscapedHtml } from '../../globals/jsx'
 
 export default function generateCatalogThreadHtml(
   thread, src, imgClass, data, postCount, fileCount, pageCount, staticPath, gifIcon,
@@ -21,5 +21,5 @@ export default function generateCatalogThreadHtml(
         {thread.isClosed ? <img src={`${staticPath}closed${gifIcon}`} class="closedIcon" title="Closed" /> : ''}
       </span>
     </div>
-  </>;
+  </>
 }

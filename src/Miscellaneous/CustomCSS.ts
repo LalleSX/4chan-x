@@ -1,6 +1,6 @@
-import $ from "../platform/$";
-import CSS from "../css/CSS";
-import { Conf } from "../globals/globals";
+import $ from '../platform/$'
+import CSS from '../css/CSS'
+import { Conf } from '../globals/globals'
 
 /*
  * decaffeinate suggestions:
@@ -9,26 +9,26 @@ import { Conf } from "../globals/globals";
  */
 const CustomCSS = {
   init() {
-    if (!Conf['Custom CSS']) { return; }
-    return this.addStyle();
+    if (!Conf['Custom CSS']) { return }
+    return this.addStyle()
   },
 
   addStyle() {
-    return this.style = $.addStyle(CSS.sub(Conf['usercss']), 'custom-css', '#fourchanx-css');
+    return this.style = $.addStyle(CSS.sub(Conf['usercss']), 'custom-css', '#fourchanx-css')
   },
 
   rmStyle() {
     if (this.style) {
-      $.rm(this.style);
-      return delete this.style;
+      $.rm(this.style)
+      return delete this.style
     }
   },
 
   update() {
     if (!this.style) {
-      return this.addStyle();
+      return this.addStyle()
     }
-    return this.style.textContent = CSS.sub(Conf['usercss']);
+    return this.style.textContent = CSS.sub(Conf['usercss'])
   }
-};
-export default CustomCSS;
+}
+export default CustomCSS

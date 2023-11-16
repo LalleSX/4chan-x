@@ -11,4 +11,4 @@ export const icons = (data: { name: string, data: string }[]) => (
 `
   ).join('')
 
-);
+)

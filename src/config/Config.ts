@@ -1,6 +1,6 @@
-import userCss from './user.css';
-import banners from './banners.json';
-import meta from '../../package.json';
+import userCss from './user.css'
+import banners from './banners.json'
+import meta from '../../package.json'
 
 const Config = {
   main: {
@@ -856,9 +856,9 @@ http://eye.swfchan.com/search/?q=%name;types:swf
     archiveAutoUpdate: true
   },
 
-  externalCatalogURLs: `\
+  externalCatalogURLs: '\
 //catalog.neet.tv/%board/;boards:4chan.org:3,a,adv,an,asp,biz,c,cgl,ck,cm,co,diy,f,fa,fit,g,gd,his,i,int,jp,k,lgbt,lit,m,mlp,mu,n,news,o,out,p,po,pol,s4s,sci,sp,tg,toy,trv,tv,v,vg,vip,vp,vr,w,wg,wsg,wsr,x\
-`,
+',
 
   boardnav: `\
 [ toggle-all ]
@@ -870,9 +870,9 @@ current-archive-text:"Archive"]
 `,
 
   QR: {
-    'QR.personas': `\
+    'QR.personas': '\
 #options:"sage";boards:jp;always\
-`,
+',
     sjisPreview: false
   },
 
@@ -1206,5 +1206,5 @@ https://*.hcaptcha.com
   'Prerequest Captcha': false,
 
   'PSAseen': [[]]
-};
-export default Config;
+}
+export default Config
