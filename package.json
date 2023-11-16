@@ -106,10 +106,16 @@
     "@rollup/pluginutils": "^5.0.2",
     "@types/chrome": "^0.0.217",
     "@types/node": "^18.14.5",
+    "@typescript-eslint/eslint-plugin": "^6.11.0",
     "@violentmonkey/types": "^0.1.5",
     "chrome-webstore-upload": "^1.0.0",
+    "eslint": "^8.53.0",
+    "eslint-plugin-import": "^2.29.0",
+    "eslint-plugin-json": "^3.1.0",
+    "eslint-plugin-markdown": "^3.0.1",
+    "eslint-plugin-vue": "^9.18.1",
+    "eslint-plugin-yaml": "^0.5.0",
     "esprima": "^4.0.1",
-    "eslint": "^8.0.1",
     "jszip": "^3.10.0",
     "lodash.template": "^4.5.0",
     "markdown-it": "^12.3.2",
@@ -141,6 +147,7 @@
   "type": "module",
   "scripts": {
     "build": "node ./tools/rollup",
-    "build:min": "node ./tools/rollup -min"
+    "build:min": "node ./tools/rollup -min",
+    "lint": "eslint --fix --ext .ts,.tsx src/"
   }
 }
