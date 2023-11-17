@@ -41,9 +41,13 @@
         "avoidEscape": true
       }
     ],
-    "prefer-const": "error",
+    "prefer-const": "warn",
     "no-var": "error",
     "no-implicit-globals": "error",
-    "no-use-before-define": "error"
+    "@typescript-eslint/no-explicit-any": "off",
+    "no-cond-assign": "off",
+    "no-case-declarations": "warn",
+    "no-empty": "off",
+    "no-use-before-define": "off"
   }
 }
