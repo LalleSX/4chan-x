@@ -29,10 +29,6 @@
         "argsIgnorePattern": "^_"
       }
     ],
-    "eqeqeq": [
-      "error",
-      "always"
-    ],
     "curly": "error",
     "quotes": [
       "error",
@@ -41,13 +37,16 @@
         "avoidEscape": true
       }
     ],
+    "no-implicit-globals": "error",
+    "no-empty": "off",
     "prefer-const": "warn",
     "no-var": "error",
-    "no-implicit-globals": "error",
+    "no-case-declarations": "warn",
+    "no-use-before-define": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "no-cond-assign": "off",
-    "no-case-declarations": "warn",
-    "no-empty": "off",
-    "no-use-before-define": "off"
+    "@typescript-eslint/no-this-alias": "off",
+    "no-constant-condition": "off",
+    "prefer-rest-params": "off"
   }
 }

@@ -383,7 +383,7 @@ const QR = {
     let text = post.board.ID === g.BOARD.ID ? `>>${post}\n` : `>>>/${post.board}/${post}\n`
     for (let i = 0, end = sel.rangeCount, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
       try {
-        var insideCode, node
+        let insideCode, node
         range = sel.getRangeAt(i)
         // Trim range to be fully inside post
         if (range.compareBoundaryPoints(Range.START_TO_START, postRange) < 0) {
@@ -513,7 +513,7 @@ const QR = {
     let file = null
     let score = -1
     for (const item of e.clipboardData.items) {
-      var file2
+      let file2
       if ((item.kind === 'file') && (file2 = item.getAsFile())) {
         const score2 = (2*(file2.size <= QR.max_size)) + (file2.type === 'image/png')
         if (score2 > score) {
@@ -538,7 +538,7 @@ const QR = {
     const images = $$('img', pasteArea)
     $.rmAll(pasteArea)
     for (const img of images) {
-      var m
+      let m
       const {src} = img
       if (m = src.match(/data:(image\/(\w+));base64,(.+)/)) {
         const bstr = atob(m[3])
@@ -732,7 +732,7 @@ const QR = {
     let i = 0
     const save = function() { return QR.selected.save(this) }
     while ((name = items[i++])) {
-      var node
+      let node
       if (!(node = nodes[name])) { continue }
       event = node.nodeName === 'SELECT' ? 'change' : 'input'
       $.on(nodes[name], event, save)
@@ -1739,7 +1739,7 @@ const QR = {
       this.isLocked = lock
       if (this !== QR.selected) { return }
       for (const name of ['thread', 'name', 'email', 'sub', 'com', 'fileButton', 'filename', 'spoiler', 'flag']) {
-        var node
+        let node
         if ((node = QR.nodes[name])) {
           node.disabled = lock
         }
@@ -1772,7 +1772,7 @@ const QR = {
       // Load this post's values.
 
       for (const name of ['thread', 'name', 'email', 'sub', 'com', 'filename', 'flag']) {
-        var node
+        let node
         if (!(node = QR.nodes[name])) { continue }
         node.value = this[name] || node.dataset.default || ''
       }
@@ -1820,7 +1820,7 @@ const QR = {
       // Do this in case people use extensions
       // that do not trigger the `input` event.
       for (const name of ['thread', 'name', 'email', 'sub', 'com', 'filename', 'spoiler', 'flag']) {
-        var node
+        let node
         if (!(node = QR.nodes[name])) { continue }
         this.save(node, true)
       }
@@ -1861,7 +1861,7 @@ const QR = {
     static rmErrored(e) {
       e.stopPropagation()
       for (let i = QR.posts.length - 1; i >= 0; i--) {
-        var errors
+        let errors
         const post = QR.posts[i]
         if ((errors = post.errors)) {
           for (const error of errors) {
@@ -1959,7 +1959,7 @@ const QR = {
         this.setThumbnail(el)
         return $.event('QRMetadata', null, this.nodes.el)
       }
-      var onerror = () => {
+      const onerror = () => {
         $.off(el, event, onload)
         $.off(el, 'error', onerror)
         this.fileError(`Corrupt ${isVideo ? 'video' : 'image'} or error reading metadata.`, meta.faq + '#error-reading-metadata')

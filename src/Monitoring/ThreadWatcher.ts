@@ -245,7 +245,7 @@ const ThreadWatcher = {
       const siteID  = g.SITE.ID
       const boardID = g.BOARD.ID
       let nKilled = 0
-      for (var threadID in db.data[siteID].boards[boardID]) {
+      for (const threadID in db.data[siteID].boards[boardID]) {
         // Don't prune threads that have yet to appear in index.
         const data = db.data[siteID].boards[boardID][threadID]
         if (!data?.isDead && !e.detail.threads.includes(`${boardID}.${threadID}`)) {
@@ -444,7 +444,7 @@ const ThreadWatcher = {
     for (thread of board) {
       const {threadID, data} = thread
       if (threads[threadID]) {
-        var index, modified, replies;
+        let index, modified, replies;
         ({page, index, modified, replies} = threads[threadID])
         if (Conf['Show Page']) {
           const lastPage = g.sites[siteID].isPrunedByAge?.({siteID, boardID}) ?
@@ -503,7 +503,7 @@ const ThreadWatcher = {
         if (!Conf['Require OP Quote Link'] && youOP) {
           quotesYou = true
         } else if (QuoteYou.db && postObj.com) {
-          var match
+          let match
           const regexp = site.regexp.quotelinkHTML
           regexp.lastIndex = 0
           while (match = regexp.exec(postObj.com)) {
@@ -548,7 +548,7 @@ const ThreadWatcher = {
     for (const siteID in ThreadWatcher.db.data) {
       const boards = ThreadWatcher.db.data[siteID]
       for (const boardID in boards.boards) {
-        var cont
+        let cont
         const threads = boards.boards[boardID]
         if (Conf['Current Board'] && ((siteID !== g.SITE.ID) || (boardID !== g.BOARD.ID))) {
           continue
@@ -662,7 +662,7 @@ const ThreadWatcher = {
     ThreadWatcher.setPrefixes(threads)
     for (const {siteID, boardID, threadID, data} of threads) {
       // Add missing excerpt for threads added by Auto Watch
-      var thread
+      let thread
       if ((data.excerpt == null) && (siteID === g.SITE.ID) && (thread = g.threads.get(`${boardID}.${threadID}`)) && thread.OP) {
         ThreadWatcher.db.extend({boardID, threadID, val: {excerpt: Get.threadExcerpt(thread)}})
       }
@@ -682,7 +682,7 @@ const ThreadWatcher = {
       const isWatched = ThreadWatcher.isWatched(thread)
       if (thread.OP) {
         for (const post of [thread.OP, ...thread.OP.clones]) {
-          var toggler
+          let toggler
           if (toggler = $('.watch-thread-link', post.nodes.info)) {
             ThreadWatcher.setToggler(toggler, isWatched)
           }

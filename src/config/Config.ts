@@ -767,7 +767,7 @@ const Config = {
 
     comment: `\
 # Filter Stallman copypasta on /g/:
-#/what you\'re refer+ing to as linux/i;boards:g
+#/what you're refer+ing to as linux/i;boards:g
 # Filter posts with 20 or more quote links:
 #/(?:>>\\d(?:(?!>>\\d)[^])*){20}/
 # Filter posts like T H I S / H / I / S:

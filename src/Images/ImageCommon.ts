@@ -27,6 +27,7 @@ const ImageCommon = {
     if (el.nodeName === 'VIDEO') {
       if (el.readyState >= el.HAVE_METADATA) { return el.currentTime = 0 }
     } else if (/\.gif$/.test(el.src)) {
+      // eslint-disable-next-line no-self-assign
       return $.queueTask(() => el.src = el.src)
     }
   },

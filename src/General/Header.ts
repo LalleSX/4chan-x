@@ -228,7 +228,7 @@ const Header = {
 
     let indexOptions = []
     t = t.replace(/-(?:mode|sort):"([^"]+)"/g, function(m0, m1) {
-      indexOptions.push(m1.toLowerCase().replace(/\ /g, '-'))
+      indexOptions.push(m1.toLowerCase().replace(/ /g, '-'))
       return ''
     })
     indexOptions = indexOptions.join('/')
@@ -668,7 +668,7 @@ const Header = {
     const el = $.el('span',
       {innerHTML:
         `${meta.name} needs your permission to show desktop notifications. ` +
-        `[<a href=\"${meta.faq}#why-is-4chan-x-asking-for-permission-to-show-desktop-notifications\" target=\"_blank\">FAQ</a>]` +
+        `[<a href="${meta.faq}#why-is-4chan-x-asking-for-permission-to-show-desktop-notifications" target="_blank">FAQ</a>]` +
         '<br><button>Authorize</button> or <button>Disable</button>'
     })
     const [authorize, disable] = $$('button', el)

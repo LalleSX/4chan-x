@@ -85,7 +85,7 @@ export const parseArchivePost = (data: RawArchivePost) => {
   let comment = (data.comment || '').split(/(\n|\[\/?(?:b|spoiler|code|moot|banned|fortune(?: color="#\w+")?|i|red|green|blue)\])/)
   comment = comment.map((text, i) => {
     if ((i % 2) === 1) {
-      const tag = Fetcher.archiveTags[text.replace(/\ .*\]/, ']')]
+      const tag = Fetcher.archiveTags[text.replace(/ .*\]/, ']')]
       return (typeof tag === 'function') ? tag(text) : tag
     } else {
       const greentext = text[0] === '>'

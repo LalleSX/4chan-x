@@ -63,7 +63,7 @@ const Embedding = {
       i = 0
       items = $$('.linkify', post.nodes.comment)
       while ((el = items[i++])) {
-        var data
+        let data
         if (data = Embedding.services(el)) {
           Embedding.preview(data)
         }
@@ -87,7 +87,7 @@ const Embedding = {
   services(link) {
     const {href} = link
     for (const type of Embedding.ordered_types) {
-      var match
+      let match
       if (match = type.regExp.exec(href)) {
         return {key: type.key, uid: match[1], options: match[2], link}
       }
@@ -342,7 +342,7 @@ const Embedding = {
     }
     , {
       key: 'PeerTube',
-      regExp: /^(\w+:\/\/[^\/]+\/videos\/watch\/\w{8}-\w{4}-\w{4}-\w{4}-\w{12})(.*)/,
+      regExp: /^(\w+:\/\/[^/]+\/videos\/watch\/\w{8}-\w{4}-\w{4}-\w{4}-\w{12})(.*)/,
       el(a) {
         let start
         const options = (start = a.dataset.options.match(/[?&](start=\w+)/)) ? `?${start[1]}` : ''
@@ -354,7 +354,7 @@ const Embedding = {
     }
     , {
       key: 'BitChute',
-      regExp:  /^\w+:\/\/(?:www\.)?bitchute\.com\/video\/([\w\-]+)/,
+      regExp:  /^\w+:\/\/(?:www\.)?bitchute\.com\/video\/([\w-]+)/,
       el(a) {
         const el = $.el('iframe',
           {src: `https://www.bitchute.com/embed/${a.dataset.uid}/`})
@@ -407,7 +407,7 @@ const Embedding = {
     }
     , {
       key: 'Gist',
-      regExp: /^\w+:\/\/gist\.github\.com\/[\w\-]+\/(\w+)/,
+      regExp: /^\w+:\/\/gist\.github\.com\/[\w-]+\/(\w+)/,
       style: '',
       el: (function() {
         let counter = 0
@@ -430,7 +430,7 @@ const Embedding = {
       title: {
         api(uid) { return `https://api.github.com/gists/${uid}` },
         text({files}) {
-          for (const file in files) { if (files.hasOwnProperty(file)) { return file } }
+          for (const file in files) { if (Object.prototype.hasOwnProperty.call(files, file)) { return file } }
         }
       }
     }
@@ -454,7 +454,7 @@ const Embedding = {
     }
     , {
       key: 'Loopvid',
-      regExp: /^\w+:\/\/(?:www\.)?loopvid.appspot.com\/#?((?:pf|kd|lv|gd|gh|db|dx|nn|cp|wu|ig|ky|mf|m2|pc|1c|pi|ni|wl|ko|mm|ic|gc)\/[\w\-\/]+(?:,[\w\-\/]+)*|fc\/\w+\/\d+|https?:\/\/.+)/,
+      regExp: /^\w+:\/\/(?:www\.)?loopvid.appspot.com\/#?((?:pf|kd|lv|gd|gh|db|dx|nn|cp|wu|ig|ky|mf|m2|pc|1c|pi|ni|wl|ko|mm|ic|gc)\/[\w\-/]+(?:,[\w\-/]+)*|fc\/\w+\/\d+|https?:\/\/.+)/,
       style: 'max-width: 80vw; max-height: 80vh;',
       el(a) {
         const el = $.el('video', {
@@ -473,9 +473,9 @@ const Embedding = {
           case 'gc': return ['giant', 'fat', 'zippy']
           default: return ['.webm', '.mp4']
         } })()
-        for (var name of names.split(',')) {
-          for (var type of types) {
-            var base = `${name}${type}`
+        for (const name of names.split(',')) {
+          for (const type of types) {
+            const base = `${name}${type}`
             const urls = (() => { switch (host) {
               // list from src/common.py at http://loopvid.appspot.com/source.html
               case 'pf': return [`https://kastden.org/_loopvid_media/pf/${base}`, `https://web.archive.org/web/2/http://a.pomf.se/${base}`]
@@ -525,7 +525,7 @@ const Embedding = {
     }
     , {
       key: 'Pastebin',
-      regExp: /^\w+:\/\/(?:\w+\.)?pastebin\.com\/(?!u\/)(?:[\w.]+(?:\/|\?i\=))?(\w+)/,
+      regExp: /^\w+:\/\/(?:\w+\.)?pastebin\.com\/(?!u\/)(?:[\w.]+(?:\/|\?i=))?(\w+)/,
       el(a) {
         let div
         return div = $.el('iframe',
@@ -534,7 +534,7 @@ const Embedding = {
     }
     , {
       key: 'SoundCloud',
-      regExp: /^\w+:\/\/(?:www\.)?(?:soundcloud\.com\/|snd\.sc\/)([\w\-\/]+)/,
+      regExp: /^\w+:\/\/(?:www\.)?(?:soundcloud\.com\/|snd\.sc\/)([\w\-/]+)/,
       style: 'border: 0; width: 500px; height: 400px;',
       el(a) {
         return $.el('iframe',
@@ -570,10 +570,10 @@ const Embedding = {
     }
     , {
       key: 'TwitchTV',
-      regExp: /^\w+:\/\/(?:www\.|secure\.|clips\.|m\.)?twitch\.tv\/(\w[^#\&\?]*)/,
+      regExp: /^\w+:\/\/(?:www\.|secure\.|clips\.|m\.)?twitch\.tv\/(\w[^#&?]*)/,
       el(a) {
         let url
-        let m = a.dataset.href.match(/^\w+:\/\/(?:(clips\.)|\w+\.)?twitch\.tv\/(?:\w+\/)?(clip\/)?(\w[^#\&\?]*)/)
+        let m = a.dataset.href.match(/^\w+:\/\/(?:(clips\.)|\w+\.)?twitch\.tv\/(?:\w+\/)?(clip\/)?(\w[^#&?]*)/)
         if (m[1] || m[2]) {
           url = `//clips.twitch.tv/embed?clip=${m[3]}&parent=${location.hostname}`
         } else {
@@ -610,7 +610,7 @@ const Embedding = {
         if ($.engine === 'gecko') {
           // XXX https://bugzilla.mozilla.org/show_bug.cgi?id=680823
           el.style.cssText = 'border: none; width: 100%; height: 100%;'
-          var cont = $.el('div')
+          const cont = $.el('div')
           $.add(cont, el)
           return cont
         } else {
@@ -667,9 +667,9 @@ const Embedding = {
     }
     , {
       key: 'YouTube',
-      regExp: /^\w+:\/\/(?:youtu.be\/|[\w.]*youtube[\w.]*\/.*(?:v=|\bembed\/|\bv\/|live\/))([\w\-]{11})(.*)/,
+      regExp: /^\w+:\/\/(?:youtu.be\/|[\w.]*youtube[\w.]*\/.*(?:v=|\bembed\/|\bv\/|live\/))([\w-]{11})(.*)/,
       el(a) {
-        let start = a.dataset.options.match(/\b(?:star)?t\=(\w+)/)
+        let start = a.dataset.options.match(/\b(?:star)?t=(\w+)/)
         if (start) { start = start[1] }
         if (start && !/^\d+$/.test(start)) {
           start += ' 0h0m0s'

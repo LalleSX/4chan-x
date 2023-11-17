@@ -40,7 +40,7 @@ const SWTinyboard = {
 
   detect() {
     for (const script of $$('script:not([src])', d.head)) {
-      var m
+      let m
       if (m = script.textContent.match(/\bvar configRoot=(".*?")/)) {
         const properties = dict()
         try {
@@ -181,7 +181,7 @@ const SWTinyboard = {
 $\
 '),
     quotelinkHTML:
-      /<a [^>]*\bhref="[^"]*\/([^\/]+)\/res\/(\d+)(?:\.\w+)?#(\d+)"/g
+      /<a [^>]*\bhref="[^"]*\/([^/]+)\/res\/(\d+)(?:\.\w+)?#(\d+)"/g
   },
 
   Build: {
@@ -226,7 +226,7 @@ $\
   },
 
   isFileURL(url) {
-    return /\/src\/[^\/]+/.test(url.pathname)
+    return /\/src\/[^/]+/.test(url.pathname)
   },
 
   preParsingFixes(board) {

@@ -317,7 +317,7 @@ const Captcha = {
     afterSetup(mutations) {
       for (const mutation of mutations) {
         for (const node of mutation.addedNodes) {
-          var iframe, textarea
+          let iframe, textarea
           if (iframe = $.x('./descendant-or-self::iframe[starts-with(@src, "https://www.google.com/recaptcha/")]', node)) { this.setupIFrame(iframe) }
           if (textarea = $.x('./descendant-or-self::textarea', node)) { this.setupTextArea(textarea) }
         }

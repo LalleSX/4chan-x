@@ -69,7 +69,7 @@ const Test = {
       let {
         href
       } = el
-      href = href.replace(/(^\w+:\/\/boards\.4chan(?:nel)?\.org\/[^\/]+\/thread\/\d+)\/.*/, '$1')
+      href = href.replace(/(^\w+:\/\/boards\.4chan(?:nel)?\.org\/[^/]+\/thread\/\d+)\/.*/, '$1')
       el.setAttribute('href', href)
     }
     ImageHost.fixLinks($$('.fileText > a, a.fileThumb', root2))
@@ -77,7 +77,7 @@ const Test = {
       el.src = el.src.replace(/(spoiler-\w+)\d(\.png)$/, '$11$2')
     }
     for (el of $$('pre.prettyprinted', root2)) {
-      var nodes = $.X('.//br|.//wbr|.//text()', el)
+      let nodes = $.X('.//br|.//wbr|.//text()', el)
       i = 0
       nodes = ((() => {
         const result = []
@@ -99,7 +99,7 @@ const Test = {
     const textNodes = $.X('.//text()', root2)
     i = 0
     while (node = textNodes.snapshotItem(i++)) {
-      node.data = node.data.replace(/\ +/g, ' ')
+      node.data = node.data.replace(/ +/g, ' ')
       // XXX https://a.4cdn.org/sci/thread/5942502.json, https://a.4cdn.org/news/thread/6.json, https://a.4cdn.org/wsg/thread/957536.json
       if (node.previousSibling?.nodeName === 'BR') { node.data = node.data.replace(/^\n+/g, '') }
       if (node.nextSibling?.nodeName === 'BR') { node.data = node.data.replace(/\n+$/g, '') }
@@ -153,7 +153,7 @@ const Test = {
           for (const key in Config.filter) {
             if ((!key === 'General') && !((key === 'MD5') && (post.board.ID === 'f'))) {
               const val1 = Filter.values(key, obj)
-              var val2 = Filter.values(key, post2)
+              const val2 = Filter.values(key, post2)
               if ((val1.length !== val2.length) || !val1.every((x, i) => x === val2[i])) {
                 fail = true
                 c.log(`${post.fullID} has filter bug in ${key}`)

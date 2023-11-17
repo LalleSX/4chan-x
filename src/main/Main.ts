@@ -348,7 +348,7 @@ const Main = {
         feature.init()
       } catch (err) {
         Main.handleErrors({
-          message: `\"${name}\" initialization crashed.`,
+          message: `"${name}" initialization crashed.`,
           error: err
         })
       }
@@ -559,7 +559,7 @@ const Main = {
   },
 
   parseThreads(threadRoots, threads, posts, errors) {
-    for (var threadRoot of threadRoots) {
+    for (const threadRoot of threadRoots) {
       const boardObj = (() => {
         let boardID
         if (boardID = threadRoot.dataset.board) {
@@ -788,7 +788,7 @@ const Main = {
       return [this.textContent, logs.hidden] = this.textContent === 'show' ? ['hide', false] : ['show', true]
     })
 
-    var logs = $.el('div',
+    const logs = $.el('div',
       {hidden: true})
     for (error of errors) {
       $.add(logs, Main.parseError(error))

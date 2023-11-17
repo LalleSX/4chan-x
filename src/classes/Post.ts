@@ -111,7 +111,7 @@ export default class Post {
     if (!this.isReply) {
       this.thread.OP = this
       for (const key of ['isSticky', 'isClosed', 'isArchived']) {
-        var selector
+        let selector
         if (selector = g.SITE.selectors.icons[key]) {
           this.thread[key] = !!$(selector, this.nodes.info)
         }

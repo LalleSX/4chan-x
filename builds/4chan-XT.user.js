@@ -1155,7 +1155,7 @@ div.boardTitle {
 `,
           comment: `\
 # Filter Stallman copypasta on /g/:
-#/what you\'re refer+ing to as linux/i;boards:g
+#/what you're refer+ing to as linux/i;boards:g
 # Filter posts with 20 or more quote links:
 #/(?:>>\\d(?:(?!>>\\d)[^])*){20}/
 # Filter posts like T H I S / H / I / S:
@@ -2460,6 +2460,7 @@ https://*.hcaptcha.com
       }
   }
 
+  /* eslint-disable no-var */
   /*
    * decaffeinate suggestions:
    * DS102: Remove unnecessary code created because of implicit returns
@@ -2724,7 +2725,7 @@ https://*.hcaptcha.com
       Menu$1.initClass();
       return Menu$1;
   })();
-  var dragstart = function (e) {
+  const dragstart = function (e) {
       let isTouching;
       if ((e.type === 'mousedown') && (e.button !== 0)) {
           return;
@@ -2770,7 +2771,7 @@ https://*.hcaptcha.com
           return $$1.on(d$1, 'mouseup', o.up);
       }
   };
-  var touchmove = function (e) {
+  const touchmove = function (e) {
       for (const touch of e.changedTouches) {
           if (touch.identifier === this.identifier) {
               drag.call(this, touch);
@@ -2778,7 +2779,7 @@ https://*.hcaptcha.com
           }
       }
   };
-  var drag = function (e) {
+  const drag = function (e) {
       const { clientX, clientY } = e;
       let left = clientX - this.dx;
       left = left < 10 ?
@@ -2808,7 +2809,7 @@ https://*.hcaptcha.com
       style.top = top;
       return style.bottom = bottom;
   };
-  var touchend = function (e) {
+  const touchend = function (e) {
       for (const touch of e.changedTouches) {
           if (touch.identifier === this.identifier) {
               dragend.call(this);
@@ -2816,7 +2817,7 @@ https://*.hcaptcha.com
           }
       }
   };
-  var dragend = function () {
+  const dragend = function () {
       if (this.isTouching) {
           $$1.off(d$1, 'touchmove', this.move);
           $$1.off(d$1, 'touchend touchcancel', this.up);
@@ -2865,7 +2866,7 @@ https://*.hcaptcha.com
       return $$1.on(doc$1, 'mousemove', o.workaround);
   };
   hoverstart.padding = 25;
-  var hover = function (e) {
+  const hover = function (e) {
       this.latestEvent = e;
       const height = (this.height || this.el.offsetHeight) + hoverstart.padding;
       const width = (this.width || this.el.offsetWidth);
@@ -2889,7 +2890,7 @@ https://*.hcaptcha.com
       style.left = left;
       return style.right = right;
   };
-  var hoverend = function (e) {
+  const hoverend = function (e) {
       if (((e.type === 'keydown') && (e.keyCode !== 13)) || (e.target.nodeName === 'TEXTAREA')) {
           return;
       }
@@ -3235,6 +3236,7 @@ https://*.hcaptcha.com
               }
           }
           else if (/\.gif$/.test(el.src)) {
+              // eslint-disable-next-line no-self-assign
               return $$1.queueTask(() => el.src = el.src);
           }
       },
@@ -3875,7 +3877,7 @@ https://*.hcaptcha.com
           if (!this.isReply) {
               this.thread.OP = this;
               for (const key of ['isSticky', 'isClosed', 'isArchived']) {
-                  var selector;
+                  let selector;
                   if (selector = g.SITE.selectors.icons[key]) {
                       this.thread[key] = !!$$1(selector, this.nodes.info);
                   }
@@ -4347,7 +4349,7 @@ https://*.hcaptcha.com
               return;
           }
           for (const quote of this.quotes) {
-              var obj;
+              let obj;
               if ((obj = Recursive.recursives[quote])) {
                   for (let i = 0; i < obj.recursives.length; i++) {
                       const recursive = obj.recursives[i];
@@ -5782,7 +5784,7 @@ https://*.hcaptcha.com
               return;
           }
           for (const threadID in ExpandThread.statuses) {
-              var oldReq;
+              let oldReq;
               const status = ExpandThread.statuses[threadID];
               if (oldReq = status.req) {
                   delete status.req;
@@ -5862,7 +5864,7 @@ https://*.hcaptcha.com
           for (const reply of replies) {
               // rm clones
               if (Conf['Quote Inlining']) {
-                  var inlined;
+                  let inlined;
                   while ((inlined = $$1('.inlined', reply))) {
                       inlined.click();
                   }
@@ -5890,7 +5892,7 @@ https://*.hcaptcha.com
           const postsRoot = [];
           let filesCount = 0;
           for (const postData of req.response.posts) {
-              var post;
+              let post;
               if (postData.no === thread.ID) {
                   continue;
               }
@@ -6294,7 +6296,7 @@ https://*.hcaptcha.com
               const siteID = g.SITE.ID;
               const boardID = g.BOARD.ID;
               let nKilled = 0;
-              for (var threadID in db.data[siteID].boards[boardID]) {
+              for (const threadID in db.data[siteID].boards[boardID]) {
                   // Don't prune threads that have yet to appear in index.
                   const data = db.data[siteID].boards[boardID][threadID];
                   if (!data?.isDead && !e.detail.threads.includes(`${boardID}.${threadID}`)) {
@@ -6508,7 +6510,7 @@ https://*.hcaptcha.com
           for (thread of board) {
               const { threadID, data } = thread;
               if (threads[threadID]) {
-                  var index, modified, replies;
+                  let index, modified, replies;
                   ({ page, index, modified, replies } = threads[threadID]);
                   if (Conf['Show Page']) {
                       const lastPage = g.sites[siteID].isPrunedByAge?.({ siteID, boardID }) ?
@@ -6575,7 +6577,7 @@ https://*.hcaptcha.com
                       quotesYou = true;
                   }
                   else if (QuoteYou.db && postObj.com) {
-                      var match;
+                      let match;
                       const regexp = site.regexp.quotelinkHTML;
                       regexp.lastIndex = 0;
                       while (match = regexp.exec(postObj.com)) {
@@ -6624,7 +6626,7 @@ https://*.hcaptcha.com
           for (const siteID in ThreadWatcher.db.data) {
               const boards = ThreadWatcher.db.data[siteID];
               for (const boardID in boards.boards) {
-                  var cont;
+                  let cont;
                   const threads = boards.boards[boardID];
                   if (Conf['Current Board'] && ((siteID !== g.SITE.ID) || (boardID !== g.BOARD.ID))) {
                       continue;
@@ -6745,7 +6747,7 @@ https://*.hcaptcha.com
           ThreadWatcher.setPrefixes(threads);
           for (const { siteID, boardID, threadID, data } of threads) {
               // Add missing excerpt for threads added by Auto Watch
-              var thread;
+              let thread;
               if ((data.excerpt == null) && (siteID === g.SITE.ID) && (thread = g.threads.get(`${boardID}.${threadID}`)) && thread.OP) {
                   ThreadWatcher.db.extend({ boardID, threadID, val: { excerpt: Get$1.threadExcerpt(thread) } });
               }
@@ -6762,7 +6764,7 @@ https://*.hcaptcha.com
               const isWatched = ThreadWatcher.isWatched(thread);
               if (thread.OP) {
                   for (const post of [thread.OP, ...thread.OP.clones]) {
-                      var toggler;
+                      let toggler;
                       if (toggler = $$1('.watch-thread-link', post.nodes.info)) {
                           ThreadWatcher.setToggler(toggler, isWatched);
                       }
@@ -7073,7 +7075,7 @@ https://*.hcaptcha.com
       let comment = (data.comment || '').split(/(\n|\[\/?(?:b|spoiler|code|moot|banned|fortune(?: color="#\w+")?|i|red|green|blue)\])/);
       comment = comment.map((text, i) => {
           if ((i % 2) === 1) {
-              const tag = Fetcher.archiveTags[text.replace(/\ .*\]/, ']')];
+              const tag = Fetcher.archiveTags[text.replace(/ .*\]/, ']')];
               return (typeof tag === 'function') ? tag(text) : tag;
           }
           else {
@@ -7564,7 +7566,7 @@ https://*.hcaptcha.com
           }
           this.currentPage = this.getCurrentPage();
           this.processHash();
-          $$1.addClass(doc$1, 'index-loading', `${Conf['Index Mode'].replace(/\ /g, '-')}-mode`);
+          $$1.addClass(doc$1, 'index-loading', `${Conf['Index Mode'].replace(/ /g, '-')}-mode`);
           $$1.on(window, 'popstate', this.cb.popstate);
           $$1.on(d$1, 'scroll', this.scroll);
           $$1.on(d$1, 'SortIndex', this.cb.resort);
@@ -7664,7 +7666,7 @@ https://*.hcaptcha.com
           $$1('.cataloglink a', this.pagelist).href = CatalogLinks.catalog();
           $$1.on(this.pagelist, 'click', this.cb.pageNav);
           this.update(true);
-          $$1.onExists(doc$1, 'title + *', () => d$1.title = d$1.title.replace(/\ -\ Page\ \d+/, ''));
+          $$1.onExists(doc$1, 'title + *', () => d$1.title = d$1.title.replace(/ - Page \d+/, ''));
           $$1.onExists(doc$1, '.board > .thread > .postContainer, .board + *', function () {
               let el;
               g.SITE.Build.hat = $$1('.board > .thread > img:first-child');
@@ -8017,7 +8019,7 @@ https://*.hcaptcha.com
           const commands = hash.slice(1).split('/');
           const leftover = [];
           for (const command of commands) {
-              var mode, sort;
+              let mode, sort;
               if (mode = $$1.getOwn(Index.hashCommands.mode, command)) {
                   state.mode = mode;
               }
@@ -8156,7 +8158,7 @@ https://*.hcaptcha.com
       },
       setupMode() {
           for (const mode of ['paged', 'infinite', 'all pages', 'catalog']) {
-              $$1[mode === Conf['Index Mode'] ? 'addClass' : 'rmClass'](doc$1, `${mode.replace(/\ /g, '-')}-mode`);
+              $$1[mode === Conf['Index Mode'] ? 'addClass' : 'rmClass'](doc$1, `${mode.replace(/ /g, '-')}-mode`);
           }
           Index.selectMode.value = Conf['Index Mode'];
           Index.cb.size();
@@ -8356,7 +8358,7 @@ https://*.hcaptcha.com
           Index.parsedThreads = dict();
           Index.replyData = dict();
           for (let i = 0; i < Index.liveThreadData.length; i++) {
-              var obj, results;
+              let obj, results;
               const data = Index.liveThreadData[i];
               Index.liveThreadDict[data.no] = data;
               Index.threadPosition[data.no] = i;
@@ -8398,9 +8400,9 @@ https://*.hcaptcha.com
           const newThreads = [];
           let newPosts = [];
           for (const ID of threadIDs) {
-              var opRoot, thread;
+              let opRoot, thread;
               try {
-                  var OP;
+                  let OP;
                   const threadData = Index.liveThreadDict[ID];
                   if (thread = g.BOARD.threads.get(ID)) {
                       const isStale = (thread.json !== threadData) && (JSON.stringify(thread.json) !== JSON.stringify(threadData));
@@ -8468,13 +8470,13 @@ https://*.hcaptcha.com
           let errors;
           const posts = [];
           for (const thread of threads) {
-              var lastReplies;
+              let lastReplies;
               if (!(lastReplies = Index.liveThreadDict[thread.ID].last_replies)) {
                   continue;
               }
               const nodes = [];
               for (const data of lastReplies) {
-                  var node, post;
+                  let node, post;
                   if ((post = thread.posts.get(data.no)) && !post.isFetchedQuote) {
                       nodes.push(post.nodes.root);
                       continue;
@@ -8560,8 +8562,8 @@ https://*.hcaptcha.com
               switch (sortType) {
                   case 'lastreply':
                   case 'lastlong':
-                      var repliesAvailable = liveThreadData.some(thread => thread.last_replies?.length);
-                      var lastlong = function (thread) {
+                      const repliesAvailable = liveThreadData.some(thread => thread.last_replies?.length);
+                      const lastlong = function (thread) {
                           if (!repliesAvailable) {
                               return thread.last_modified;
                           }
@@ -8586,7 +8588,7 @@ https://*.hcaptcha.com
                               return thread;
                           }
                       };
-                      var lastlongD = dict();
+                      const lastlongD = dict();
                       for (const thread of liveThreadData) {
                           lastlongD[thread.no] = lastlong(thread).no;
                       }
@@ -12904,7 +12906,7 @@ a:only-of-type > .remove {
           const variables = {
               site: g.SITE.selectors
           };
-          return css.replace(/\$[\w\$]+/g, function (name) {
+          return css.replace(/\$[\w$]+/g, function (name) {
               const words = name.slice(1).split('$');
               let sel = variables;
               for (let i = 0; i < words.length; i++) {
@@ -12984,7 +12986,7 @@ a:only-of-type > .remove {
       ],
       detect() {
           for (const script of $$('script:not([src])', d$1.head)) {
-              var m;
+              let m;
               if (m = script.textContent.match(/\bvar configRoot=(".*?")/)) {
                   const properties = dict();
                   try {
@@ -13139,7 +13141,7 @@ a:only-of-type > .remove {
 (\\d+)\
 $\
 '),
-          quotelinkHTML: /<a [^>]*\bhref="[^"]*\/([^\/]+)\/res\/(\d+)(?:\.\w+)?#(\d+)"/g
+          quotelinkHTML: /<a [^>]*\bhref="[^"]*\/([^/]+)\/res\/(\d+)(?:\.\w+)?#(\d+)"/g
       },
       Build: {
           parseJSON(data, board) {
@@ -13181,7 +13183,7 @@ $\
           return $$1.el('div', { className: 'post reply' });
       },
       isFileURL(url) {
-          return /\/src\/[^\/]+/.test(url.pathname);
+          return /\/src\/[^/]+/.test(url.pathname);
       },
       preParsingFixes(board) {
           // fixes effects of unclosed link in announcement
@@ -13726,7 +13728,7 @@ $\
 )?\
 $\
 '),
-          quotelinkHTML: /<a [^>]*\bhref="(?:(?:\/\/boards\.4chan(?:nel)?\.org)?\/([^\/]+)\/thread\/)?(\d+)?(?:#p(\d+))?"/g,
+          quotelinkHTML: /<a [^>]*\bhref="(?:(?:\/\/boards\.4chan(?:nel)?\.org)?\/([^/]+)\/thread\/)?(\d+)?(?:#p(\d+))?"/g,
           pass: /^https?:\/\/www\.4chan(?:nel)?\.org\/+pass(?:$|[?#])/,
           captcha: /^https?:\/\/sys\.4chan(?:nel)?\.org\/+captcha(?:$|[?#])/,
       },
@@ -13770,7 +13772,7 @@ $\
                   return;
               case 'sys.4chan.org':
               case 'sys.4channel.org':
-                  var pathname = location.pathname.split(/\/+/);
+                  const pathname = location.pathname.split(/\/+/);
                   if (pathname[2] === 'imgboard.php') {
                       let match;
                       if (/\bmode=report\b/.test(location.search)) {
@@ -13825,7 +13827,7 @@ $\
               return (() => {
                   const result = [];
                   for (const type of ['Sticky', 'Closed']) {
-                      var icon;
+                      let icon;
                       if (icon = $$1(`img[alt=${type}]`, nodes.info)) {
                           result.push($$1.addClass(icon, `${type.toLowerCase()}Icon`, 'retina'));
                       }
@@ -13870,7 +13872,7 @@ $\
                   $$1.rm(node);
               }
               for (let i = 0; i < 2; i++) {
-                  var br;
+                  let br;
                   if ((br = abbr.previousSibling) && (br.nodeName === 'BR')) {
                       $$1.rm(br);
                   }
@@ -13942,7 +13944,7 @@ $\
                       }
                       break;
                   case 'A':
-                      var a = node.cloneNode(true);
+                      const a = node.cloneNode(true);
                       nodes.push(a);
                       break;
               }
@@ -13954,7 +13956,7 @@ $\
           gifIcon: window.devicePixelRatio >= 2 ? '@2x.gif' : '.gif',
           spoilerRange: Object.create(null),
           shortFilename(filename) {
-              const ext = filename.match(/\.?[^\.]*$/)[0];
+              const ext = filename.match(/\.?[^.]*$/)[0];
               if ((filename.length - ext.length) > 30) {
                   return `${filename.match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^]){0,25}/)[0]}(...)${ext}`;
               }
@@ -14153,7 +14155,7 @@ $\
                       }
                   }
                   else {
-                      var match;
+                      let match;
                       if ((match = quote.href.match(SWYotsuba.regexp.quotelink)) && (this.sameThread(match[1], match[2]))) {
                           quote.href = href.match(/(#[^#]*)?$/)[0] || '#';
                       }
@@ -16234,7 +16236,7 @@ vp-replace
           for (boardID in Conf['selectedArchives']) {
               const data = Conf['selectedArchives'][boardID];
               for (const type in data) {
-                  var select;
+                  let select;
                   const id = data[type];
                   if (select = $$1(`select[data-boardid='${boardID}'][data-type='${type}']`, tbody)) {
                       select.value = JSON.stringify(id);
@@ -16494,7 +16496,7 @@ vp-replace
           $$1.addClass(doc$1, 'show-sauce');
           const links = [];
           for (link of Conf['sauces'].split('\n')) {
-              var linkData;
+              let linkData;
               if ((link[0] !== '#') && (linkData = this.parseLink(link))) {
                   links.push(linkData);
               }
@@ -16572,7 +16574,7 @@ vp-replace
               return null;
           }
           const missing = [];
-          for (var key of ['url', 'text']) {
+          for (const key of ['url', 'text']) {
               parts[key] = parts[key].replace(/%(T?URL|IMG|[sh]?MD5|board|name|%|semi|\$\d+)/g, function (orig, parameter) {
                   let type;
                   if (parameter[0] === '$') {
@@ -16635,10 +16637,10 @@ vp-replace
           }
           $$1.add(file.text, nodes);
           if (skipped.length) {
-              var observer = new MutationObserver(function () {
+              const observer = new MutationObserver(function () {
                   if (file.text.dataset.md5) {
                       for ([link, node] of skipped) {
-                          var node2;
+                          let node2;
                           if (node2 = Sauce.createSauceLink(link, post, file)) {
                               $$1.replace(node, node2);
                           }
@@ -16769,7 +16771,7 @@ vp-replace
           }
           $$1.on(window, 'resize', Gallery.cb.setHeight);
           for (const postThumb of $$(g.SITE.selectors.file.thumb)) {
-              var post;
+              let post;
               if (!(post = Get$1.postFromNode(postThumb))) {
                   continue;
               }
@@ -16885,7 +16887,7 @@ vp-replace
           if (Conf['Sauce'] && Sauce.links && (post = g.posts.get(file.dataset.post))) {
               const sauces = [];
               for (const link of Sauce.links) {
-                  var node;
+                  let node;
                   if (node = Sauce.createSauceLink(link, post, post.files[+file.dataset.file])) {
                       sauces.push($$1.tn(' '), node);
                   }
@@ -17235,7 +17237,7 @@ vp-replace
               i = 0;
               items = $$('.linkify', post.nodes.comment);
               while ((el = items[i++])) {
-                  var data;
+                  let data;
                   if (data = Embedding.services(el)) {
                       Embedding.preview(data);
                   }
@@ -17267,7 +17269,7 @@ vp-replace
       services(link) {
           const { href } = link;
           for (const type of Embedding.ordered_types) {
-              var match;
+              let match;
               if (match = type.regExp.exec(href)) {
                   return { key: type.key, uid: match[1], options: match[2], link };
               }
@@ -17525,7 +17527,7 @@ vp-replace
           },
           {
               key: 'PeerTube',
-              regExp: /^(\w+:\/\/[^\/]+\/videos\/watch\/\w{8}-\w{4}-\w{4}-\w{4}-\w{12})(.*)/,
+              regExp: /^(\w+:\/\/[^/]+\/videos\/watch\/\w{8}-\w{4}-\w{4}-\w{4}-\w{12})(.*)/,
               el(a) {
                   let start;
                   const options = (start = a.dataset.options.match(/[?&](start=\w+)/)) ? `?${start[1]}` : '';
@@ -17536,7 +17538,7 @@ vp-replace
           },
           {
               key: 'BitChute',
-              regExp: /^\w+:\/\/(?:www\.)?bitchute\.com\/video\/([\w\-]+)/,
+              regExp: /^\w+:\/\/(?:www\.)?bitchute\.com\/video\/([\w-]+)/,
               el(a) {
                   const el = $$1.el('iframe', { src: `https://www.bitchute.com/embed/${a.dataset.uid}/` });
                   el.setAttribute('allowfullscreen', 'true');
@@ -17585,7 +17587,7 @@ vp-replace
           },
           {
               key: 'Gist',
-              regExp: /^\w+:\/\/gist\.github\.com\/[\w\-]+\/(\w+)/,
+              regExp: /^\w+:\/\/gist\.github\.com\/[\w-]+\/(\w+)/,
               style: '',
               el: (function () {
                   let counter = 0;
@@ -17607,7 +17609,7 @@ vp-replace
                   api(uid) { return `https://api.github.com/gists/${uid}`; },
                   text({ files }) {
                       for (const file in files) {
-                          if (files.hasOwnProperty(file)) {
+                          if (Object.prototype.hasOwnProperty.call(files, file)) {
                               return file;
                           }
                       }
@@ -17632,7 +17634,7 @@ vp-replace
           },
           {
               key: 'Loopvid',
-              regExp: /^\w+:\/\/(?:www\.)?loopvid.appspot.com\/#?((?:pf|kd|lv|gd|gh|db|dx|nn|cp|wu|ig|ky|mf|m2|pc|1c|pi|ni|wl|ko|mm|ic|gc)\/[\w\-\/]+(?:,[\w\-\/]+)*|fc\/\w+\/\d+|https?:\/\/.+)/,
+              regExp: /^\w+:\/\/(?:www\.)?loopvid.appspot.com\/#?((?:pf|kd|lv|gd|gh|db|dx|nn|cp|wu|ig|ky|mf|m2|pc|1c|pi|ni|wl|ko|mm|ic|gc)\/[\w\-/]+(?:,[\w\-/]+)*|fc\/\w+\/\d+|https?:\/\/.+)/,
               style: 'max-width: 80vw; max-height: 80vh;',
               el(a) {
                   const el = $$1.el('video', {
@@ -17654,9 +17656,9 @@ vp-replace
                           default: return ['.webm', '.mp4'];
                       }
                   })();
-                  for (var name of names.split(',')) {
-                      for (var type of types) {
-                          var base = `${name}${type}`;
+                  for (const name of names.split(',')) {
+                      for (const type of types) {
+                          const base = `${name}${type}`;
                           const urls = (() => {
                               switch (host) {
                                   // list from src/common.py at http://loopvid.appspot.com/source.html
@@ -17706,14 +17708,14 @@ vp-replace
           },
           {
               key: 'Pastebin',
-              regExp: /^\w+:\/\/(?:\w+\.)?pastebin\.com\/(?!u\/)(?:[\w.]+(?:\/|\?i\=))?(\w+)/,
+              regExp: /^\w+:\/\/(?:\w+\.)?pastebin\.com\/(?!u\/)(?:[\w.]+(?:\/|\?i=))?(\w+)/,
               el(a) {
                   return $$1.el('iframe', { src: `//pastebin.com/embed_iframe.php?i=${a.dataset.uid}` });
               }
           },
           {
               key: 'SoundCloud',
-              regExp: /^\w+:\/\/(?:www\.)?(?:soundcloud\.com\/|snd\.sc\/)([\w\-\/]+)/,
+              regExp: /^\w+:\/\/(?:www\.)?(?:soundcloud\.com\/|snd\.sc\/)([\w\-/]+)/,
               style: 'border: 0; width: 500px; height: 400px;',
               el(a) {
                   return $$1.el('iframe', { src: `https://w.soundcloud.com/player/?visual=true&show_comments=false&url=https%3A%2F%2Fsoundcloud.com%2F${encodeURIComponent(a.dataset.uid)}` });
@@ -17746,10 +17748,10 @@ vp-replace
           },
           {
               key: 'TwitchTV',
-              regExp: /^\w+:\/\/(?:www\.|secure\.|clips\.|m\.)?twitch\.tv\/(\w[^#\&\?]*)/,
+              regExp: /^\w+:\/\/(?:www\.|secure\.|clips\.|m\.)?twitch\.tv\/(\w[^#&?]*)/,
               el(a) {
                   let url;
-                  let m = a.dataset.href.match(/^\w+:\/\/(?:(clips\.)|\w+\.)?twitch\.tv\/(?:\w+\/)?(clip\/)?(\w[^#\&\?]*)/);
+                  let m = a.dataset.href.match(/^\w+:\/\/(?:(clips\.)|\w+\.)?twitch\.tv\/(?:\w+\/)?(clip\/)?(\w[^#&?]*)/);
                   if (m[1] || m[2]) {
                       url = `//clips.twitch.tv/embed?clip=${m[3]}&parent=${location.hostname}`;
                   }
@@ -17786,7 +17788,7 @@ vp-replace
                   if ($$1.engine === 'gecko') {
                       // XXX https://bugzilla.mozilla.org/show_bug.cgi?id=680823
                       el.style.cssText = 'border: none; width: 100%; height: 100%;';
-                      var cont = $$1.el('div');
+                      const cont = $$1.el('div');
                       $$1.add(cont, el);
                       return cont;
                   }
@@ -17841,9 +17843,9 @@ vp-replace
           },
           {
               key: 'YouTube',
-              regExp: /^\w+:\/\/(?:youtu.be\/|[\w.]*youtube[\w.]*\/.*(?:v=|\bembed\/|\bv\/|live\/))([\w\-]{11})(.*)/,
+              regExp: /^\w+:\/\/(?:youtu.be\/|[\w.]*youtube[\w.]*\/.*(?:v=|\bembed\/|\bv\/|live\/))([\w-]{11})(.*)/,
               el(a) {
-                  let start = a.dataset.options.match(/\b(?:star)?t\=(\w+)/);
+                  let start = a.dataset.options.match(/\b(?:star)?t=(\w+)/);
                   if (start) {
                       start = start[1];
                   }
@@ -18085,7 +18087,7 @@ vp-replace
                   if (!ImageExpand.enabled || !threadRoot) {
                       return;
                   }
-                  var post = Get$1.postFromNode(Keybinds.post(threadRoot));
+                  const post = Get$1.postFromNode(Keybinds.post(threadRoot));
                   if (post.file) {
                       ImageExpand.toggle(post);
                   }
@@ -18158,7 +18160,7 @@ vp-replace
                   if (g.VIEW !== 'index') {
                       return;
                   }
-                  var searchInput = Index$1.enabled ?
+                  const searchInput = Index$1.enabled ?
                       Index$1.searchInput
                       : g.SITE.selectors.searchBox ?
                           $$1(g.SITE.selectors.searchBox)
@@ -18731,7 +18733,7 @@ vp-replace
           afterSetup(mutations) {
               for (const mutation of mutations) {
                   for (const node of mutation.addedNodes) {
-                      var iframe, textarea;
+                      let iframe, textarea;
                       if (iframe = $$1.x('./descendant-or-self::iframe[starts-with(@src, "https://www.google.com/recaptcha/")]', node)) {
                           this.setupIFrame(iframe);
                       }
@@ -19183,7 +19185,7 @@ vp-replace
           let text = post.board.ID === g.BOARD.ID ? `>>${post}\n` : `>>>/${post.board}/${post}\n`;
           for (let i = 0, end = sel.rangeCount, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
               try {
-                  var insideCode, node;
+                  let insideCode, node;
                   range = sel.getRangeAt(i);
                   // Trim range to be fully inside post
                   if (range.compareBoundaryPoints(Range.START_TO_START, postRange) < 0) {
@@ -19317,7 +19319,7 @@ vp-replace
           let file = null;
           let score = -1;
           for (const item of e.clipboardData.items) {
-              var file2;
+              let file2;
               if ((item.kind === 'file') && (file2 = item.getAsFile())) {
                   const score2 = (2 * (file2.size <= QR.max_size)) + (file2.type === 'image/png');
                   if (score2 > score) {
@@ -19343,7 +19345,7 @@ vp-replace
           const images = $$('img', pasteArea);
           $$1.rmAll(pasteArea);
           for (const img of images) {
-              var m;
+              let m;
               const { src } = img;
               if (m = src.match(/data:(image\/(\w+));base64,(.+)/)) {
                   const bstr = atob(m[3]);
@@ -19534,7 +19536,7 @@ vp-replace
           let i = 0;
           const save = function () { return QR.selected.save(this); };
           while ((name = items[i++])) {
-              var node;
+              let node;
               if (!(node = nodes[name])) {
                   continue;
               }
@@ -20543,7 +20545,7 @@ vp-replace
                   return;
               }
               for (const name of ['thread', 'name', 'email', 'sub', 'com', 'fileButton', 'filename', 'spoiler', 'flag']) {
-                  var node;
+                  let node;
                   if ((node = QR.nodes[name])) {
                       node.disabled = lock;
                   }
@@ -20572,7 +20574,7 @@ vp-replace
           load() {
               // Load this post's values.
               for (const name of ['thread', 'name', 'email', 'sub', 'com', 'filename', 'flag']) {
-                  var node;
+                  let node;
                   if (!(node = QR.nodes[name])) {
                       continue;
                   }
@@ -20627,7 +20629,7 @@ vp-replace
               // Do this in case people use extensions
               // that do not trigger the `input` event.
               for (const name of ['thread', 'name', 'email', 'sub', 'com', 'filename', 'spoiler', 'flag']) {
-                  var node;
+                  let node;
                   if (!(node = QR.nodes[name])) {
                       continue;
                   }
@@ -20667,7 +20669,7 @@ vp-replace
           static rmErrored(e) {
               e.stopPropagation();
               for (let i = QR.posts.length - 1; i >= 0; i--) {
-                  var errors;
+                  let errors;
                   const post = QR.posts[i];
                   if ((errors = post.errors)) {
                       for (const error of errors) {
@@ -20771,7 +20773,7 @@ vp-replace
                   this.setThumbnail(el);
                   return $$1.event('QRMetadata', null, this.nodes.el);
               };
-              var onerror = () => {
+              const onerror = () => {
                   $$1.off(el, event, onload);
                   $$1.off(el, 'error', onerror);
                   this.fileError(`Corrupt ${isVideo ? 'video' : 'image'} or error reading metadata.`, meta.faq + '#error-reading-metadata');
@@ -21064,7 +21066,7 @@ vp-replace
               if (data == null) {
                   return cb(null);
               }
-              let name = url.match(/([^\/?#]+)\/*(?:$|[?#])/)?.[1];
+              let name = url.match(/([^/?#]+)\/*(?:$|[?#])/)?.[1];
               const contentType = headers.match(/Content-Type:\s*(.*)/i)?.[1];
               const contentDisposition = headers.match(/Content-Disposition:\s*(.*)/i)?.[1];
               let mime = contentType?.match(/[^;]*/)[0] || 'application/octet-stream';
@@ -21094,7 +21096,7 @@ vp-replace
                   if ((this.responseHeaders == null) && (this.responseHeaderString != null)) {
                       this.responseHeaders = dict();
                       for (const header of this.responseHeaderString.split('\r\n')) {
-                          var i;
+                          let i;
                           if ((i = header.indexOf(':')) >= 0) {
                               const key = header.slice(0, i).trim().toLowerCase();
                               const val = header.slice(i + 1).trim();
@@ -21525,7 +21527,7 @@ vp-replace
       if (el = $(selector, root)) {
           return cb(el);
       }
-      var observer = new MutationObserver(function () {
+      const observer = new MutationObserver(function () {
           if (el = $(selector, root)) {
               observer.disconnect();
               return cb(el);
@@ -21956,7 +21958,7 @@ vp-replace
                   return cb?.();
               });
           };
-          var setSync = debounce(SECOND, () => setArea('sync'));
+          const setSync = debounce(SECOND, () => setArea('sync'));
           $.set = $.oneItemSugar(function (data, cb) {
               if (!$.crxWorking()) {
                   return;
@@ -21997,7 +21999,7 @@ vp-replace
           $.on($.syncChannel, 'message', e => (() => {
               const result = [];
               for (const key in e.data) {
-                  var cb;
+                  let cb;
                   const val = e.data[key];
                   if (cb = $.syncing[key]) {
                       result.push(cb(dict.json(JSON.stringify(val)), key));
@@ -22190,7 +22192,7 @@ vp-replace
           $.get = $.oneItemSugar((items, cb) => $.queueTask($.getSync, items, cb));
           $.getSync = function (items, cb) {
               for (const key in items) {
-                  var val2;
+                  let val2;
                   if (val2 = $.getValue(g.NAMESPACE + key)) {
                       try {
                           items[key] = dict.json(val2);
@@ -22331,7 +22333,7 @@ vp-replace
           //   get all of their backlinks.
           if (Conf['Quote Backlinks']) {
               for (const quote of post.quotes) {
-                  var qPost;
+                  let qPost;
                   if ((qPost = posts.get(quote))) {
                       handleQuotes(qPost, 'backlinks');
                   }
@@ -22377,7 +22379,7 @@ vp-replace
                       continue;
                   }
                   // Don't mix up filter flags with the regular expression.
-                  var filter = line.replace(regexp[0], '');
+                  const filter = line.replace(regexp[0], '');
                   // List of the boards this filter applies to.
                   const boards = this.parseBoards(filter.match(/(?:^|;)\s*boards:([^;]+)/)?.[1]);
                   // Boards to exclude from an otherwise global rule.
@@ -22902,7 +22904,7 @@ vp-replace
           }
           return $$1.onExists(doc$1, 'body', () => {
               for (const software in SW) {
-                  var changes;
+                  let changes;
                   if (changes = SW[software].detect?.()) {
                       changes.software = software;
                       hostname = location.hostname.replace(/^www\./, '');
@@ -22945,7 +22947,7 @@ vp-replace
       },
       set(hostname) {
           for (const ID in Conf['siteProperties']) {
-              var site;
+              let site;
               const properties = Conf['siteProperties'][ID];
               if (properties.canonical) {
                   continue;
@@ -22980,7 +22982,7 @@ vp-replace
               })();
               $$1.ready(function () {
                   for (const link of $$(selector)) {
-                      var catalogURL;
+                      let catalogURL;
                       switch (link.pathname.replace(/\/+/g, '/')) {
                           case `/${g.BOARD}/`:
                               if (Conf['JSON Index']) {
@@ -23023,8 +23025,8 @@ vp-replace
       },
       node() {
           for (const a of $$('a', this.nodes.comment)) {
-              var m;
-              if (m = a.href.match(/^https?:\/\/(boards\.4chan(?:nel)?\.org\/[^\/]+)\/catalog(#s=.*)?/)) {
+              let m;
+              if (m = a.href.match(/^https?:\/\/(boards\.4chan(?:nel)?\.org\/[^/]+)\/catalog(#s=.*)?/)) {
                   a.href = `//${m[1]}/${m[2] || '#catalog'}`;
               }
           }
@@ -23051,7 +23053,7 @@ vp-replace
           for (const a of $$('a:not([data-only])', list)) {
               let { siteID, boardID } = a.dataset;
               if (!siteID || !boardID) {
-                  var VIEW;
+                  let VIEW;
                   ({ siteID, boardID, VIEW } = Site.parseURL(a));
                   if (!siteID || !boardID ||
                       !['index', 'catalog'].includes(VIEW) ||
@@ -23312,7 +23314,7 @@ vp-replace
           });
           let indexOptions = [];
           t = t.replace(/-(?:mode|sort):"([^"]+)"/g, function (m0, m1) {
-              indexOptions.push(m1.toLowerCase().replace(/\ /g, '-'));
+              indexOptions.push(m1.toLowerCase().replace(/ /g, '-'));
               return '';
           });
           indexOptions = indexOptions.join('/');
@@ -23734,7 +23736,7 @@ vp-replace
                   return;
           }
           const el = $$1.el('span', { innerHTML: `${meta.name} needs your permission to show desktop notifications. ` +
-                  `[<a href=\"${meta.faq}#why-is-4chan-x-asking-for-permission-to-show-desktop-notifications\" target=\"_blank\">FAQ</a>]` +
+                  `[<a href="${meta.faq}#why-is-4chan-x-asking-for-permission-to-show-desktop-notifications" target="_blank">FAQ</a>]` +
                   '<br><button>Authorize</button> or <button>Disable</button>'
           });
           const [authorize, disable] = $$('button', el);
@@ -23968,7 +23970,7 @@ vp-replace
           for (const boardID in Conf['selectedArchives']) {
               const record = Conf['selectedArchives'][boardID];
               for (const [type, id] of Object.entries(record)) {
-                  var archive;
+                  let archive;
                   if ((archive = archives[JSON.stringify(id)]) && $$1.hasOwn(o, type)) {
                       const boards = type === 'file' ? archive.files : archive.boards;
                       if (boards.includes(boardID)) {
@@ -24011,7 +24013,7 @@ vp-replace
               for (let i = 0; i < urls.length; i++) {
                   url = urls[i];
                   if (['[', '{'].includes(url[0])) {
-                      var response;
+                      let response;
                       try {
                           response = JSON.parse(url);
                       }
@@ -24486,7 +24488,7 @@ vp-replace
           for (let i = 0; i < this.files.length; i++) {
               const file = this.files[i];
               if (/webm$/i.test(file.url)) {
-                  var el;
+                  let el;
                   if (this.isClone) {
                       el = $$1('.webm-title', file.text);
                   }
@@ -24540,7 +24542,7 @@ vp-replace
               }
               return n;
           };
-          var i = 0;
+          let i = 0;
           while (i < data.length) {
               const element = readInt();
               let size = readInt();
@@ -24648,7 +24650,7 @@ vp-replace
           let i = 0;
           const links = [];
           while ((node = snapshot.snapshotItem(i++))) {
-              var result;
+              let result;
               let { data } = node;
               if (!data || (node.parentElement.nodeName === 'A')) {
                   continue;
@@ -24659,12 +24661,12 @@ vp-replace
                   let word = result[0];
                   // End of node, not necessarily end of space-delimited string
                   if ((length = index + word.length) === data.length) {
-                      var saved;
+                      let saved;
                       test.lastIndex = 0;
                       while (saved = snapshot.snapshotItem(i++)) {
-                          var end;
+                          let end;
                           if ((saved.nodeName === 'BR') || ((saved.parentElement.nodeName === 'P') && !saved.previousSibling)) {
-                              var part1, part2;
+                              let part1, part2;
                               if (
                               // link deliberately split
                               (part1 = word.match(/(https?:\/\/)?([a-z\d-]+\.)*[a-z\d-]+$/i)) &&
@@ -24751,7 +24753,7 @@ aero|asia|biz|cat|com|coop|dance|info|int|jobs|mobi|moe|museum|name|net|org|post
           // Clean end of range
           i = 0;
           while (/[)\]}>.,]/.test(t = text.charAt(text.length - (1 + i)))) {
-              if (!/[.,]/.test(t) && !((text.match(/[()\[\]{}<>]/g)).length % 2)) {
+              if (!/[.,]/.test(t) && !((text.match(/[()[\]{}<>]/g)).length % 2)) {
                   break;
               }
               i++;
@@ -25736,7 +25738,7 @@ aero|asia|biz|cat|com|coop|dance|info|int|jobs|mobi|moe|museum|name|net|org|post
       },
       find(jumper, dir) {
           const { type, value } = jumper.dataset;
-          const xpath = `span[contains(@class,\"postJumper\") and @data-value=\"${value}\" and @data-type=\"${type}\"]`;
+          const xpath = `span[contains(@class,"postJumper") and @data-value="${value}" and @data-type="${type}"]`;
           const axis = dir < 0 ? 'preceding' : 'following';
           let jumper2 = jumper;
           while (jumper2 = $$1.x(`${axis}::${xpath}`, jumper2)) {
@@ -25987,7 +25989,7 @@ aero|asia|biz|cat|com|coop|dance|info|int|jobs|mobi|moe|museum|name|net|org|post
                       event = new CustomEvent('QRPostSuccessful', { bubbles: true, detail });
                       return document.dispatchEvent(event);
                   });
-                  var originalNoko = window.tb_settings?.ajax?.always_noko_replies;
+                  const originalNoko = window.tb_settings?.ajax?.always_noko_replies;
                   return (((base = window.tb_settings || (window.tb_settings = {}))).ajax || (base.ajax = {})).always_noko_replies = true;
               }, { boardID: g.BOARD.ID, threadID: g.THREADID }));
           }
@@ -26023,7 +26025,7 @@ aero|asia|biz|cat|com|coop|dance|info|int|jobs|mobi|moe|museum|name|net|org|post
           }
           switch (ipCount - MarkNewIPs.ipCount) {
               case (postCount - MarkNewIPs.postCount) + deletedPosts.length:
-                  var i = MarkNewIPs.ipCount;
+                  const i = MarkNewIPs.ipCount;
                   for (fullID of newPosts) {
                       MarkNewIPs.markNew(g.posts.get(fullID), ++i);
                   }
@@ -26440,7 +26442,7 @@ aero|asia|biz|cat|com|coop|dance|info|int|jobs|mobi|moe|museum|name|net|org|post
               $$1.add(a, QuoteYou.mark.cloneNode(true));
           }
           for (const quote of this.quotes) {
-              var post;
+              let post;
               const containers = [QuoteBacklink.getContainer(quote)];
               if ((post = g.posts.get(quote)) && post.nodes.backlinkContainer) {
                   // Don't add OP clones when OP Backlinks is disabled,
@@ -27112,7 +27114,7 @@ aero|asia|biz|cat|com|coop|dance|info|int|jobs|mobi|moe|museum|name|net|org|post
               }
               catch (err) {
                   Main.handleErrors({
-                      message: `\"${name}\" initialization crashed.`,
+                      message: `"${name}" initialization crashed.`,
                       error: err
                   });
               }
@@ -27319,7 +27321,7 @@ aero|asia|biz|cat|com|coop|dance|info|int|jobs|mobi|moe|museum|name|net|org|post
           }
       },
       parseThreads(threadRoots, threads, posts, errors) {
-          for (var threadRoot of threadRoots) {
+          for (const threadRoot of threadRoots) {
               const boardObj = (() => {
                   let boardID;
                   if (boardID = threadRoot.dataset.board) {
@@ -27551,7 +27553,7 @@ aero|asia|biz|cat|com|coop|dance|info|int|jobs|mobi|moe|museum|name|net|org|post
           $$1.on(div.lastElementChild, 'click', function () {
               return [this.textContent, logs.hidden] = this.textContent === 'show' ? ['hide', false] : ['show', true];
           });
-          var logs = $$1.el('div', { hidden: true });
+          const logs = $$1.el('div', { hidden: true });
           for (error of errors) {
               $$1.add(logs, Main.parseError(error));
           }

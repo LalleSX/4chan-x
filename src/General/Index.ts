@@ -74,7 +74,7 @@ const Index = {
     this.currentPage = this.getCurrentPage()
     this.processHash()
 
-    $.addClass(doc, 'index-loading', `${Conf['Index Mode'].replace(/\ /g, '-')}-mode`)
+    $.addClass(doc, 'index-loading', `${Conf['Index Mode'].replace(/ /g, '-')}-mode`)
     $.on(window, 'popstate', this.cb.popstate)
     $.on(d, 'scroll', this.scroll)
     $.on(d, 'SortIndex', this.cb.resort)
@@ -188,7 +188,7 @@ const Index = {
 
     this.update(true)
 
-    $.onExists(doc, 'title + *', () => d.title = d.title.replace(/\ -\ Page\ \d+/, ''))
+    $.onExists(doc, 'title + *', () => d.title = d.title.replace(/ - Page \d+/, ''))
 
     $.onExists(doc, '.board > .thread > .postContainer, .board + *', function() {
       let el
@@ -530,7 +530,7 @@ const Index = {
     const commands = hash.slice(1).split('/')
     const leftover = []
     for (const command of commands) {
-      var mode, sort
+      let mode, sort
       if (mode = $.getOwn(Index.hashCommands.mode, command)) {
         state.mode = mode
       } else if (command === 'index') {
@@ -639,7 +639,7 @@ const Index = {
 
   setupMode() {
     for (const mode of ['paged', 'infinite', 'all pages', 'catalog']) {
-      $[mode === Conf['Index Mode'] ? 'addClass' : 'rmClass'](doc, `${mode.replace(/\ /g, '-')}-mode`)
+      $[mode === Conf['Index Mode'] ? 'addClass' : 'rmClass'](doc, `${mode.replace(/ /g, '-')}-mode`)
     }
     Index.selectMode.value = Conf['Index Mode']
     Index.cb.size()
@@ -843,7 +843,7 @@ const Index = {
     Index.parsedThreads     = dict()
     Index.replyData         = dict()
     for (let i = 0; i < Index.liveThreadData.length; i++) {
-      var obj, results
+      let obj, results
       const data = Index.liveThreadData[i]
       Index.liveThreadDict[data.no] = data
       Index.threadPosition[data.no] = i
@@ -886,9 +886,9 @@ const Index = {
     const newThreads = []
     let newPosts   = []
     for (const ID of threadIDs) {
-      var opRoot, thread
+      let opRoot, thread
       try {
-        var OP
+        let OP
         const threadData = Index.liveThreadDict[ID]
 
         if (thread = g.BOARD.threads.get(ID)) {
@@ -954,11 +954,11 @@ const Index = {
     let errors
     const posts = []
     for (const thread of threads) {
-      var lastReplies
+      let lastReplies
       if (!(lastReplies = Index.liveThreadDict[thread.ID].last_replies)) { continue }
       const nodes = []
       for (const data of lastReplies) {
-        var node, post
+        let node, post
         if ((post = thread.posts.get(data.no)) && !post.isFetchedQuote) {
           nodes.push(post.nodes.root)
           continue
@@ -1036,8 +1036,8 @@ const Index = {
     const sortType = Index.currentSort.replace(/-rev$/, '')
     Index.sortedThreadIDs = (() => { switch (sortType) {
       case 'lastreply': case 'lastlong':
-        var repliesAvailable = liveThreadData.some(thread => thread.last_replies?.length)
-        var lastlong = function(thread) {
+        const repliesAvailable = liveThreadData.some(thread => thread.last_replies?.length)
+        const lastlong = function(thread) {
           if (!repliesAvailable) {
             return thread.last_modified
           }
@@ -1055,7 +1055,7 @@ const Index = {
           }
           if (thread.omitted_posts && thread.last_replies?.length) { return thread.last_replies[0] } else { return thread }
         }
-        var lastlongD = dict()
+        const lastlongD = dict()
         for (const thread of liveThreadData) {
           lastlongD[thread.no] = lastlong(thread).no
         }

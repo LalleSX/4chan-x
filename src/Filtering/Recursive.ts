@@ -20,7 +20,7 @@ const Recursive = {
   node() {
     if (this.isClone || this.isFetchedQuote) { return }
     for (const quote of this.quotes) {
-      var obj
+      let obj
       if ((obj = Recursive.recursives[quote])) {
         for (let i = 0; i < obj.recursives.length; i++) {
           const recursive = obj.recursives[i]

@@ -53,7 +53,7 @@ const QuoteBacklink = {
     )
     if (markYours) { $.add(a, QuoteYou.mark.cloneNode(true)) }
     for (const quote of this.quotes) {
-      var post
+      let post
       const containers = [QuoteBacklink.getContainer(quote)]
       if ((post = g.posts.get(quote)) && post.nodes.backlinkContainer) {
         // Don't add OP clones when OP Backlinks is disabled,

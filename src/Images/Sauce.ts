@@ -21,7 +21,7 @@ const Sauce = {
 
     const links = []
     for (link of Conf['sauces'].split('\n')) {
-      var linkData
+      let linkData
       if ((link[0] !== '#') && (linkData = this.parseLink(link))) {
         links.push(linkData)
       }
@@ -90,7 +90,7 @@ const Sauce = {
     if (!!parts['regexp'] && (!(matches = file.name.match(parts['regexp'])))) { return null }
 
     const missing = []
-    for (var key of ['url', 'text']) {
+    for (const key of ['url', 'text']) {
       parts[key] = parts[key].replace(/%(T?URL|IMG|[sh]?MD5|board|name|%|semi|\$\d+)/g, function(orig, parameter) {
         let type
         if (parameter[0] === '$') {
@@ -147,10 +147,10 @@ const Sauce = {
     $.add(file.text, nodes)
 
     if (skipped.length) {
-      var observer = new MutationObserver(function() {
+      const observer = new MutationObserver(function() {
         if (file.text.dataset.md5) {
           for ([link, node] of skipped) {
-            var node2
+            let node2
             if (node2 = Sauce.createSauceLink(link, post, file)) {
               $.replace(node, node2)
             }

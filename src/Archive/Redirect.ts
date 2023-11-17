@@ -54,7 +54,7 @@ const Redirect = {
     for (const boardID in Conf['selectedArchives']) {
       const record = Conf['selectedArchives'][boardID]
       for (const [type, id] of Object.entries(record)) {
-        var archive
+        let archive
         if ((archive = archives[JSON.stringify(id)]) && $.hasOwn(o, type)) {
           const boards = type === 'file' ? archive.files : archive.boards
           if (boards.includes(boardID)) { o[type].set(boardID, archive) }
@@ -94,7 +94,7 @@ const Redirect = {
       for (let i = 0; i < urls.length; i++) {
         url = urls[i]
         if (['[', '{'].includes(url[0])) {
-          var response
+          let response
           try {
             response = JSON.parse(url)
           } catch (err) {

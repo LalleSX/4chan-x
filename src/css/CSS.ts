@@ -86,7 +86,7 @@ const CSS = {
     const variables = {
       site: g.SITE.selectors
     }
-    return css.replace(/\$[\w\$]+/g, function(name) {
+    return css.replace(/\$[\w$]+/g, function(name) {
       const words = name.slice(1).split('$')
       let sel = variables
       for (let i = 0; i < words.length; i++) {

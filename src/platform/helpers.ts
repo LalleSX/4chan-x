@@ -1,7 +1,7 @@
 // This file was created because these functions on $ were sometimes not initialized yet because of circular
 // dependencies, so try to keep this file without dependencies, so these functions don't have to wait for something else
 
-export const debounce = (wait: number, fn: Function) => {
+export const debounce = (wait: number, fn) => {
   let lastCall = 0
   let timeout = null
   let that = null

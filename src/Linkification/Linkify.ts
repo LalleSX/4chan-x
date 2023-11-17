@@ -52,7 +52,7 @@ const Linkify = {
     let i = 0
     const links = []
     while ((node = snapshot.snapshotItem(i++))) {
-      var result
+      let result
       let {data} = node
       if (!data || (node.parentElement.nodeName === 'A')) { continue }
 
@@ -62,13 +62,13 @@ const Linkify = {
         let word    = result[0]
         // End of node, not necessarily end of space-delimited string
         if ((length = index + word.length) === data.length) {
-          var saved
+          let saved
           test.lastIndex = 0
 
           while (saved = snapshot.snapshotItem(i++)) {
-            var end
+            let end
             if ((saved.nodeName === 'BR') || ((saved.parentElement.nodeName === 'P') && !saved.previousSibling)) {
-              var part1, part2
+              let part1, part2
               if (
                 // link deliberately split
                 (part1 = word.match(/(https?:\/\/)?([a-z\d-]+\.)*[a-z\d-]+$/i)) &&
@@ -162,7 +162,7 @@ aero|asia|biz|cat|com|coop|dance|info|int|jobs|mobi|moe|museum|name|net|org|post
     // Clean end of range
     i = 0
     while (/[)\]}>.,]/.test(t = text.charAt(text.length - (1 + i)))) {
-      if (!/[.,]/.test(t) && !((text.match(/[()\[\]{}<>]/g)).length % 2)) { break }
+      if (!/[.,]/.test(t) && !((text.match(/[()[\]{}<>]/g)).length % 2)) { break }
       i++
     }
 

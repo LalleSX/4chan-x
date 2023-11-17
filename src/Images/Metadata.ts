@@ -23,7 +23,7 @@ const Metadata = {
   node() {
     for (let i = 0; i < this.files.length; i++) {
       const file = this.files[i]
-      if (/webm$/i.test(file.url)) {var el
+      if (/webm$/i.test(file.url)) {let el
       
         if (this.isClone) {
           el = $('.webm-title', file.text)
@@ -76,7 +76,7 @@ const Metadata = {
       return n
     }
 
-    var i = 0
+    let i = 0
     while (i < data.length) {
       const element = readInt()
       let size    = readInt()

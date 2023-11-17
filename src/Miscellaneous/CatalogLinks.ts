@@ -27,7 +27,7 @@ const CatalogLinks = {
       } })()
       $.ready(function() {
         for (const link of $$(selector)) {
-          var catalogURL
+          let catalogURL
           switch (link.pathname.replace(/\/+/g, '/')) {
             case `/${g.BOARD}/`:
               if (Conf['JSON Index']) { link.textContent = 'Index' }
@@ -71,8 +71,8 @@ const CatalogLinks = {
 
   node() {
     for (const a of $$('a', this.nodes.comment)) {
-      var m
-      if (m = a.href.match(/^https?:\/\/(boards\.4chan(?:nel)?\.org\/[^\/]+)\/catalog(#s=.*)?/)) {
+      let m
+      if (m = a.href.match(/^https?:\/\/(boards\.4chan(?:nel)?\.org\/[^/]+)\/catalog(#s=.*)?/)) {
         a.href = `//${m[1]}/${m[2] || '#catalog'}`
       }
     }
@@ -102,7 +102,7 @@ const CatalogLinks = {
     for (const a of $$('a:not([data-only])', list)) {
       let {siteID, boardID} = a.dataset
       if (!siteID || !boardID) {
-        var VIEW;
+        let VIEW;
         ({siteID, boardID, VIEW} = Site.parseURL(a))
         if (
           !siteID || !boardID ||

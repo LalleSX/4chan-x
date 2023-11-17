@@ -136,7 +136,7 @@ const SWYotsuba = {
 $\
 '),
     quotelinkHTML:
-      /<a [^>]*\bhref="(?:(?:\/\/boards\.4chan(?:nel)?\.org)?\/([^\/]+)\/thread\/)?(\d+)?(?:#p(\d+))?"/g,
+      /<a [^>]*\bhref="(?:(?:\/\/boards\.4chan(?:nel)?\.org)?\/([^/]+)\/thread\/)?(\d+)?(?:#p(\d+))?"/g,
     pass:
       /^https?:\/\/www\.4chan(?:nel)?\.org\/+pass(?:$|[?#])/,
     captcha:
@@ -187,7 +187,7 @@ $\
         }
         return
       case 'sys.4chan.org': case 'sys.4channel.org':
-        var pathname = location.pathname.split(/\/+/)
+        const pathname = location.pathname.split(/\/+/)
         if (pathname[2] === 'imgboard.php') {
           let match
           if (/\bmode=report\b/.test(location.search)) {
@@ -242,7 +242,7 @@ $\
       return (() => {
         const result = []
         for (const type of ['Sticky', 'Closed']) {
-          var icon
+          let icon
           if (icon = $(`img[alt=${type}]`, nodes.info)) {
             result.push($.addClass(icon, `${type.toLowerCase()}Icon`, 'retina'))
           }
@@ -290,7 +290,7 @@ $\
         $.rm(node)
       }
       for (let i = 0; i < 2; i++) {
-        var br
+        let br
         if ((br = abbr.previousSibling) && (br.nodeName === 'BR')) { $.rm(br) }
       }
       return $.rm(abbr)
@@ -358,7 +358,7 @@ $\
           }
           break
         case 'A':
-          var a = node.cloneNode(true)
+          const a = node.cloneNode(true)
           nodes.push(a)
           break
       }
@@ -372,7 +372,7 @@ $\
     spoilerRange: Object.create(null),
 
     shortFilename(filename) {
-      const ext = filename.match(/\.?[^\.]*$/)[0]
+      const ext = filename.match(/\.?[^.]*$/)[0]
       if ((filename.length - ext.length) > 30) {
         return `${filename.match(/(?:[\uD800-\uDBFF][\uDC00-\uDFFF]|[^]){0,25}/)[0]}(...)${ext}`
       } else {
@@ -585,7 +585,7 @@ $\
             quote.href = this.threadURL(boardID, threadID) + href
           }
         } else {
-          var match
+          let match
           if ((match = quote.href.match(SWYotsuba.regexp.quotelink)) && (this.sameThread(match[1], match[2]))) {
             quote.href = href.match(/(#[^#]*)?$/)[0] || '#'
           }

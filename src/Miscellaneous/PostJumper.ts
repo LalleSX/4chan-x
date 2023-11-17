@@ -60,7 +60,7 @@ const PostJumper = {
 
   find(jumper, dir) {
     const {type, value} = jumper.dataset
-    const xpath = `span[contains(@class,\"postJumper\") and @data-value=\"${value}\" and @data-type=\"${type}\"]`
+    const xpath = `span[contains(@class,"postJumper") and @data-value="${value}" and @data-type="${type}"]`
     const axis = dir < 0 ? 'preceding' : 'following'
     let jumper2 = jumper
     while (jumper2 = $.x(`${axis}::${xpath}`, jumper2)) {

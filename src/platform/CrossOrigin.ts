@@ -86,7 +86,7 @@ const CrossOrigin = {
   file(url, cb) {
     return CrossOrigin.binary(url, function(data, headers) {
       if (data == null) { return cb(null) }
-      let name = url.match(/([^\/?#]+)\/*(?:$|[?#])/)?.[1]
+      let name = url.match(/([^/?#]+)\/*(?:$|[?#])/)?.[1]
       const contentType        = headers.match(/Content-Type:\s*(.*)/i)?.[1]
       const contentDisposition = headers.match(/Content-Disposition:\s*(.*)/i)?.[1]
       let mime = contentType?.match(/[^;]*/)[0] || 'application/octet-stream'
@@ -118,7 +118,7 @@ const CrossOrigin = {
         if ((this.responseHeaders == null) && (this.responseHeaderString != null)) {
           this.responseHeaders = dict()
           for (const header of this.responseHeaderString.split('\r\n')) {
-            var i
+            let i
             if ((i = header.indexOf(':')) >= 0) {
               const key = header.slice(0, i).trim().toLowerCase()
               const val = header.slice(i+1).trim()

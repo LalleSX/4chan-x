@@ -302,7 +302,7 @@ $.onExists = function(root, selector, cb) {
   if (el = $(selector, root)) {
     return cb(el)
   }
-  var observer = new MutationObserver(function() {
+  const observer = new MutationObserver(function() {
     if (el = $(selector, root)) {
       observer.disconnect()
       return cb(el)
@@ -477,7 +477,7 @@ $.debounce = function(wait, fn) {
     return fn.apply(that, args)
   }
   return function() {
-    args = arguments
+args = arguments
     that = this
     if (lastCall < (Date.now() - wait)) {
       return exec()
@@ -727,7 +727,7 @@ if (platform === 'crx') {
       })
     }
 
-    var setSync = debounce(SECOND, () => setArea('sync'))
+    const setSync = debounce(SECOND, () => setArea('sync'))
 
     $.set = $.oneItemSugar(function(data, cb) {
       if (!$.crxWorking()) { return }
@@ -765,7 +765,7 @@ if (platform === 'crx') {
     $.on($.syncChannel, 'message', e => (() => {
       const result = []
       for (const key in e.data) {
-        var cb
+        let cb
         const val = e.data[key]
         if (cb = $.syncing[key]) {
           result.push(cb(dict.json(JSON.stringify(val)), key))
@@ -943,7 +943,7 @@ if (platform === 'crx') {
 
     $.getSync = function(items, cb) {
       for (const key in items) {
-        var val2
+        let val2
         if (val2 = $.getValue(g.NAMESPACE + key)) {
           try {
             items[key] = dict.json(val2)

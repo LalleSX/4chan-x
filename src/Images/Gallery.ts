@@ -124,7 +124,7 @@ const Gallery = {
     $.on(window, 'resize', Gallery.cb.setHeight)
 
     for (const postThumb of $$(g.SITE.selectors.file.thumb)) {
-      var post
+      let post
       if (!(post = Get.postFromNode(postThumb))) { continue }
       for (const file of post.files) {
         if (file.thumb) {
@@ -239,7 +239,7 @@ const Gallery = {
     if (Conf['Sauce'] && Sauce.links && (post = g.posts.get(file.dataset.post))) {
       const sauces = []
       for (const link of Sauce.links) {
-        var node
+        let node
         if (node = Sauce.createSauceLink(link, post, post.files[+file.dataset.file])) {
           sauces.push($.tn(' '), node)
         }

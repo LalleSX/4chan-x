@@ -182,7 +182,7 @@ const Keybinds = {
       // Images
       case Conf['Expand image']:
         if (!ImageExpand.enabled || !threadRoot) { return }
-        var post = Get.postFromNode(Keybinds.post(threadRoot))
+        const post = Get.postFromNode(Keybinds.post(threadRoot))
         if (post.file) { ImageExpand.toggle(post) }
         break
       case Conf['Expand images']:
@@ -232,7 +232,7 @@ const Keybinds = {
         break
       case Conf['Search form']:
         if (g.VIEW !== 'index') { return }
-        var searchInput = Index.enabled ?
+        const searchInput = Index.enabled ?
           Index.searchInput
         : g.SITE.selectors.searchBox ?
           $(g.SITE.selectors.searchBox)

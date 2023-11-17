@@ -32,7 +32,7 @@ const Tinyboard = {
           event = new CustomEvent('QRPostSuccessful', {bubbles: true, detail})
           return document.dispatchEvent(event)
         })
-        var originalNoko = window.tb_settings?.ajax?.always_noko_replies
+        const originalNoko = window.tb_settings?.ajax?.always_noko_replies
         return (((base = window.tb_settings || (window.tb_settings = {}))).ajax || (base.ajax = {})).always_noko_replies = true
       }
       , {boardID: g.BOARD.ID, threadID: g.THREADID}))

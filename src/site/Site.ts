@@ -28,7 +28,7 @@ const Site = {
     }
     return $.onExists(doc, 'body', () => {
       for (const software in SW) {
-        var changes
+        let changes
         if (changes = SW[software].detect?.()) {
           changes.software = software
           hostname = location.hostname.replace(/^www\./, '')
@@ -72,7 +72,7 @@ const Site = {
 
   set(hostname) {
     for (const ID in Conf['siteProperties']) {
-      var site
+      let site
       const properties = Conf['siteProperties'][ID]
       if (properties.canonical) { continue }
       const {

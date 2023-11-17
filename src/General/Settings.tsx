@@ -1026,7 +1026,7 @@ vp-replace
     for (boardID in Conf['selectedArchives']) {
       const data = Conf['selectedArchives'][boardID]
       for (const type in data) {
-        var select
+        let select
         const id = data[type]
         if (select = $(`select[data-boardid='${boardID}'][data-type='${type}']`, tbody)) {
           select.value = JSON.stringify(id)
