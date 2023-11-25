@@ -27,7 +27,7 @@ $.ready = function(fc) {
     $.off(d, 'DOMContentLoaded', cb)
     return fc()
   }
-  return $.on(d, 'DOMContentLoaded', cb)
+  return $.on(document, 'DOMContentLoaded', cb)
 }
 
 $.formData = function(form) {
@@ -63,13 +63,13 @@ $.getOwn = function(obj, key) {
 
 $.ajax = (function() {
   let pageXHR
-  if (window.wrappedJSObject && !XMLHttpRequest.wrappedJSObject) {
+  if (window.wrappedJSObject && window.wrappedJSObject.XMLHttpRequest) {
     pageXHR = XPCNativeWrapper(window.wrappedJSObject.XMLHttpRequest)
   } else {
     pageXHR = XMLHttpRequest
   }
 
-  const r = (function (url, options={}) {
+  const r = (function (url, options={onloadend: null, timeout: 10000, responseType: 'json', withCredentials: false, type: 'get', onprogress: null, form: null, headers: null}) {
     if (options.responseType == null) { options.responseType = 'json' }
     if (!options.type) { options.type = (options.form && 'post') || 'get' }
     // XXX https://forums.lanik.us/viewtopic.php?f=64&t=24173&p=78310
@@ -97,7 +97,7 @@ $.ajax = (function() {
         // https://bugs.chromium.org/p/chromium/issues/detail?id=920638
         $.on(r, 'load', () => {
           if (!Conf['Work around CORB Bug'] && r.readyState === 4 && r.status === 200 && r.statusText === '' && r.response === null) {
-            $.set('Work around CORB Bug', (Conf['Work around CORB Bug'] = Date.now()))
+            $.set('Work around CORB Bug', (Conf['Work around CORB Bug'] = Date.now()), () => location.reload())
           }
         })
       }
@@ -172,7 +172,7 @@ $.ajax = (function() {
         return r.abort()
       }
       , false)
-    })
+    }, {requests: true})
 
     $.on(d, '4chanXAjaxProgress', function(e) {
       let req
@@ -196,9 +196,10 @@ $.ajax = (function() {
     })
   }
 
-  return $.ajaxPage = function(url, options={}) {
+  return $.ajaxPage = function(url: string, options={onloadend: null, timeout: 10000, responseType: 'json', withCredentials: false, type: 'get', onprogress: null, form: null, headers: null}) {
       let req
-      let {onloadend, timeout, responseType, withCredentials, type, onprogress, form, headers} = options
+      let { form } = options
+      const {onloadend, timeout, responseType, withCredentials, type, onprogress, headers } = options
         const id = requestID++
         requests[id] = (req = new CrossOrigin.Request())
       $.extend(req, {responseType, onloadend})
@@ -215,7 +216,7 @@ $.ajax = (function() {
 // With the `If-Modified-Since` header we only receive the HTTP headers and no body for 304 responses.
 // This saves a lot of bandwidth and CPU time for both the users and the servers.
 $.lastModified = dict()
-$.whenModified = function(url, bucket, cb, options={}) {
+$.whenModified = function(url, bucket, cb, options={timeout: 10000, ajax: null}) {
   let t
   const {timeout, ajax} = options
   const params = []
@@ -241,7 +242,7 @@ $.whenModified = function(url, bucket, cb, options={}) {
 
 (function() {
   const reqs = dict()
-  $.cache = function(url, cb, options={}) {
+  $.cache = function(url, cb, options={ajax: null}) {
     let req
     const {ajax} = options
     if (req = reqs[url]) {
@@ -277,13 +278,13 @@ $.whenModified = function(url, bucket, cb, options={}) {
 $.cb = {
   checked() {
     if ($.hasOwn(Conf, this.name)) {
-      $.set(this.name, this.checked)
+      $.set(this.name, this.checked, () => $.event('4chanXSettingsChange', {name: this.name}))
       return Conf[this.name] = this.checked
     }
   },
   value() {
     if ($.hasOwn(Conf, this.name)) {
-      $.set(this.name, this.value.trim())
+      $.set(this.name, this.value.trim(), () => $.event('4chanXSettingsChange', {name: this.name}))
       return Conf[this.name] = this.value
     }
   }
@@ -489,18 +490,13 @@ args = arguments
   }
 }
 
-$.queueTask = (function() {
-  const taskQueue = []
-  const execTask = function() {
-    const [func, ...args] = taskQueue.shift()
-    func(...args)
+$.queueTask = function(fn, ...args) {
+  if (args.length) {
+    return setTimeout(fn, 0, ...args)
+  } else {
+    return setTimeout(fn, 0)
   }
-  return function() {
-    taskQueue.push(arguments)
-    // setTimeout is throttled in background tabs on firefox
-    Promise.resolve().then(execTask)
-  }
-})()
+}
 
 $.global = function(fn, data) {
   if (doc) {
@@ -620,55 +616,58 @@ if (platform === 'crx') {
   $.forceSync = function() {  }
 
   $.crxWorking = function() {
-    try {
-      if (chrome.runtime.getManifest()) {
-        return true
-      }
-    } catch (error) {}
-    if (!$.crxWarningShown) {
-      const msg = $.el('div',
-        {innerHTML: '4chan X seems to have been updated. You will need to <a href="javascript:;">reload</a> the page.'})
-      $.on($('a', msg), 'click', () => location.reload())
-      new Notice('warning', msg)
-      $.crxWarningShown = true
+    if (chrome.runtime.lastError) {
+      c.error(chrome.runtime.lastError.message)
+      return false
     }
-    return false
+    return true
   }
 
   $.get = $.oneItemSugar(function(data, cb) {
-    if (!$.crxWorking()) { return }
+    if (!$.crxWorking()) {
+      return
+    }
+  
     const results = {}
-    const get = function(area) {
-      let keys = Object.keys(data)
-      // XXX slow performance in Firefox
+    let keys = Object.keys(data) // Common keys extraction
+    let hasError = false // Error flag
+  
+    const processResult = (area, result) => {
+      result = dict.clone(result)
+      if (chrome.runtime.lastError) {
+        c.error(chrome.runtime.lastError.message)
+        hasError = true
+        return
+      }
+      results[area] = result
+      if (results.local && results.sync) {
+        $.extend(results.local, results.sync)
+        cb(data)
+      }
+    }
+  
+    const get = (area) => {
+      // Moved the keys check inside the get function
       if (($.engine === 'gecko') && (area === 'sync') && (keys.length > 3)) {
         keys = null
       }
-      return chrome.storage[area].get(keys, function(result) {
-        let key
-        result = dict.clone(result)
-        if (chrome.runtime.lastError) {
-          c.error(chrome.runtime.lastError.message)
-        }
+  
+      chrome.storage[area].get(keys, function(result) {
         if (keys === null) {
-          const result2 = dict()
-          for (key in result) { const val = result[key]; if ($.hasOwn(data, key)) { result2[key] = val } }
-          result = result2
+          result = Object.fromEntries(Object.entries(result).filter(([key, _]) => $.hasOwn(data, key)))
         }
-        for (key in data) {
+  
+        for (const key in data) {
           $.oldValue[area][key] = result[key]
         }
-        results[area] = result
-        if (results.local && results.sync) {
-          $.extend(data, results.sync)
-          $.extend(data, results.local)
-          return cb(data)
-        }
+        processResult(area, result)
       })
     }
+  
     get('local')
-    return get('sync')
+    get('sync')
   });
+  
 
   (function() {
     const items = {
@@ -727,7 +726,7 @@ if (platform === 'crx') {
       })
     }
 
-    const setSync = debounce(SECOND, () => setArea('sync'))
+    const setSync = debounce(SECOND, () => setArea('sync', () => {}))
 
     $.set = $.oneItemSugar(function(data, cb) {
       if (!$.crxWorking()) { return }
@@ -779,21 +778,13 @@ if (platform === 'crx') {
     $.forceSync = function() {}
 
     $.delete = function(keys, cb) {
-      let key
       if (!(keys instanceof Array)) {
         keys = [keys]
       }
-      return Promise.all((() => {
-        const result = []
-        for (key of keys) {         result.push(GM.deleteValue(g.NAMESPACE + key))
-        }
-        return result
-      })()).then(function() {
-        const items = dict()
-        for (key of keys) { items[key] = undefined }
-        $.syncChannel.postMessage(items)
-        return cb?.()
-      })
+      for (const key of keys) {
+        $.deleteValue(g.NAMESPACE + key)
+      }
+      return cb?.()
     }
 
     $.get = $.oneItemSugar(function(items, cb) {
@@ -972,10 +963,10 @@ if (platform === 'crx') {
     $.clear = function(cb) {
       // XXX https://github.com/greasemonkey/greasemonkey/issues/2033
       // Also support case where GM_listValues is not defined.
-      $.delete(Object.keys(Conf))
-      $.delete(['previousversion', 'QR Size', 'QR.persona'])
+      $.delete(Object.keys(Conf), cb)
+      $.delete(['previousversion', 'QR Size', 'QR.persona'], cb)
       try {
-        $.delete($.listValues().map(key => key.replace(g.NAMESPACE, '')))
+        $.delete($.listValues().map(key => key.replace(g.NAMESPACE, '')), cb)
       } catch (error) {}
       return cb?.()
     }
