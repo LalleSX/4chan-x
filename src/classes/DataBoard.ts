@@ -11,6 +11,11 @@ import { dict, HOUR } from '../platform/helpers'
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
 export default class DataBoard {
+  key: any
+  static keys: string[]
+  changes: any[]
+  sync: any
+  data: any
   static initClass() {
     this.keys = ['hiddenThreads', 'hiddenPosts', 'lastReadPosts', 'yourPosts', 'watchedThreads', 'watcherLastModified', 'customTitles']
   }
@@ -145,6 +150,8 @@ export default class DataBoard {
   setLastChecked(key='lastChecked') {
     return this.save(() => {
       return this.data[key] = Date.now()
+    }, () => {
+      return this.sync?.()
     })
   }
 
@@ -191,45 +198,60 @@ export default class DataBoard {
     }
   }
 
-  ajaxClean(boardID) {
-    const that = this
+  async ajaxClean(boardID) {
     const siteID = g.SITE.ID
-    const threadsList = g.SITE.urls.threadsListJSON?.({siteID, boardID})
-    if (!threadsList) { return }
-    return $.cache(threadsList, function() {
-      if (this.status !== 200) { return }
-      const archiveList = g.SITE.urls.archiveListJSON?.({siteID, boardID})
-      if (!archiveList) { return that.ajaxCleanParse(boardID, this.response) }
-      const response1 = this.response
-      return $.cache(archiveList, function() {
-        if ((this.status !== 200) && (!!g.SITE.archivedBoardsKnown || (this.status !== 404))) { return }
-        return that.ajaxCleanParse(boardID, response1, this.response)
-      })
-    })
+    const threadsListUrl = g.SITE.urls.threadsListJSON?.({ siteID, boardID })
+    if (!threadsListUrl) {return}
+  
+    try {
+      const threadsListResponse = await $.cache(threadsListUrl)
+      if (threadsListResponse.status !== 200) {return}
+      return this.processThreadsList(boardID, threadsListResponse)
+    } catch (error) {
+      console.error('Error fetching threads list:', error)
+    }
   }
-
-  ajaxCleanParse(boardID, response1, response2) {
-    let board, ID
+  
+  async processThreadsList(boardID, threadsListResponse) {
     const siteID = g.SITE.ID
-    if (!(board = this.data[siteID].boards[boardID])) { return }
-    const threads = dict()
-    if (response1) {
-      for (const page of response1) {
-        for (const thread of page.threads) {
-          ID = thread.no
-          if (ID in board) { threads[ID] = board[ID] }
+    const archiveListUrl = g.SITE.urls.archiveListJSON?.({ siteID, boardID })
+    if (!archiveListUrl) {return this.ajaxCleanParse(boardID, threadsListResponse.response, undefined)}
+  
+    try {
+      const archiveListResponse = await $.cache(archiveListUrl)
+      if (archiveListResponse.status === 200 || (!g.SITE.archivedBoardsKnown && archiveListResponse.status === 404)) {
+        return this.ajaxCleanParse(boardID, threadsListResponse.response, archiveListResponse.response)
+      }
+    } catch (error) {
+      console.error('Error fetching archive list:', error)
+    }
+  }
+  
+  ajaxCleanParse(boardID, threadsResponse, archiveResponse) {
+    const siteID = g.SITE.ID
+    const boardData = this.data[siteID].boards[boardID]
+    if (!boardData) {return}
+  
+    const threads = new Map()
+    this.processResponse(boardData, threads, threadsResponse)
+    this.processResponse(boardData, threads, archiveResponse)
+  
+    this.data[siteID].boards[boardID] = Object.fromEntries(threads)
+    this.deleteIfEmpty({ siteID, boardID })
+    return $.set(this.key, this.data, this.sync)
+  }
+  
+  processResponse(boardData, threads, response) {
+    if (response) {
+      for (const thread of response) {
+        const threadID = thread.no
+        if (threadID in boardData) {
+          threads.set(threadID, boardData[threadID])
         }
       }
     }
-    if (response2) {
-      for (ID of response2) {
-        if (ID in board) { threads[ID] = board[ID] }
-      }
-    }
-    this.data[siteID].boards[boardID] = threads
-    this.deleteIfEmpty({siteID, boardID})
-    return $.set(this.key, this.data)
   }
+  
 
   onSync(data) {
     if ((data.version || 0) <= (this.data.version || 0)) { return }
