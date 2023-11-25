@@ -14,7 +14,7 @@ import CrossOrigin from './CrossOrigin'
 import { debounce, dict, MINUTE, platform, SECOND } from './helpers'
 
 // not chainable
-const $ = (selector, root = document.body) => root.querySelector(selector)
+const $ = (selector: string, root: HTMLElement = document.body) => root.querySelector(selector)
 
 $.id = id => d.getElementById(id)
 

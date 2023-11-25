@@ -24,6 +24,6 @@
     "outDir": "builds/test/crx/tsOutput",
   },
   "exclude": [
-    "builds/test/tsOutput"
+    "builds/**/*"
   ]
 }

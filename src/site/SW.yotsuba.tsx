@@ -236,21 +236,17 @@ $\
     }
   },
 
-  parseNodes(post, nodes) {
+  parseNodes(post, nodes): void {
     // Add CSS classes to sticky/closed icons on /f/ to match other boards.
     if (post.boardID === 'f') {
-      return (() => {
-        const result = []
-        for (const type of ['Sticky', 'Closed']) {
-          let icon
-          if (icon = $(`img[alt=${type}]`, nodes.info)) {
-            result.push($.addClass(icon, `${type.toLowerCase()}Icon`, 'retina'))
-          }
+      for (const type of ['Sticky', 'Closed']) {
+        const icon = $(`img[alt=${type}]`, nodes.info)
+        if (icon) {
+          $.addClass(icon, `${type.toLowerCase()}Icon`, 'retina')
         }
-        return result
-      })()
+      }
     }
-  },
+  },  
 
   parseDate(node) {
     return new Date(node.dataset.utc * 1000)
