@@ -69,7 +69,7 @@ $.ajax = (function() {
     pageXHR = XMLHttpRequest
   }
 
-  const r = (function (url, options={onloadend: null, timeout: 10000, responseType: 'json', withCredentials: false, type: 'get', onprogress: null, form: null, headers: null}) {
+  const r = (function (url, options={onloadend: null, timeout: 10000, responseType: 'json', withCredentials: false, type: 'get', onprogress: null, form: null, headers: null, dataType: null, testCORB: false}) {
     if (options.responseType == null) { options.responseType = 'json' }
     if (!options.type) { options.type = (options.form && 'post') || 'get' }
     // XXX https://forums.lanik.us/viewtopic.php?f=64&t=24173&p=78310

@@ -182,7 +182,7 @@ $\
         if (SWYotsuba.regexp.pass.test(location.href)) {
           PassMessage.init()
         } else {
-          $.onExists(doc, 'body', () => $.addStyle(CSS.www))
+          $.onExists(doc, 'body', () => $.addStyle(CSS.www, 'www'))
           Captcha.replace.init()
         }
         return
@@ -198,7 +198,7 @@ $\
                 return Redirect.navigate('thread', {
                   boardID: g.BOARD.ID,
                   postID:  +match[1]
-                })
+                }, { replace: true })
               }})
           }
         } else if (pathname[2] === 'post') {
@@ -234,7 +234,7 @@ $\
       }
       )
     }
-  },
+},
 
   parseNodes(post, nodes): void {
     // Add CSS classes to sticky/closed icons on /f/ to match other boards.
@@ -609,8 +609,8 @@ $\
     },
 
     thread(thread, data, withReplies) {
-      let root
-      if (root = thread.nodes.root) {
+      let root = thread.nodes.root
+      if (root) {
         $.rmAll(root)
       } else {
         thread.nodes.root = (root = $.el('div', {

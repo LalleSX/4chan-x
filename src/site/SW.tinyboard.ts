@@ -40,8 +40,8 @@ const SWTinyboard = {
 
   detect() {
     for (const script of $$('script:not([src])', d.head)) {
-      let m
-      if (m = script.textContent.match(/\bvar configRoot=(".*?")/)) {
+      const m = script.textContent.match(/\bvar configRoot=(".*?")/)
+      if (m) {
         const properties = dict()
         try {
           const root = JSON.parse(m[1])
@@ -58,8 +58,8 @@ const SWTinyboard = {
   },
 
   awaitBoard(cb) {
-    let reactUI
-    if (reactUI = $.id('react-ui')) {
+    const reactUI = $.id('react-ui')
+    if (reactUI) {
       const s = (this.selectors = Object.create(this.selectors))
       s.boardFor = {index: '.page-container'}
       s.thread = 'div[id^="thread_"]'
@@ -231,23 +231,23 @@ $\
 
   preParsingFixes(board) {
     // fixes effects of unclosed link in announcement
-    let broken
-    if (broken = $('a > input[name="board"]', board)) {
+    const broken = $('a > input[name="board"]', board)
+    if (broken) {
       return $.before(broken.parentNode, broken)
     }
   },
 
   parseNodes(post, nodes) {
     // Add vichan's span.poster_id around the ID if not already present.
-    let m
     if (nodes.uniqueID) { return }
     let text = ''
+    const m = text.match(/(\s*ID:\s*)(\S+)/)
     let node = nodes.nameBlock.nextSibling
     while (node && (node.nodeType === 3)) {
       text += node.textContent
       node = node.nextSibling
     }
-    if (m = text.match(/(\s*ID:\s*)(\S+)/)) {
+    if (m) {
       let uniqueID
       nodes.info.normalize()
       let {nextSibling} = nodes.nameBlock

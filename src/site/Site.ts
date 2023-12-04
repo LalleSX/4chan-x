@@ -28,8 +28,8 @@ const Site = {
     }
     return $.onExists(doc, 'body', () => {
       for (const software in SW) {
-        let changes
-        if (changes = SW[software].detect?.()) {
+        const changes = SW[software].detect?.()
+        if (changes) {
           changes.software = software
           hostname = location.hostname.replace(/^www\./, '')
           const properties = (Conf['siteProperties'][hostname] || (Conf['siteProperties'][hostname] = dict()))
@@ -41,7 +41,7 @@ const Site = {
             }
           }
           if (changed) {
-            $.set('siteProperties', Conf['siteProperties'])
+            $.set('siteProperties', Conf['siteProperties'], true)
           }
           if (!g.SITE) {
             this.set(hostname)
@@ -59,8 +59,8 @@ const Site = {
       hostname = hostname.replace(/^[^.]*\.?/, '')
     }
     if (hostname) {
-      let canonical
-      if (canonical = Conf['siteProperties'][hostname].canonical) { hostname = canonical }
+      const canonical = Conf['siteProperties'][hostname].canonical
+      if (canonical) { hostname = canonical }
     }
     return hostname
   },
