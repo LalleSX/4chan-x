@@ -70,9 +70,9 @@ const Settings = {
             return localStorage.setItem('4chan-settings', JSON.stringify(settings))
           } catch (error) {
             return Object.defineProperty(window, 'Config', {value: {disableAll: true}})
-          }})
+          }}, true)
       } else {
-        return $.global(() => Object.defineProperty(window, 'Config', {value: {disableAll: true}}))
+        return $.global(() => Object.defineProperty(window, 'Config', {value: {disableAll: true}}), true)
       }
     }
   },
@@ -80,7 +80,7 @@ const Settings = {
   open(openSection) {
     let dialog, sectionToOpen
     if (Settings.dialog) { return }
-    $.event('CloseMenu')
+    $.event('CloseMenu', null)
 
     Settings.dialog = (dialog = $.el('div',
       { id: 'overlay' }
@@ -261,7 +261,7 @@ Enable it on boards.${location.hostname.split('.')[1]}.org in your browser's pri
         inputs[key].checked = val
         inputs[key].parentNode.parentNode.dataset.checked = val
       }
-    })
+    }, true)
 
     const div = $.el('div',
       {innerHTML: '<button></button><span class="description">: Clear manually-hidden threads and posts on all boards. Reload the page to apply.'})
@@ -302,7 +302,7 @@ Enable it on boards.${location.hostname.split('.')[1]}.org in your browser's pri
         }
       }
       return button.textContent = `Hidden: ${hiddenNum}`
-    })
+    }, true)
     $.on(button, 'click', function() {
       this.textContent = 'Hidden: 0'
       return $.get('hiddenThreads', dict(), function({hiddenThreads}) {
@@ -315,7 +315,9 @@ Enable it on boards.${location.hostname.split('.')[1]}.org in your browser's pri
             localStorage.removeItem(`4chan-hide-t-${boardID}`)
           }
         }
-        return ($.delete(['hiddenThreads', 'hiddenPosts']))
+        return ($.delete(['hiddenThreads', 'hiddenPosts'], function() {
+          return window.location.reload()
+        }))
       })
     })
     return $.after($('input[name="Stubs"]', section).parentNode.parentNode, div)
@@ -329,7 +331,7 @@ Enable it on boards.${location.hostname.split('.')[1]}.org in your browser's pri
       // Don't export cached JSON data.
       delete Conf2['boardConfig']
       return (Settings.downloadExport({version: g.VERSION, date: Date.now(), Conf: Conf2}))
-    })
+    }, true)
   },
 
   downloadExport(data) {
@@ -582,7 +584,7 @@ Enable it on boards.${location.hostname.split('.')[1]}.org in your browser's pri
       }
     }
     if ((compareString < '00001.00011.00019.00003') && !Settings.dialog) {
-      $.queueTask(() => Settings.warnings.ads(item => new Notice('warning', [...item.childNodes])))
+      $.queueTask(() => Settings.warnings.ads(item => new Notice('warning', [...item.childNodes], {timeout: 0}, true)))
     }
     if (compareString < '00001.00011.00020.00003') {
       const object = {'Inline Cross-thread Quotes Only': false, 'Pass Link': true}
@@ -891,7 +893,9 @@ vp-replace
     }
 
     $.on(inputs['archiveLists'], 'change', function() {
-      $.set('lastarchivecheck', 0)
+      $.set('lastarchivecheck', 0, function() {
+        return Settings.addArchiveTable(section)
+      })
       Conf['lastarchivecheck'] = 0
       return $.id('lastarchivecheck').textContent = 'never'
     })
@@ -921,7 +925,7 @@ vp-replace
           Settings[key].call(input)
         }
       }
-    })
+    }, true)
 
     const listImageHost = $.id('list-fourchanImageHost')
     for (const textContent of ImageHost.suggestions) {
@@ -947,7 +951,7 @@ vp-replace
       $.extend(Conf, itemsArchive)
       Redirect.selectArchives()
       return Settings.addArchiveTable(section)
-    })
+    }, true)
 
     const boardSelect    = $('#archive-board-select', section)
     const table          = $('#archive-table', section)
@@ -968,9 +972,9 @@ vp-replace
     :
       new Date(Conf['lastarchivecheck']).toLocaleString()
 
-    const boardSelect = $('#archive-board-select', section)
-    const table       = $('#archive-table', section)
-    const tbody       = $('tbody', section)
+    const boardSelect = $('#archive-board-select', section) as HTMLSelectElement
+    const table       = $('#archive-table', section) as HTMLTableElement
+    const tbody       = $('tbody', section) as HTMLTableSectionElement
 
     $.rmAll(boardSelect)
     $.rmAll(tbody)
@@ -1057,7 +1061,7 @@ vp-replace
     }
 
     $.extend(td, {innerHTML: '<select></select>'})
-    const select = td.firstElementChild
+    const select = td.firstElementChild as HTMLSelectElement
     if (!(select.disabled = length === 1)) {
       // XXX GM can't into datasets
       select.setAttribute('data-boardid', boardID)
@@ -1072,7 +1076,7 @@ vp-replace
   saveSelectedArchive() {
     return $.get('selectedArchives', Conf['selectedArchives'], ({selectedArchives}) => {
       (selectedArchives[this.dataset.boardid] || (selectedArchives[this.dataset.boardid] = dict()))[this.dataset.type] = JSON.parse(this.value)
-      $.set('selectedArchives', selectedArchives)
+      $.set('selectedArchives', selectedArchives, () => Settings.addArchiveTable(Settings.dialog))
       Conf['selectedArchives'] = selectedArchives
       return Redirect.selectArchives()
     })
@@ -1146,7 +1150,7 @@ vp-replace
       const arr = Config.hotkeys[key]
       const tr = $.el('tr',
         { innerHTML: `<td>${arr[1]}</td><td><input class="field"></td>` })
-      const input = $('input', tr)
+      const input = $('input', tr) as HTMLInputElement
       input.name = key
       input.spellcheck = false
       items[key]  = Conf[key]
@@ -1160,7 +1164,7 @@ vp-replace
         const val = items[key]
         inputs[key].value = val
       }
-    })
+    }, true)
   },
 
   keybind(e) {

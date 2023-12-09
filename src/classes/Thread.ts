@@ -12,8 +12,8 @@ import type Post from './Post'
 export default class Thread {
   declare board: Board
   declare ID: number
-  declare threadID: number
-  declare boardID: string | number
+  declare threadID: threadID
+  declare boardID: boardID
   declare siteID: string
   declare fullID: string
   declare posts: SimpleDict<Post>

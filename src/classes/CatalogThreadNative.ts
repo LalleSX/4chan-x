@@ -4,6 +4,13 @@ import Board from './Board'
 import Thread from './Thread'
 
 export default class CatalogThreadNative {
+  ID: any
+  nodes: { root: any; thumb: HTMLElement }
+  siteID: any
+  boardID: any
+  board: any
+  threadID: number
+  thread: any
   toString() { return this.ID }
 
   constructor(root) {

@@ -28,20 +28,20 @@ const SWYotsuba = {
   archivedBoardsKnown: true,
 
   urls: {
-    thread({boardID, threadID}) { return `${location.protocol}//${BoardConfig.domain(boardID)}/${boardID}/thread/${threadID}` },
-    post({postID})            { return `#p${postID}` },
-    index({boardID})           { return `${location.protocol}//${BoardConfig.domain(boardID)}/${boardID}/` },
-    catalog({boardID})           { if (boardID === 'f') { return undefined } else { return `${location.protocol}//${BoardConfig.domain(boardID)}/${boardID}/catalog` } },
-    archive({boardID})           { if (BoardConfig.isArchived(boardID)) { return `${location.protocol}//${BoardConfig.domain(boardID)}/${boardID}/archive` } else { return undefined } },
-    threadJSON({boardID, threadID}) { return `${location.protocol}//a.4cdn.org/${boardID}/thread/${threadID}.json` },
-    threadsListJSON({boardID})      { return `${location.protocol}//a.4cdn.org/${boardID}/threads.json` },
-    archiveListJSON({boardID})      { if (BoardConfig.isArchived(boardID)) { return `${location.protocol}//a.4cdn.org/${boardID}/archive.json` } else { return '' } },
-    catalogJSON({boardID})      { return `${location.protocol}//a.4cdn.org/${boardID}/catalog.json` },
-    file({boardID}, filename) {
+    thread({boardID, threadID}: {boardID: string, threadID: number}) { return `${location.protocol}//${BoardConfig.domain(boardID)}/${boardID}/thread/${threadID}` },
+    post({postID}: {postID: number})            { return `#p${postID}` },
+    index({boardID}: {boardID: string})           { return `${location.protocol}//${BoardConfig.domain(boardID)}/${boardID}/` },
+    catalog({boardID}: {boardID: string})           { if (boardID === 'f') { return undefined } else { return `${location.protocol}//${BoardConfig.domain(boardID)}/${boardID}/catalog` } },
+    archive({boardID}: {boardID: string})           { if (BoardConfig.isArchived(boardID)) { return `${location.protocol}//${BoardConfig.domain(boardID)}/${boardID}/archive` } else { return undefined } },
+    threadJSON({boardID, threadID}: {boardID: string, threadID: number}) { return `${location.protocol}//a.4cdn.org/${boardID}/thread/${threadID}.json` },
+    threadsListJSON({boardID}: {boardID: string})      { return `${location.protocol}//a.4cdn.org/${boardID}/threads.json` },
+    archiveListJSON({boardID}: {boardID: string})      { if (BoardConfig.isArchived(boardID)) { return `${location.protocol}//a.4cdn.org/${boardID}/archive.json` } else { return '' } },
+    catalogJSON({boardID}: {boardID: string})      { return `${location.protocol}//a.4cdn.org/${boardID}/catalog.json` },
+    file({boardID}: {boardID: string}, filename: string) {
       const hostname = boardID === 'f' ? ImageHost.flashHost() : ImageHost.host()
       return `${location.protocol}//${hostname}/${boardID}/${filename}`
     },
-    thumb({boardID}, filename) {
+    thumb({boardID}: {boardID: string}, filename: string) {
       return `${location.protocol}//${ImageHost.thumbHost()}/${boardID}/${filename}`
     }
   },

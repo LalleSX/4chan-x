@@ -40,7 +40,7 @@ var Menu = (function() {
       lastToggledButton = null
     }
 
-    constructor(type) {
+    constructor(type: string) {
       // XXX AddMenuEntry event is deprecated
       this.setPosition = this.setPosition.bind(this)
       this.close = this.close.bind(this)
@@ -306,7 +306,17 @@ export const dragstart = function (e) {
     width:  screenWidth  - rect.width,
     screenHeight,
     screenWidth,
-    isTouching
+    isTouching,
+    topBorder: 0,
+    bottomBorder: 0,
+    isImage: false,
+    identifier: null,
+    move: null,
+    up: null,
+    workaround: null,
+    clientX: null,
+    hover: null,
+    hoverend: null,
   };
 
   [o.topBorder, o.bottomBorder] = Conf['Header auto-hide'] || !Conf['Fixed Header'] ?
@@ -392,7 +402,7 @@ export const dragend = function () {
     $.off(d, 'mousemove', this.move)
     $.off(d, 'mouseup',   this.up)
   }
-  return $.set(`${this.id}.position`, this.style.cssText)
+  return $.set(`${this.id}.position`, this.style.cssText, Conf)
 }
 
 const hoverstart = function ({ root, el, latestEvent, endEvents, height, width, cb, noRemove }) {
@@ -411,7 +421,10 @@ const hoverstart = function ({ root, el, latestEvent, endEvents, height, width, 
     width,
     noRemove,
     clientX: (rect.left + rect.right) / 2,
-    clientY: (rect.top + rect.bottom) / 2
+    clientY: (rect.top + rect.bottom) / 2,
+    hover: null,
+    hoverend: null,
+    workaround: null
   }
   o.hover    = hover.bind(o)
   o.hoverend = hoverend.bind(o)

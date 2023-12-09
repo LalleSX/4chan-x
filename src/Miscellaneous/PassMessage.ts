@@ -18,7 +18,7 @@ const PassMessage = {
     const close = $('a', msg)
     $.on(close, 'click', function() {
       $.rm(msg)
-      return $.set('passMessageClosed', true)
+      return $.set('passMessageClosed', true, Conf)
     })
     return $.ready(function() {
       let hd

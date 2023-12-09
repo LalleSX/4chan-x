@@ -57,7 +57,7 @@ const CatalogLinks = {
 
     if (this.enabled = Conf['Catalog Links']) {
       let el
-      CatalogLinks.el = (el = UI.checkbox('Header catalog links', 'Catalog Links'))
+      this.el = (el = UI.checkbox('Header catalog links', 'Catalog Links', Conf['Header catalog links']))
       el.id = 'toggleCatalog'
       const input = $('input', el)
       $.on(input, 'change', this.toggle)

@@ -7,6 +7,9 @@ import { g } from '../globals/globals'
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
 export default class Connection {
+  target: any
+  origin: any
+  cb: {}
   constructor(target, origin, cb={}) {
     this.send = this.send.bind(this)
     this.onMessage = this.onMessage.bind(this)

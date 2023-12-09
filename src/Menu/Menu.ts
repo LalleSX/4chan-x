@@ -32,6 +32,9 @@ const Menu = {
     })
   },
 
+  button: null,
+  menu:   null,
+
   node() {
     if (this.isClone) {
       const button = $('.menu-button', this.nodes.info)
@@ -40,11 +43,11 @@ const Menu = {
       Menu.makeButton(this, button)
       return
     }
-    return $.add(this.nodes.info, Menu.makeButton(this))
+    return $.add(this.nodes.info, Menu.makeButton(this, this.button))
   },
 
   catalogNode() {
-    return $.after(this.nodes.icons, Menu.makeButton(this.thread.OP))
+    return $.after(this.nodes.icons, Menu.makeButton(this.thread.OP, this.button))
   },
 
   makeButton(post, button) {

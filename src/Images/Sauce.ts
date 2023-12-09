@@ -40,6 +40,9 @@ const Sauce = {
     })
   },
 
+  links: [],
+  link: null,
+
   parseLink(link) {
     if (!(link = link.trim())) { return null }
     const parts = dict()
@@ -72,7 +75,7 @@ const Sauce = {
           $.tn(link),
           $.el('br'),
           $.tn(err.message)
-        ], 60)
+        ], 60, 'sauce')
         return null
       }
     }
@@ -168,7 +171,7 @@ const Sauce = {
     IMG(post, file, ext) { if (['gif', 'jpg', 'jpeg', 'png'].includes(ext)) { return file.url } else { return file.thumbURL } },
     MD5(post, file) { return file.MD5 },
     sMD5(post, file) { return file.MD5?.replace(/[+/=]/g, c => ({'+': '-', '/': '_', '=': ''})[c]) },
-    hMD5(post, file) { if (file.MD5) { return (atob(file.MD5).map((c) => `0${c.charCodeAt(0).toString(16)}`.slice(-2))).join('') } },
+    hMD5(post, file) { return file.MD5?.replace(/[+/=]/g, c => ({'+': '-', '/': '_', '=': ''})[c]).toLowerCase() },
     board(post) { return post.board.ID },
     name(post, file) { return file.name },
     '%'() { return '%' },

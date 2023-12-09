@@ -1,10 +1,4 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS205: Consider reworking code to avoid use of IIFEs
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
+
 import Callbacks from '../classes/Callbacks'
 import CatalogThread from '../classes/CatalogThread'
 import Notice from '../classes/Notice'
@@ -35,7 +29,8 @@ import { dict, SECOND } from '../platform/helpers'
 const Index = {
   showHiddenThreads: false,
   changed: {},
-
+  pageNum: 1,
+  pagesNum: 1,
   enabledOn({siteID, boardID}) {
     return Conf['JSON Index'] && (g.sites[siteID].software === 'yotsuba') && (boardID !== 'f')
   },
@@ -806,7 +801,7 @@ const Index = {
         notice.el.lastElementChild.textContent = 'Index refresh failed.'
         setTimeout(notice.close, SECOND)
       } else {
-        new Notice('error', 'Index refresh failed.', 1)
+        new Notice('error', 'Index refresh failed.', 1, err)
       }
       return
     }
@@ -832,6 +827,13 @@ const Index = {
     Index.changed.threads = true
     return Index.pageLoad()
   },
+  liveThreadData: null,
+  liveThreadIDs: null,
+  liveThreadDict: null,
+  threadPosition: null,
+  parsedThreads: null,
+  replyData: null,
+  threadsNumPerPage: null,
 
   parseThreadList(pages) {
     Index.pagesNum          = pages.length

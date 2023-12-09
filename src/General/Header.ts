@@ -36,14 +36,14 @@ const Header = {
 
     const box = UI.checkbox
 
-    const barFixedToggler     = box('Fixed Header',               'Fixed Header')
-    const headerToggler       = box('Header auto-hide',           'Auto-hide header')
-    const scrollHeaderToggler = box('Header auto-hide on scroll', 'Auto-hide header on scroll')
-    const barPositionToggler  = box('Bottom Header',              'Bottom header')
-    const linkJustifyToggler  = box('Centered links',             'Centered links')
-    const customNavToggler    = box('Custom Board Navigation',    'Custom board navigation')
-    const footerToggler       = box('Bottom Board List',          'Hide bottom board list')
-    const shortcutToggler     = box('Shortcut Icons',             'Shortcut Icons')
+    const barFixedToggler     = box('Fixed Header',               'Fixed Header', 'fixed-header')
+    const headerToggler       = box('Header auto-hide',           'Auto-hide header', 'autohide')
+    const scrollHeaderToggler = box('Header auto-hide on scroll', 'Auto-hide header on scroll', 'scroll-header')
+    const barPositionToggler  = box('Bottom Header',              'Bottom header', 'bottom-header')
+    const linkJustifyToggler  = box('Centered links',             'Centered links', 'centered-links')
+    const customNavToggler    = box('Custom Board Navigation',    'Custom board navigation', 'custom-board-navigation')
+    const footerToggler       = box('Bottom Board List',          'Hide bottom board list', 'hide-bottom-board-list')
+    const shortcutToggler     = box('Shortcut Icons',             'Shortcut Icons', 'shortcut-icons')
     const editCustomNav = $.el('a', {
       textContent: 'Edit custom board navigation',
       href: 'javascript:;'

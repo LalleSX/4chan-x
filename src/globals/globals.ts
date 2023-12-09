@@ -7,6 +7,13 @@ import type SWTinyboard from '../site/SW.tinyboard'
 
 // interfaces might be incomplete
 export interface BoardConfig {
+  forced_anon: any
+  sjis_tags: any
+  math_tags: any
+  country_flags: any
+  board_flags: any
+  require_subject: any
+  text_only: any
   board:      string
   bump_limit: number
   cooldowns: {
@@ -30,12 +37,14 @@ export interface BoardConfig {
 }
 
 export interface Board {
+  cooldowns(): any
   ID:      string,
   boardID: string,
   siteID:  string,
   config:  BoardConfig,
   posts:   SimpleDict<Post>,
   threads: SimpleDict<Thread>,
+  url:     string,
 }
 
 export const Conf = Object.create(null)

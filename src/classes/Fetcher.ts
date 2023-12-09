@@ -19,6 +19,10 @@ import parseArchivePost from '../Archive/Parse'
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
 export default class Fetcher {
+  static flagCSS: HTMLLinkElement
+  static initClass() {
+    this.flagCSS = null
+  }
   static archiveTags = {
     '\n':         {innerHTML: '<br>'},
     '[b]':        {innerHTML: '<b>'},

@@ -4,6 +4,8 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
 class ShimSet {
+  elements: any
+  size: number
   constructor() {
     this.elements = $.dict()
     this.size = 0

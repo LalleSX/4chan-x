@@ -143,8 +143,14 @@ const Favicon = {
       return this.unreadY = this.unreadNSFWY
     }
   },
-
+  
   SFW:   '//s.4cdn.org/image/favicon-ws.ico',
+  unreadSFW: '//s.4cdn.org/image/favicon-ws.ico',
+  unreadSFWY: '//s.4cdn.org/image/favicon-ws.ico',
+  unreadNSFW: '//s.4cdn.org/image/favicon.ico',
+  unreadNSFWY: '//s.4cdn.org/image/favicon.ico',
+  unreadDead: '//s.4cdn.org/image/favicon.ico',
+  unreadDeadY: '//s.4cdn.org/image/favicon.ico',
   NSFW:  '//s.4cdn.org/image/favicon.ico',
   dead: `data:image/gif;base64,${dead}`,
   logo: `data:image/png;base64,${empty}`,

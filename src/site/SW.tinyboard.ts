@@ -10,6 +10,7 @@ import { dict } from '../platform/helpers'
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
 const SWTinyboard = {
+  software: 'Tinyboard',
   isOPContainerThread: true,
   mayLackJSON: true,
   threadModTimeIgnoresSage: true,
@@ -37,6 +38,7 @@ const SWTinyboard = {
     'Flash Features',
     'Reply Pruning'
   ],
+  
 
   detect() {
     for (const script of $$('script:not([src])', d.head)) {
@@ -219,6 +221,10 @@ $\
         .replace(/<[^>]*>/g, '')
       return $.unescape(html)
     }
+  },
+
+  areMD5sDeferred(board) {
+    return board.config['image-hover']
   },
 
   bgColoredEl() {

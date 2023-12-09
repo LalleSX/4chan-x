@@ -4,6 +4,9 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
  */
 export default class RandomAccessList {
+  length: number
+  last: any
+  first: any
   constructor(items) {
     this.length = 0
     if (items) { for (const item of items) { this.push(item) } }

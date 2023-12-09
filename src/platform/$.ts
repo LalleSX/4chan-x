@@ -14,9 +14,9 @@ import CrossOrigin from './CrossOrigin'
 import { debounce, dict, MINUTE, platform, SECOND } from './helpers'
 
 // not chainable
-const $ = (selector: string, root: HTMLElement = document.body) => root.querySelector(selector)
+const $ = (selector: string, root: HTMLElement = document.body) => root.querySelector(selector) as HTMLElement
 
-$.id = id => d.getElementById(id)
+$.id = (id: string) => document.getElementById(id)
 
 $.ready = function(fc) {
   if (d.readyState !== 'loading') {
@@ -248,23 +248,23 @@ $.whenModified = function(url, bucket, cb, options={timeout: 10000, ajax: null})
     if (req = reqs[url]) {
       if (req.callbacks) {
         req.callbacks.push(cb)
-      } else {
-        $.queueTask(() => cb.call(req, {isCached: true}))
-      }
-      return req
+        } else {
+            $.queueTask(() => cb.call(req, {isCached: true}))
+        }
+        return req
     }
     const onloadend = function() {
-      if (!this.status) {
-        delete reqs[url]
-      }
-      for (cb of this.callbacks) {
+        if (!this.status) {
+            delete reqs[url]
+        }
+for (cb of this.callbacks) {
         (cb => $.queueTask(() => cb.call(this, {isCached: false})))(cb)
       }
       return delete this.callbacks
     }
-    req = (ajax || $.ajax)(url, {onloadend})
+req = (ajax || $.ajax)(url, {onloadend})
     req.callbacks = [cb]
-    return reqs[url] = req
+return reqs[url] = req
   }
   return $.cleanCache = function(testf) {
     for (const url in reqs) {
@@ -397,12 +397,11 @@ $.el = function (tag: string, properties?: Record<string, any>, properties2?: Re
   return el
 }
 
-$.on = function (el: Element, events: string, handler: (event: Event) => void) {
+$.on = function(el: EventTarget, events: string, handler: EventListenerOrEventListenerObject) {
   for (const event of events.split(' ')) {
     el.addEventListener(event, handler, false)
   }
 }
-
 $.off = function(el, events, handler) {
   for (const event of events.split(' ')) {
     el.removeEventListener(event, handler, false)

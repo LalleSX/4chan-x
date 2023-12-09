@@ -171,8 +171,8 @@ export default class Post {
 
   parseNodes(root: HTMLElement) {
     const s = g.SITE.selectors
-    const post: HTMLElement = $(s.post, root) || root
-    const info: HTMLElement = $(s.infoRoot, post)
+    const post = $(s.post, root) || root
+    const info = $(s.infoRoot, post)
 
     interface Node {
       root:         HTMLElement,

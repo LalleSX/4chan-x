@@ -1,4 +1,5 @@
 import $ from '../platform/$'
+import Notice from './Notice'
 
 /*
  * decaffeinate suggestions:
@@ -12,14 +13,17 @@ export default class SimpleDict<T> {
     this.keys = []
   }
 
-  push(key, data: T) {
-    key = `${key}`
-    if (!this[key]) { this.keys.push(key) }
-    return this[key] = data
+  push(key: string | number, data: T) {
+    if (key === 'keys') {
+      return undefined
+    } else {
+      this.keys.push(key = `${key}`)
+      return this[key] = data
+    }
   }
 
-  rm(key) {
-    let i
+  rm(key: string | this | this) {
+    let i: number
     key = `${key}`
     if ((i = this.keys.indexOf(key)) !== -1) {
       this.keys.splice(i, 1)
@@ -27,11 +31,11 @@ export default class SimpleDict<T> {
     }
   }
 
-  forEach(fn) { 
-    for (const key of this.keys) { fn(this[key]) }
+  forEach(fn: (data: T, key: string) => void) {
+    return this.keys.forEach(key => fn(this[key], key))
   }
 
-  get(key): T {
+  get(key: string | number): T {
     if (key === 'keys') {
       return undefined
     } else {
