@@ -248,7 +248,7 @@ const QR = {
   toggleSJIS(e) {
     e.preventDefault()
     Conf['sjisPreview'] = !Conf['sjisPreview']
-    $.set('sjisPreview', Conf['sjisPreview'])
+    $.set('sjisPreview', Conf['sjisPreview'], QR.sjisPreview)
     return QR.nodes.el.classList.toggle('sjis-preview', Conf['sjisPreview'])
   },
 
@@ -282,7 +282,7 @@ const QR = {
   toggleCustomCooldown() {
     const enabled = $.hasClass(QR.nodes.customCooldown, 'disabled')
     QR.setCustomCooldown(enabled)
-    return $.set('customCooldownEnabled', enabled)
+    return $.set('customCooldownEnabled', enabled, QR.setCustomCooldown)
   },
 
   error(err, focusOverride) {
@@ -294,7 +294,7 @@ const QR = {
       el = err
       el.removeAttribute('style')
     }
-    const notice = new Notice('warning', el)
+    const notice = new Notice('warning', el, {timeout: 0}, QR.close)
     QR.notifications.push(notice)
     if (!Header.areNotificationsEnabled) {
       if (d.hidden && !QR.cooldown.auto) { return alert(el.textContent) }
@@ -365,7 +365,7 @@ const QR = {
     QR.open()
     if (QR.selected.isLocked) {
       const index = QR.posts.indexOf(QR.selected);
-      (QR.posts[index+1] || new QR.post()).select()
+      (QR.posts[index+1] || new QR.post(true)).select()
       $.addClass(QR.nodes.el, 'dump')
       return QR.cooldown.auto = true
     }
@@ -477,7 +477,7 @@ const QR = {
       innerHTML:
         'Could not open file. [<a href="' + E(meta.faq) + '#error-reading-metadata" target="_blank">More info</a>]'
     })
-    return QR.error(div)
+    return QR.error(div, true)
   },
 
   setFile(e) {
@@ -566,10 +566,10 @@ const QR = {
         if (blob && !/^text\//.test(blob.type)) {
           return QR.handleFiles([blob])
         } else {
-          return QR.error("Can't load file.")
+          return QR.error("Can't load file.", true)
         }
       })
-    })
+    }, urlDefault, 'URL')
   },
 
   handleFiles(files) {
@@ -596,7 +596,7 @@ const QR = {
     } else {
       post = QR.posts[QR.posts.length - 1]
       if (isText ? post.com || post.pasting : post.file) {
-        post = new QR.post()
+        post = new QR.post(true)
       }
     }
     return post[isText ? 'pasteText' : 'setFile'](file)
@@ -743,7 +743,7 @@ const QR = {
       $.get('QR Size', '', item => nodes.com.style.cssText = item['QR Size'])
       $.on(nodes.com, 'mouseup', function(e) {
         if (e.button !== 0) { return }
-        return $.set('QR Size', this.style.cssText)
+        return $.set('QR Size', this.style.cssText, null)
       })
     }
 
@@ -808,7 +808,7 @@ const QR = {
       return
     }
 
-    $.forceSync('cooldowns')
+    $.forceSync()
     if (QR.cooldown.seconds) {
       if (force) {
         QR.cooldown.clear()
@@ -864,7 +864,7 @@ const QR = {
       // stop auto-posting
       QR.cooldown.auto = false
       QR.status()
-      QR.error(err)
+      QR.error(err, true)
       return
     }
 
@@ -941,9 +941,9 @@ const QR = {
           return cb = null
         }
       }
-      captcha(function(response) {
+      captcha(function(response: string) {
         if ((QR.captcha === Captcha.v2) && Captcha.cache.haveCookie()) {
-          cb?.()
+          cb?.(response)
           if (response) { return Captcha.cache.save(response) }
         } else if (response) {
           return cb?.(response)
@@ -1022,7 +1022,7 @@ const QR = {
       }
       QR.captcha.setup(QR.cooldown.auto && [QR.nodes.status, d.body].includes(d.activeElement))
       QR.status()
-      QR.error(err)
+      QR.error(err, true)
       return
     }
 
@@ -1066,7 +1066,7 @@ const QR = {
 
     QR.cleanNotifications()
     if (Conf['Posting Success Notifications']) {
-      QR.notifications.push(new Notice('success', h1.textContent, 5))
+      QR.notifications.push(new Notice('success', h1.textContent, 5, () => $.open(`${window.location.origin}/${g.BOARD}/thread/${threadID}#p${postID}`)))
     }
 
     QR.cooldown.add(threadID, postID)
@@ -1123,7 +1123,7 @@ const QR = {
       delete QR.currentCaptcha
       QR.posts[0].unlock()
       QR.cooldown.auto = false
-      QR.notifications.push(new Notice('info', 'QR upload aborted.', 5))
+      QR.notifications.push(new Notice('info', 'QR upload aborted.', 5, QR.status))
     }
     return QR.status()
   },
@@ -1367,7 +1367,7 @@ const QR = {
 
     count() {
       QR.cooldown.update()
-      if ((QR.cooldown.seconds === 0) && QR.cooldown.auto && !QR.req) { return QR.submit() }
+      if ((QR.cooldown.seconds === 0) && QR.cooldown.auto && !QR.req) { return QR.submit(Event) }
     }
   },
 
@@ -1402,7 +1402,7 @@ const QR = {
         const currentTime = post.file.fullImage?.currentTime || 0
         return CrossOrigin.file(post.file.url, function (blob) {
           if (!blob) {
-            return QR.error("Can't load file.")
+            return QR.error("Can't load file.", true)
           } else if (isVideo) {
             const video = $.el('video')
             $.on(video, 'loadedmetadata', function () {
@@ -1446,7 +1446,7 @@ const QR = {
         if (window.Tegaki) {
           return document.querySelector('#qr .oekaki').hidden = false
         }
-      })
+      }, true)
     },
 
     load(cb) {
@@ -1486,7 +1486,7 @@ const QR = {
               :
               'transparent'
         })
-      })
+      }, true)
     },
 
     button() {
@@ -1541,9 +1541,9 @@ const QR = {
           FCX.oekakiName = name
           return Tegaki.resume()
         } else {
-          return cb()
+          return cb(cb)
         }
-      }))
+      }, true))
     },
 
     toggle() {
@@ -1631,7 +1631,7 @@ const QR = {
           name: post.name,
           flag: post.flag
         }
-        return $.set('QR.persona', persona)
+        return $.set('QR.persona', persona, () => QR.persona.always = persona)
       })
     }
   },
@@ -1900,7 +1900,7 @@ const QR = {
     dismissErrors(test = () => true) {
       if (this.errors) {
         for (const error of this.errors) {
-          if (doc.contains(error) && test(error)) {
+          if (doc.contains(error) && test()) {
             error.parentNode.previousElementSibling.click()
           }
         }
@@ -1931,7 +1931,7 @@ const QR = {
       this.nodes.el.dataset.type = this.file.type
       this.nodes.el.style.backgroundImage = ''
       if (!QR.mimeTypes.includes(this.file.type)) {
-        this.fileError('Unsupported file type.')
+        this.fileError('Unsupported file type.', meta.faq + '#supported-files')
       } else if (/^(image|video)\//.test(this.file.type)) {
         this.readFile()
       }
@@ -1942,7 +1942,7 @@ const QR = {
       let max = QR.max_size
       if (/^video\//.test(this.file.type)) { max = Math.min(max, QR.max_size_video) }
       if (this.file.size > max) {
-        return this.fileError(`File too large (file: ${this.filesize}, max: ${$.bytesToString(max)}).`)
+        return this.fileError(`File too large (file: ${this.filesize}, max: ${$.bytesToString(max)}).`, meta.faq + '#file-size')
       }
     }
 
@@ -1981,10 +1981,10 @@ const QR = {
         this.nodes.el.dataset.height = height
         this.nodes.el.dataset.width = width
         if ((height > QR.max_height) || (width > QR.max_width)) {
-          this.fileError(`Image too large (image: ${height}x${width}px, max: ${QR.max_height}x${QR.max_width}px)`)
+          this.fileError(`Image too large (image: ${height}x${width}px, max: ${QR.max_height}x${QR.max_width}px)`, meta.faq + '#image-size')
         }
         if ((height < QR.min_height) || (width < QR.min_width)) {
-          return this.fileError(`Image too small (image: ${height}x${width}px, min: ${QR.min_height}x${QR.min_width}px)`)
+          return this.fileError(`Image too small (image: ${height}x${width}px, min: ${QR.min_height}x${QR.min_width}px)`, meta.faq + '#image-size')
         }
       } else {
         const { videoHeight, videoWidth, duration } = el
@@ -1994,18 +1994,18 @@ const QR = {
         const max_height = Math.min(QR.max_height, QR.max_height_video)
         const max_width = Math.min(QR.max_width, QR.max_width_video)
         if ((videoHeight > max_height) || (videoWidth > max_width)) {
-          this.fileError(`Video too large (video: ${videoHeight}x${videoWidth}px, max: ${max_height}x${max_width}px)`)
+          this.fileError(`Video too large (video: ${videoHeight}x${videoWidth}px, max: ${max_height}x${max_width}px)`, meta.faq + '#video-size')
         }
         if ((videoHeight < QR.min_height) || (videoWidth < QR.min_width)) {
-          this.fileError(`Video too small (video: ${videoHeight}x${videoWidth}px, min: ${QR.min_height}x${QR.min_width}px)`)
+          this.fileError(`Video too small (video: ${videoHeight}x${videoWidth}px, min: ${QR.min_height}x${QR.min_width}px)`, meta.faq + '#video-size')
         }
         if (!isFinite(duration)) {
-          this.fileError('Video lacks duration metadata (try remuxing)')
+          this.fileError('Video lacks duration metadata (try remuxing)', meta.faq + '#error-reading-metadata')
         } else if (duration > QR.max_duration_video) {
-          this.fileError(`Video too long (video: ${duration}s, max: ${QR.max_duration_video}s)`)
+          this.fileError(`Video too long (video: ${duration}s, max: ${QR.max_duration_video}s)`, meta.faq + '#video-size')
         }
         if (BoardConfig.noAudio(g.BOARD.ID) && $.hasAudio(el)) {
-          return this.fileError('Audio not allowed')
+          return this.fileError('Audio not allowed', meta.faq + '#audio')
         }
       }
     }
@@ -2063,7 +2063,7 @@ const QR = {
       $.rmClass(this.nodes.el, 'has-file')
       this.showFileData()
       URL.revokeObjectURL(this.URL)
-      this.dismissErrors(error => $.hasClass(error, 'file-error'))
+      this.dismissErrors(() => !this.file)
       return this.preventAutoPost()
     }
 

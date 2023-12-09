@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         4chan XT
-// @version      XT 2.2.3
+// @version      XZ 2.2.3
 // @minGMVer     1.14
 // @minFFVer     74
 // @namespace    4chan-XZ
@@ -193,7 +193,7 @@
   'use strict';
 
   var version = {
-    "version": "XT 2.2.3",
+    "version": "XZ 2.2.3",
     "date": "2023-11-08T16:25:49.335Z"
   };
 
@@ -1805,6 +1805,12 @@ https://*.hcaptcha.com
           }
       },
       SFW: '//s.4cdn.org/image/favicon-ws.ico',
+      unreadSFW: '//s.4cdn.org/image/favicon-ws.ico',
+      unreadSFWY: '//s.4cdn.org/image/favicon-ws.ico',
+      unreadNSFW: '//s.4cdn.org/image/favicon.ico',
+      unreadNSFWY: '//s.4cdn.org/image/favicon.ico',
+      unreadDead: '//s.4cdn.org/image/favicon.ico',
+      unreadDeadY: '//s.4cdn.org/image/favicon.ico',
       NSFW: '//s.4cdn.org/image/favicon.ico',
       dead: `data:image/gif;base64,${dead}`,
       logo: `data:image/png;base64,${empty}`,
@@ -2173,6 +2179,8 @@ https://*.hcaptcha.com
       setLastChecked(key = 'lastChecked') {
           return this.save(() => {
               return this.data[key] = Date.now();
+          }, () => {
+              return this.sync?.();
           });
       }
       get({ siteID, boardID, threadID, postID, defaultValue }) {
@@ -2220,57 +2228,61 @@ https://*.hcaptcha.com
               }
           }
       }
-      ajaxClean(boardID) {
-          const that = this;
+      async ajaxClean(boardID) {
           const siteID = g.SITE.ID;
-          const threadsList = g.SITE.urls.threadsListJSON?.({ siteID, boardID });
-          if (!threadsList) {
+          const threadsListUrl = g.SITE.urls.threadsListJSON?.({ siteID, boardID });
+          if (!threadsListUrl) {
               return;
           }
-          return $$1.cache(threadsList, function () {
-              if (this.status !== 200) {
+          try {
+              const threadsListResponse = await $$1.cache(threadsListUrl);
+              if (threadsListResponse.status !== 200) {
                   return;
               }
-              const archiveList = g.SITE.urls.archiveListJSON?.({ siteID, boardID });
-              if (!archiveList) {
-                  return that.ajaxCleanParse(boardID, this.response);
-              }
-              const response1 = this.response;
-              return $$1.cache(archiveList, function () {
-                  if ((this.status !== 200) && (!!g.SITE.archivedBoardsKnown || (this.status !== 404))) {
-                      return;
-                  }
-                  return that.ajaxCleanParse(boardID, response1, this.response);
-              });
-          });
+              return this.processThreadsList(boardID, threadsListResponse);
+          }
+          catch (error) {
+              console.error('Error fetching threads list:', error);
+          }
       }
-      ajaxCleanParse(boardID, response1, response2) {
-          let board, ID;
+      async processThreadsList(boardID, threadsListResponse) {
           const siteID = g.SITE.ID;
-          if (!(board = this.data[siteID].boards[boardID])) {
+          const archiveListUrl = g.SITE.urls.archiveListJSON?.({ siteID, boardID });
+          if (!archiveListUrl) {
+              return this.ajaxCleanParse(boardID, threadsListResponse.response, undefined);
+          }
+          try {
+              const archiveListResponse = await $$1.cache(archiveListUrl);
+              if (archiveListResponse.status === 200 || (!g.SITE.archivedBoardsKnown && archiveListResponse.status === 404)) {
+                  return this.ajaxCleanParse(boardID, threadsListResponse.response, archiveListResponse.response);
+              }
+          }
+          catch (error) {
+              console.error('Error fetching archive list:', error);
+          }
+      }
+      ajaxCleanParse(boardID, threadsResponse, archiveResponse) {
+          const siteID = g.SITE.ID;
+          const boardData = this.data[siteID].boards[boardID];
+          if (!boardData) {
               return;
           }
-          const threads = dict();
-          if (response1) {
-              for (const page of response1) {
-                  for (const thread of page.threads) {
-                      ID = thread.no;
-                      if (ID in board) {
-                          threads[ID] = board[ID];
-                      }
-                  }
-              }
-          }
-          if (response2) {
-              for (ID of response2) {
-                  if (ID in board) {
-                      threads[ID] = board[ID];
-                  }
-              }
-          }
-          this.data[siteID].boards[boardID] = threads;
+          const threads = new Map();
+          this.processResponse(boardData, threads, threadsResponse);
+          this.processResponse(boardData, threads, archiveResponse);
+          this.data[siteID].boards[boardID] = Object.fromEntries(threads);
           this.deleteIfEmpty({ siteID, boardID });
-          return $$1.set(this.key, this.data);
+          return $$1.set(this.key, this.data, this.sync);
+      }
+      processResponse(boardData, threads, response) {
+          if (response) {
+              for (const thread of response) {
+                  const threadID = thread.no;
+                  if (threadID in boardData) {
+                      threads.set(threadID, boardData[threadID]);
+                  }
+              }
+          }
       }
       onSync(data) {
           if ((data.version || 0) <= (this.data.version || 0)) {
@@ -2292,11 +2304,13 @@ https://*.hcaptcha.com
           this.keys = [];
       }
       push(key, data) {
-          key = `${key}`;
-          if (!this[key]) {
-              this.keys.push(key);
+          if (key === 'keys') {
+              return undefined;
           }
-          return this[key] = data;
+          else {
+              this.keys.push(key = `${key}`);
+              return this[key] = data;
+          }
       }
       rm(key) {
           let i;
@@ -2307,9 +2321,7 @@ https://*.hcaptcha.com
           }
       }
       forEach(fn) {
-          for (const key of this.keys) {
-              fn(this[key]);
-          }
+          return this.keys.forEach(key => fn(this[key], key));
       }
       get(key) {
           if (key === 'keys') {
@@ -2749,14 +2761,24 @@ https://*.hcaptcha.com
           width: screenWidth - rect.width,
           screenHeight,
           screenWidth,
-          isTouching
+          isTouching,
+          topBorder: 0,
+          bottomBorder: 0,
+          isImage: false,
+          identifier: null,
+          move: null,
+          up: null,
+          workaround: null,
+          clientX: null,
+          hover: null,
+          hoverend: null,
       };
       [o.topBorder, o.bottomBorder] = Conf['Header auto-hide'] || !Conf['Fixed Header'] ?
           [0, 0]
           : Conf['Bottom Header'] ?
-              [0, Header$1.bar.getBoundingClientRect().height]
+              [0, Header.bar.getBoundingClientRect().height]
               :
-                  [Header$1.bar.getBoundingClientRect().height, 0];
+                  [Header.bar.getBoundingClientRect().height, 0];
       if (isTouching) {
           o.identifier = e.identifier;
           o.move = touchmove.bind(o);
@@ -2826,7 +2848,7 @@ https://*.hcaptcha.com
           $$1.off(d$1, 'mousemove', this.move);
           $$1.off(d$1, 'mouseup', this.up);
       }
-      return $$1.set(`${this.id}.position`, this.style.cssText);
+      return $$1.set(`${this.id}.position`, this.style.cssText, Conf);
   };
   const hoverstart = function ({ root, el, latestEvent, endEvents, height, width, cb, noRemove }) {
       const rect = root.getBoundingClientRect();
@@ -2844,7 +2866,10 @@ https://*.hcaptcha.com
           width,
           noRemove,
           clientX: (rect.left + rect.right) / 2,
-          clientY: (rect.top + rect.bottom) / 2
+          clientY: (rect.top + rect.bottom) / 2,
+          hover: null,
+          hoverend: null,
+          workaround: null
       };
       o.hover = hover.bind(o);
       o.hoverend = hoverend.bind(o);
@@ -2989,7 +3014,7 @@ https://*.hcaptcha.com
               if (thread.isHidden && !thread.stub) {
                   continue;
               }
-              if (Header$1.getTopOf(threadRoot) >= -threadRoot.getBoundingClientRect().height) { // not scrolled past
+              if (Header.getTopOf(threadRoot) >= -threadRoot.getBoundingClientRect().height) { // not scrolled past
                   return threadRoot;
               }
           }
@@ -3009,17 +3034,17 @@ https://*.hcaptcha.com
               // Unless we're not at the beginning of the current thread,
               // and thus wanting to move to beginning,
               // or we're above the first thread and don't want to skip it.
-              const top = Header$1.getTopOf(thread);
+              const top = Header.getTopOf(thread);
               if (((delta === +1) && (top < 5)) || ((delta === -1) && (top > -5))) {
                   thread = next;
               }
           }
           // Add extra space to the end of the page if necessary so that all threads can be selected by keybinds.
-          const extra = (Header$1.getTopOf(thread) + doc$1.clientHeight) - d$1.body.getBoundingClientRect().bottom;
+          const extra = (Header.getTopOf(thread) + doc$1.clientHeight) - d$1.body.getBoundingClientRect().bottom;
           if (extra > 0) {
               d$1.body.style.marginBottom = `${extra}px`;
           }
-          Header$1.scrollTo(thread);
+          Header.scrollTo(thread);
           if ((extra > 0) && !Nav.haveExtra) {
               Nav.haveExtra = true;
               return $$1.on(d$1, 'scroll', Nav.removeExtra);
@@ -3141,8 +3166,8 @@ https://*.hcaptcha.com
           };
           $$1.on(this.inputs.unmute, 'change', $$1.cb.checked);
           $$1.on(this.inputs.volume, 'change', $$1.cb.value);
-          Header$1.menu.addEntry({ el: unmuteEntry, order: 200 });
-          return Header$1.menu.addEntry({ el: volumeEntry, order: 201 });
+          Header.menu.addEntry({ el: unmuteEntry, order: 200 });
+          return Header.menu.addEntry({ el: volumeEntry, order: 201 });
       },
       setup(video) {
           video.muted = !Conf['Allow Sound'];
@@ -3175,7 +3200,7 @@ https://*.hcaptcha.com
           for (const file of this.files) {
               if (file.isVideo) {
                   if (file.thumb) {
-                      $$1.on(file.thumb, 'wheel', Volume.wheel.bind(Header$1.hover));
+                      $$1.on(file.thumb, 'wheel', Volume.wheel.bind(Header.hover));
                   }
                   $$1.on(($$1('.file-info', file.text) || file.link), 'wheel', Volume.wheel.bind(file.thumbLink));
               }
@@ -3186,7 +3211,7 @@ https://*.hcaptcha.com
           if (!file?.isVideo) {
               return;
           }
-          return $$1.on(this.nodes.thumb, 'wheel', Volume.wheel.bind(Header$1.hover));
+          return $$1.on(this.nodes.thumb, 'wheel', Volume.wheel.bind(Header.hover));
       },
       wheel(e) {
           let el;
@@ -3443,7 +3468,7 @@ https://*.hcaptcha.com
               href: 'javascript:;'
           });
           $$1.on(this.EAI, 'click', this.cb.toggleAll);
-          Header$1.addShortcut('expand-all', this.EAI, 520);
+          Header.addShortcut('expand-all', this.EAI, 520);
           $$1.on(d$1, 'scroll visibilitychange', this.cb.playVideos);
           this.videoControls = $$1.el('span', { className: 'video-controls' });
           $$1.extend(this.videoControls, { innerHTML: ' <a href="javascript:;" title="You can also contract the video by dragging it to the left.">contract</a>' });
@@ -3506,7 +3531,7 @@ https://*.hcaptcha.com
                   if (ImageExpand.on &&
                       ((!Conf['Expand spoilers'] && file.isSpoiler) ||
                           (!Conf['Expand videos'] && file.isVideo) ||
-                          (Conf['Expand from here'] && (Header$1.getTopOf(file.thumb) < 0)) ||
+                          (Conf['Expand from here'] && (Header.getTopOf(file.thumb) < 0)) ||
                           (Conf['Expand thread only'] && (g.VIEW === 'index') && !threadRoot?.contains(file.thumb)))) {
                       return;
                   }
@@ -3538,7 +3563,7 @@ https://*.hcaptcha.com
                           continue;
                       }
                       const video = file.fullImage;
-                      const visible = ($$1.hasAudio(video) && !video.muted) || Header$1.isNodeVisible(video);
+                      const visible = ($$1.hasAudio(video) && !video.muted) || Header.isNodeVisible(video);
                       if (visible && file.wasPlaying) {
                           delete file.wasPlaying;
                           video.play();
@@ -3569,7 +3594,7 @@ https://*.hcaptcha.com
                   }
               }
               if (next) {
-                  return Header$1.scrollTo(next);
+                  return Header.scrollTo(next);
               }
           }
       },
@@ -3577,7 +3602,7 @@ https://*.hcaptcha.com
           let bottom, el, oldHeight, scrollY;
           const { file } = post;
           if (el = file.fullImage) {
-              const top = Header$1.getTopOf(el);
+              const top = Header.getTopOf(el);
               bottom = top + el.getBoundingClientRect().height;
               oldHeight = d$1.body.clientHeight;
               ({ scrollY } = window);
@@ -3600,7 +3625,7 @@ https://*.hcaptcha.com
               }
               else {
                   // For images not above us that would be moved above us, scroll to the thumbnail.
-                  Header$1.scrollToIfNeeded(post.nodes.root);
+                  Header.scrollToIfNeeded(post.nodes.root);
               }
               if (window.scrollX > 0) {
                   // If we have scrolled right viewing an expanded image, return to the left.
@@ -3721,7 +3746,7 @@ https://*.hcaptcha.com
           if (!file.isExpanding) {
               return;
           } // contracted before the image loaded
-          const bottom = Header$1.getTopOf(file.thumb) + file.thumb.getBoundingClientRect().height;
+          const bottom = Header.getTopOf(file.thumb) + file.thumb.getBoundingClientRect().height;
           const oldHeight = d$1.body.clientHeight;
           const { scrollY } = window;
           $$1.addClass(post.nodes.root, 'expanded-image');
@@ -3735,9 +3760,9 @@ https://*.hcaptcha.com
           // Scroll to display full image.
           if (file.scrollIntoView) {
               delete file.scrollIntoView;
-              const imageBottom = Math.min(doc$1.clientHeight - file.fullImage.getBoundingClientRect().bottom - 25, Header$1.getBottomOf(file.fullImage));
+              const imageBottom = Math.min(doc$1.clientHeight - file.fullImage.getBoundingClientRect().bottom - 25, Header.getBottomOf(file.fullImage));
               if (imageBottom < 0) {
-                  window.scrollBy(0, Math.min(-imageBottom, Header$1.getTopOf(file.fullImage)));
+                  window.scrollBy(0, Math.min(-imageBottom, Header.getTopOf(file.fullImage)));
               }
           }
           if (file.isVideo) {
@@ -3752,7 +3777,7 @@ https://*.hcaptcha.com
           }
           fullImage.controls = false;
           $$1.asap((() => doc$1.contains(fullImage)), function () {
-              if (!d$1.hidden && Header$1.isNodeVisible(fullImage)) {
+              if (!d$1.hidden && Header.isNodeVisible(fullImage)) {
                   return fullImage.play();
               }
               else {
@@ -3830,7 +3855,7 @@ https://*.hcaptcha.com
                   const conf = Config.imageExpansion[name];
                   subEntries.push(createSubEntry(name, conf[1]));
               }
-              return Header$1.menu.addEntry({
+              return Header.menu.addEntry({
                   el,
                   order: 105,
                   subEntries
@@ -4304,6 +4329,8 @@ https://*.hcaptcha.com
               cb: this.catalogNode
           });
       },
+      button: null,
+      menu: null,
       node() {
           if (this.isClone) {
               const button = $$1('.menu-button', this.nodes.info);
@@ -4312,10 +4339,10 @@ https://*.hcaptcha.com
               Menu.makeButton(this, button);
               return;
           }
-          return $$1.add(this.nodes.info, Menu.makeButton(this));
+          return $$1.add(this.nodes.info, Menu.makeButton(this, this.button));
       },
       catalogNode() {
-          return $$1.after(this.nodes.icons, Menu.makeButton(this.thread.OP));
+          return $$1.after(this.nodes.icons, Menu.makeButton(this.thread.OP, this.button));
       },
       makeButton(post, button) {
           if (!button) {
@@ -5266,7 +5293,7 @@ https://*.hcaptcha.com
               else {
                   QuoteYou.lastRead = root;
                   location.href = Get$1.url('post', post);
-                  Header$1.scrollTo(post.nodes.post);
+                  Header.scrollTo(post.nodes.post);
                   if (post.isReply) {
                       const sel = `${g.SITE.selectors.postContainer}${g.SITE.selectors.highlightable.reply}`;
                       let node = post.nodes.root;
@@ -5466,7 +5493,7 @@ https://*.hcaptcha.com
               textContent: 'Mark all unread'
           });
           $$1.on(resetLink, 'click', Unread.reset);
-          return Header$1.menu.addEntry({
+          return Header.menu.addEntry({
               el: resetLink,
               order: 70
           });
@@ -5505,7 +5532,7 @@ https://*.hcaptcha.com
                   position = position.prev;
               }
               else {
-                  Header$1.scrollToIfNeeded(bottom, true);
+                  Header.scrollToIfNeeded(bottom, true);
                   break;
               }
           }
@@ -5584,7 +5611,7 @@ https://*.hcaptcha.com
           }
       },
       openNotification(post, predicate = ' replied to you') {
-          if (!Header$1.areNotificationsEnabled) {
+          if (!Header.areNotificationsEnabled) {
               return;
           }
           const notif = new Notification(`${post.info.nameBlock}${predicate}`, {
@@ -5592,7 +5619,7 @@ https://*.hcaptcha.com
               icon: Favicon.logo
           });
           notif.onclick = function () {
-              Header$1.scrollToIfNeeded(post.nodes.bottom, true);
+              Header.scrollToIfNeeded(post.nodes.bottom, true);
               return window.focus();
           };
           return notif.onshow = () => setTimeout(() => notif.close(), 7 * SECOND);
@@ -5628,7 +5655,7 @@ https://*.hcaptcha.com
               const { ID, data } = Unread.position;
               const { bottom } = data.nodes;
               if (!!bottom.getBoundingClientRect().height && // post has been hidden
-                  (Header$1.getBottomOf(bottom) <= -1)) {
+                  (Header.getBottomOf(bottom) <= -1)) {
                   break;
               } // post is completely read
               count++;
@@ -5982,7 +6009,7 @@ https://*.hcaptcha.com
           const wasVisible = !!UnreadIndex.hr[thread.fullID]?.parentNode;
           UnreadIndex.update(thread);
           if (Conf['Scroll to Last Read Post'] && (e.type === 'PostsInserted') && !wasVisible && !!UnreadIndex.hr[thread.fullID]?.parentNode) {
-              return Header$1.scrollToIfNeeded(UnreadIndex.hr[thread.fullID], true);
+              return Header.scrollToIfNeeded(UnreadIndex.hr[thread.fullID], true);
           }
       },
       sync() {
@@ -6116,7 +6143,7 @@ https://*.hcaptcha.com
               $$1.addClass(ThreadWatcher.shortcut, 'disabled');
               this.dialog.hidden = true;
           }
-          Header$1.addShortcut('watcher', sc, 510);
+          Header.addShortcut('watcher', sc, 510);
           ThreadWatcher.initLastModified();
           ThreadWatcher.fetchAuto();
           $$1.on(window, 'visibilitychange focus', () => $$1.queueTask(ThreadWatcher.fetchAuto));
@@ -6899,7 +6926,7 @@ https://*.hcaptcha.com
                   return;
               }
               const entryEl = $$1.el('a', { href: 'javascript:;' });
-              Header$1.menu.addEntry({
+              Header.menu.addEntry({
                   el: entryEl,
                   order: 60,
                   open() {
@@ -7187,6 +7214,9 @@ https://*.hcaptcha.com
    * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
    */
   class Fetcher {
+      static initClass() {
+          this.flagCSS = null;
+      }
       constructor(boardID, threadID, postID, root, quoter) {
           let post, thread;
           this.boardID = boardID;
@@ -7431,7 +7461,7 @@ https://*.hcaptcha.com
               id: 'qp',
               className: 'dialog'
           });
-          $$1.add(Header$1.hover, qp);
+          $$1.add(Header.hover, qp);
           new Fetcher(boardID, threadID, postID, qp, Get$1.postFromNode(this));
           UI.hover({
               root: this,
@@ -7455,7 +7485,7 @@ https://*.hcaptcha.com
           if (!(root = this.el.firstElementChild)) {
               return;
           }
-          $$1.event('PostsRemoved', null, Header$1.hover);
+          $$1.event('PostsRemoved', null, Header.hover);
           const clone = Get$1.postFromRoot(root);
           let post = clone.origin;
           post.rmClone(root.dataset.clone);
@@ -7523,16 +7553,11 @@ https://*.hcaptcha.com
 </div>
 `;
 
-  /*
-   * decaffeinate suggestions:
-   * DS102: Remove unnecessary code created because of implicit returns
-   * DS205: Consider reworking code to avoid use of IIFEs
-   * DS207: Consider shorter variations of null checks
-   * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
-   */
   const Index = {
       showHiddenThreads: false,
       changed: {},
+      pageNum: 1,
+      pagesNum: 1,
       enabledOn({ siteID, boardID }) {
           return Conf['JSON Index'] && (g.sites[siteID].software === 'yotsuba') && (boardID !== 'f');
       },
@@ -7577,7 +7602,7 @@ https://*.hcaptcha.com
               textContent: '🗘'
           });
           $$1.on(this.button, 'click', () => Index.update());
-          Header$1.addShortcut('index-refresh', this.button, 590);
+          Header.addShortcut('index-refresh', this.button, 590);
           // Header "Index Navigation" submenu
           const entries = [];
           this.inputs = (inputs = dict());
@@ -7607,7 +7632,7 @@ https://*.hcaptcha.com
           sortEntry.title = 'Set the sorting order of each board independently.';
           $$1.on(sortEntry.firstChild, 'change', this.cb.perBoardSort);
           entries.splice(3, 0, { el: sortEntry });
-          Header$1.menu.addEntry({
+          Header.menu.addEntry({
               el: $$1.el('span', { textContent: 'Index Navigation' }),
               order: 100,
               subEntries: entries
@@ -7979,7 +8004,7 @@ https://*.hcaptcha.com
       },
       scrollToIndex() {
           // Scroll to navlinks, or top of board if navlinks are hidden.
-          return Header$1.scrollToIfNeeded((Index.navLinks.getBoundingClientRect().height ? Index.navLinks : Index.root));
+          return Header.scrollToIfNeeded((Index.navLinks.getBoundingClientRect().height ? Index.navLinks : Index.root));
       },
       getCurrentPage() {
           return +window.location.pathname.split(/\/+/)[2] || 1;
@@ -8152,7 +8177,7 @@ https://*.hcaptcha.com
               Index.scrollToIndex();
           }
           if (hash) {
-              Header$1.hashScroll();
+              Header.hashScroll();
           }
           return Index.changed = {};
       },
@@ -8324,7 +8349,7 @@ https://*.hcaptcha.com
                   setTimeout(notice.close, SECOND);
               }
               else {
-                  new Notice('error', 'Index refresh failed.', 1);
+                  new Notice('error', 'Index refresh failed.', 1, err);
               }
               return;
           }
@@ -8348,6 +8373,13 @@ https://*.hcaptcha.com
           Index.changed.threads = true;
           return Index.pageLoad();
       },
+      liveThreadData: null,
+      liveThreadIDs: null,
+      liveThreadDict: null,
+      threadPosition: null,
+      parsedThreads: null,
+      replyData: null,
+      threadsNumPerPage: null,
       parseThreadList(pages) {
           Index.pagesNum = pages.length;
           Index.threadsNumPerPage = pages[0]?.threads.length || 1;
@@ -8641,7 +8673,7 @@ https://*.hcaptcha.com
           }
           delete Index.pageNum;
           $$1.rmAll(Index.root);
-          $$1.rmAll(Header$1.hover);
+          $$1.rmAll(Header.hover);
           if (Index.loaded && Index.root.parentNode) {
               $$1.event('PostsRemoved', null, Index.root);
           }
@@ -12958,6 +12990,7 @@ a:only-of-type > .remove {
    * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
    */
   const SWTinyboard = {
+      software: 'Tinyboard',
       isOPContainerThread: true,
       mayLackJSON: true,
       threadModTimeIgnoresSage: true,
@@ -12986,8 +13019,8 @@ a:only-of-type > .remove {
       ],
       detect() {
           for (const script of $$('script:not([src])', d$1.head)) {
-              let m;
-              if (m = script.textContent.match(/\bvar configRoot=(".*?")/)) {
+              const m = script.textContent.match(/\bvar configRoot=(".*?")/);
+              if (m) {
                   const properties = dict();
                   try {
                       const root = JSON.parse(m[1]);
@@ -13005,7 +13038,8 @@ a:only-of-type > .remove {
           return false;
       },
       awaitBoard(cb) {
-          if ($$1.id('react-ui')) {
+          const reactUI = $$1.id('react-ui');
+          if (reactUI) {
               const s = (this.selectors = Object.create(this.selectors));
               s.boardFor = { index: '.page-container' };
               s.thread = 'div[id^="thread_"]';
@@ -13179,6 +13213,9 @@ $\
               return $$1.unescape(html);
           }
       },
+      areMD5sDeferred(board) {
+          return board.config['image-hover'];
+      },
       bgColoredEl() {
           return $$1.el('div', { className: 'post reply' });
       },
@@ -13187,24 +13224,24 @@ $\
       },
       preParsingFixes(board) {
           // fixes effects of unclosed link in announcement
-          let broken;
-          if (broken = $$1('a > input[name="board"]', board)) {
+          const broken = $$1('a > input[name="board"]', board);
+          if (broken) {
               return $$1.before(broken.parentNode, broken);
           }
       },
       parseNodes(post, nodes) {
           // Add vichan's span.poster_id around the ID if not already present.
-          let m;
           if (nodes.uniqueID) {
               return;
           }
           let text = '';
+          const m = text.match(/(\s*ID:\s*)(\S+)/);
           let node = nodes.nameBlock.nextSibling;
           while (node && (node.nodeType === 3)) {
               text += node.textContent;
               node = node.nextSibling;
           }
-          if (m = text.match(/(\s*ID:\s*)(\S+)/)) {
+          if (m) {
               let uniqueID;
               nodes.info.normalize();
               let { nextSibling } = nodes.nameBlock;
@@ -13289,7 +13326,7 @@ $\
           const close = $$1('a', msg);
           $$1.on(close, 'click', function () {
               $$1.rm(msg);
-              return $$1.set('passMessageClosed', true);
+              return $$1.set('passMessageClosed', true, Conf);
           });
           return $$1.ready(function () {
               let hd;
@@ -13766,7 +13803,7 @@ $\
                       PassMessage.init();
                   }
                   else {
-                      $$1.onExists(doc$1, 'body', () => $$1.addStyle(CSS.www));
+                      $$1.onExists(doc$1, 'body', () => $$1.addStyle(CSS.www, 'www'));
                       Captcha.replace.init();
                   }
                   return;
@@ -13784,7 +13821,7 @@ $\
                                   return Redirect$1.navigate('thread', {
                                       boardID: g.BOARD.ID,
                                       postID: +match[1]
-                                  });
+                                  }, { replace: true });
                               }
                           });
                       }
@@ -13824,16 +13861,12 @@ $\
       parseNodes(post, nodes) {
           // Add CSS classes to sticky/closed icons on /f/ to match other boards.
           if (post.boardID === 'f') {
-              return (() => {
-                  const result = [];
-                  for (const type of ['Sticky', 'Closed']) {
-                      let icon;
-                      if (icon = $$1(`img[alt=${type}]`, nodes.info)) {
-                          result.push($$1.addClass(icon, `${type.toLowerCase()}Icon`, 'retina'));
-                      }
+              for (const type of ['Sticky', 'Closed']) {
+                  const icon = $$1(`img[alt=${type}]`, nodes.info);
+                  if (icon) {
+                      $$1.addClass(icon, `${type.toLowerCase()}Icon`, 'retina');
                   }
-                  return result;
-              })();
+              }
           }
       },
       parseDate(node) {
@@ -14182,8 +14215,8 @@ $\
               });
           },
           thread(thread, data, withReplies) {
-              let root;
-              if (root = thread.nodes.root) {
+              let root = thread.nodes.root;
+              if (root) {
                   $$1.rmAll(root);
               }
               else {
@@ -14352,7 +14385,7 @@ $\
           L() { return h("a", { href: this.file.url, target: "_blank" }, FileInfo.formatters.N.call(this)); },
           n() {
               const fullname = this.file.name;
-              const shortname = SW.yotsuba.Build.shortFilename(this.file.name, this.isReply);
+              const shortname = SW.yotsuba.Build.shortFilename(this.file.name);
               if (fullname === shortname) {
                   return { innerHTML: E(fullname), [isEscaped]: true };
               }
@@ -14506,7 +14539,7 @@ $\
           this.setEnabled.call(this.inputs.enabled);
           $$1.on(this.inputs.enabled, 'change', this.setEnabled);
           $$1.on(this.inputs.replies, 'change', $$1.cb.value);
-          Header$1.menu.addEntry({
+          Header.menu.addEntry({
               el,
               order: 190
           });
@@ -14625,7 +14658,7 @@ $\
                   g.SITE.Build.summaryText('-', ReplyPruning.total, ReplyPruning.totalFiles);
           ReplyPruning.summary.hidden = (ReplyPruning.total <= +Conf['Max Replies']);
           // Maintain position in thread when posts are added/removed above
-          if ((hidden1 !== hidden2) && ((boardTop = Header$1.getTopOf($$1('.board'))) < 0)) {
+          if ((hidden1 !== hidden2) && ((boardTop = Header.getTopOf($$1('.board'))) < 0)) {
               return window.scrollBy(0, Math.max(d$1.body.clientHeight - oldPos, window.scrollY + boardTop) - window.scrollY);
           }
       }
@@ -14656,7 +14689,7 @@ $\
           $$1.on(this.input, 'change', this.rethread);
           $$1.on(this.threadNewLink.firstElementChild, 'click', this.rethread);
           $$1.on(d$1, '4chanXInitFinished', () => { return this.ready = true; });
-          Header$1.menu.addEntry(this.entry = {
+          Header.menu.addEntry(this.entry = {
               el: this.controls,
               order: 99
           });
@@ -14862,7 +14895,7 @@ $\
           if (Conf['Updater and Stats in Header']) {
               this.dialog = (sc = $$1.el('span', { id: 'updater' }));
               $$1.extend(sc, { innerHTML: '<span id="update-status" class="empty"></span><span id="update-timer" class="empty" title="Update now"></span>' });
-              Header$1.addShortcut('updater', sc, 100);
+              Header.addShortcut('updater', sc, 100);
           }
           else {
               this.dialog = (sc = UI.dialog('updater', { innerHTML: '<div class="move"></div><span id="update-status" class="empty"></span><span id="update-timer" class="empty" title="Update now"></span>' }));
@@ -14902,7 +14935,7 @@ $\
           this.settings = $$1.el('span', { innerHTML: '<a href="javascript:;">Interval</a>' });
           $$1.on(this.settings, 'click', this.intervalShortcut);
           subEntries.push({ el: this.settings });
-          Header$1.menu.addEntry(this.entry = {
+          Header.menu.addEntry(this.entry = {
               el: $$1.el('span', { textContent: 'Updater' }),
               order: 110,
               subEntries
@@ -15244,7 +15277,7 @@ $\
                   }
                   else {
                       if (firstPost) {
-                          Header$1.scrollTo(firstPost);
+                          Header.scrollTo(firstPost);
                       }
                   }
               }
@@ -15286,7 +15319,7 @@ $\
               href: 'javascript:;'
           });
           $$1.on(link, 'click', Settings.open);
-          Header$1.addShortcut('settings', link, 820);
+          Header.addShortcut('settings', link, 820);
           const add = this.addSection;
           add('Main', this.main);
           add('Filter', this.filter);
@@ -15311,10 +15344,10 @@ $\
                       catch (error) {
                           return Object.defineProperty(window, 'Config', { value: { disableAll: true } });
                       }
-                  });
+                  }, true);
               }
               else {
-                  return $$1.global(() => Object.defineProperty(window, 'Config', { value: { disableAll: true } }));
+                  return $$1.global(() => Object.defineProperty(window, 'Config', { value: { disableAll: true } }), true);
               }
           }
       },
@@ -15323,7 +15356,7 @@ $\
           if (Settings.dialog) {
               return;
           }
-          $$1.event('CloseMenu');
+          $$1.event('CloseMenu', null);
           Settings.dialog = (dialog = $$1.el('div', { id: 'overlay' }, settingsHtml));
           $$1.on($$1('.export', dialog), 'click', Settings.export);
           $$1.on($$1('.import', dialog), 'click', Settings.import);
@@ -15484,7 +15517,7 @@ Enable it on boards.${location.hostname.split('.')[1]}.org in your browser's pri
                   inputs[key].checked = val;
                   inputs[key].parentNode.parentNode.dataset.checked = val;
               }
-          });
+          }, true);
           const div = $$1.el('div', { innerHTML: '<button></button><span class="description">: Clear manually-hidden threads and posts on all boards. Reload the page to apply.' });
           const button = $$1('button', div);
           $$1.get({ hiddenThreads: dict(), hiddenPosts: dict() }, function ({ hiddenThreads, hiddenPosts }) {
@@ -15523,7 +15556,7 @@ Enable it on boards.${location.hostname.split('.')[1]}.org in your browser's pri
                   }
               }
               return button.textContent = `Hidden: ${hiddenNum}`;
-          });
+          }, true);
           $$1.on(button, 'click', function () {
               this.textContent = 'Hidden: 0';
               return $$1.get('hiddenThreads', dict(), function ({ hiddenThreads }) {
@@ -15536,7 +15569,9 @@ Enable it on boards.${location.hostname.split('.')[1]}.org in your browser's pri
                           localStorage.removeItem(`4chan-hide-t-${boardID}`);
                       }
                   }
-                  return ($$1.delete(['hiddenThreads', 'hiddenPosts']));
+                  return ($$1.delete(['hiddenThreads', 'hiddenPosts'], function () {
+                      return window.location.reload();
+                  }));
               });
           });
           return $$1.after($$1('input[name="Stubs"]', section).parentNode.parentNode, div);
@@ -15549,7 +15584,7 @@ Enable it on boards.${location.hostname.split('.')[1]}.org in your browser's pri
               // Don't export cached JSON data.
               delete Conf2['boardConfig'];
               return (Settings.downloadExport({ version: g.VERSION, date: Date.now(), Conf: Conf2 }));
-          });
+          }, true);
       },
       downloadExport(data) {
           const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -15808,7 +15843,7 @@ Enable it on boards.${location.hostname.split('.')[1]}.org in your browser's pri
               }
           }
           if ((compareString < '00001.00011.00019.00003') && !Settings.dialog) {
-              $$1.queueTask(() => Settings.warnings.ads(item => new Notice('warning', [...item.childNodes])));
+              $$1.queueTask(() => Settings.warnings.ads(item => new Notice('warning', [...item.childNodes], { timeout: 0 }, true)));
           }
           if (compareString < '00001.00011.00020.00003') {
               const object = { 'Inline Cross-thread Quotes Only': false, 'Pass Link': true };
@@ -16114,7 +16149,9 @@ vp-replace
               inputs[input.name] = input;
           }
           $$1.on(inputs['archiveLists'], 'change', function () {
-              $$1.set('lastarchivecheck', 0);
+              $$1.set('lastarchivecheck', 0, function () {
+                  return Settings.addArchiveTable(section);
+              });
               Conf['lastarchivecheck'] = 0;
               return $$1.id('lastarchivecheck').textContent = 'never';
           });
@@ -16142,7 +16179,7 @@ vp-replace
                       Settings[key].call(input);
                   }
               }
-          });
+          }, true);
           const listImageHost = $$1.id('list-fourchanImageHost');
           for (const textContent of ImageHost.suggestions) {
               $$1.add(listImageHost, $$1.el('option', { textContent }));
@@ -16165,7 +16202,7 @@ vp-replace
               $$1.extend(Conf, itemsArchive);
               Redirect$1.selectArchives();
               return Settings.addArchiveTable(section);
-          });
+          }, true);
           const boardSelect = $$1('#archive-board-select', section);
           const table = $$1('#archive-table', section);
           const updateArchives = $$1('#update-archives', section);
@@ -16277,13 +16314,13 @@ vp-replace
       saveSelectedArchive() {
           return $$1.get('selectedArchives', Conf['selectedArchives'], ({ selectedArchives }) => {
               (selectedArchives[this.dataset.boardid] || (selectedArchives[this.dataset.boardid] = dict()))[this.dataset.type] = JSON.parse(this.value);
-              $$1.set('selectedArchives', selectedArchives);
+              $$1.set('selectedArchives', selectedArchives, () => Settings.addArchiveTable(Settings.dialog));
               Conf['selectedArchives'] = selectedArchives;
               return Redirect$1.selectArchives();
           });
       },
       boardnav() {
-          return Header$1.generateBoardList(this.value);
+          return Header.generateBoardList(this.value);
       },
       time() {
           return this.nextElementSibling.textContent = Time.format(this.value, new Date());
@@ -16359,7 +16396,7 @@ vp-replace
                   const val = items[key];
                   inputs[key].value = val;
               }
-          });
+          }, true);
       },
       keybind(e) {
           let key;
@@ -16401,7 +16438,7 @@ vp-replace
                       this.set(lc, true);
                   }
                   $$1.on(this.nodes[lc], 'change', this.toggle.bind(this, lc));
-                  Header$1.menu.addEntry({
+                  Header.menu.addEntry({
                       el,
                       order: 97
                   });
@@ -16415,7 +16452,7 @@ vp-replace
                       check.checked = !check.checked;
                       return $$1.event('change', null, check);
                   });
-                  Header$1.addShortcut(lc, indicator, 410);
+                  Header.addShortcut(lc, indicator, 410);
               }
           }
           if (Conf['Werk Tyme']) {
@@ -16514,6 +16551,8 @@ vp-replace
               cb: this.node
           });
       },
+      links: [],
+      link: null,
       parseLink(link) {
           if (!(link = link.trim())) {
               return null;
@@ -16553,7 +16592,7 @@ vp-replace
                       $$1.tn(link),
                       $$1.el('br'),
                       $$1.tn(err.message)
-                  ], 60);
+                  ], 60, 'sauce');
                   return null;
               }
           }
@@ -16662,9 +16701,7 @@ vp-replace
           } },
           MD5(post, file) { return file.MD5; },
           sMD5(post, file) { return file.MD5?.replace(/[+/=]/g, c => ({ '+': '-', '/': '_', '=': '' })[c]); },
-          hMD5(post, file) { if (file.MD5) {
-              return (atob(file.MD5).map((c) => `0${c.charCodeAt(0).toString(16)}`.slice(-2))).join('');
-          } },
+          hMD5(post, file) { return file.MD5?.replace(/[+/=]/g, c => ({ '+': '-', '/': '_', '=': '' })[c]).toLowerCase(); },
           board(post) { return post.board.ID; },
           name(post, file) { return file.name; },
           '%'() { return '%'; },
@@ -16690,7 +16727,7 @@ vp-replace
               textContent: '🖼︎',
           });
           $$1.on(el, 'click', this.cb.toggle);
-          Header$1.addShortcut('gallery', el, 530);
+          Header.addShortcut('gallery', el, 530);
           return Callbacks.Post.push({
               name: 'Gallery',
               cb: this.node
@@ -16781,7 +16818,7 @@ vp-replace
                       // If no image to open is given, pick image we have scrolled to.
                       if (!image && Gallery.fileIDs[`${post.fullID}.${file.index}`]) {
                           const candidate = file.thumbLink;
-                          if ((Header$1.getTopOf(candidate) + candidate.getBoundingClientRect().height) >= 0) {
+                          if ((Header.getTopOf(candidate) + candidate.getBoundingClientRect().height) >= 0) {
                               image = candidate;
                           }
                       }
@@ -16903,7 +16940,7 @@ vp-replace
           }
           // Scroll to post
           if (Conf['Scroll to Post'] && (post = g.posts.get(file.dataset.post))) {
-              Header$1.scrollTo(post.nodes.root);
+              Header.scrollTo(post.nodes.root);
           }
           // Preload next image
           if (isNaN(oldID) || (newID === ((oldID + 1) % Gallery.images.length))) {
@@ -17139,7 +17176,7 @@ vp-replace
                   textContent: 'Gallery',
                   className: 'gallery-link'
               });
-              return Header$1.menu.addEntry({
+              return Header.menu.addEntry({
                   el,
                   order: 105,
                   subEntries: Gallery.menu.createSubEntries()
@@ -17309,7 +17346,7 @@ vp-replace
           $$1.on($$1('.move', Embedding.dialog), 'mousedown', Embedding.dragEmbed);
           $$1.on($$1('.jump', Embedding.dialog), 'click', function () {
               if (doc$1.contains(Embedding.lastEmbed)) {
-                  return Header$1.scrollTo(Embedding.lastEmbed);
+                  return Header.scrollTo(Embedding.lastEmbed);
               }
           });
           return $$1.add(d$1.body, Embedding.dialog);
@@ -17382,7 +17419,7 @@ vp-replace
                   src,
                   id: 'ihover'
               });
-              $$1.add(Header$1.hover, el);
+              $$1.add(Header.hover, el);
               return UI.hover({
                   root: link,
                   el,
@@ -17927,10 +17964,10 @@ vp-replace
                   if (!Conf['Custom Board Navigation']) {
                       return;
                   }
-                  Header$1.toggleBoardList();
+                  Header.toggleBoardList();
                   break;
               case Conf['Toggle header']:
-                  Header$1.toggleBarVisibility();
+                  Header.toggleBarVisibility();
                   break;
               case Conf['Open empty QR']:
                   if (!QR.postingIsEnabled) {
@@ -18169,7 +18206,7 @@ vp-replace
                   if (!searchInput) {
                       return;
                   }
-                  Header$1.scrollToIfNeeded(searchInput);
+                  Header.scrollToIfNeeded(searchInput);
                   searchInput.focus();
                   break;
               case Conf['Paged mode']:
@@ -18221,7 +18258,7 @@ vp-replace
                   }
                   ExpandThread.toggle(thread);
                   // Keep thread from moving off screen when contracted.
-                  Header$1.scrollTo(threadRoot);
+                  Header.scrollTo(threadRoot);
                   break;
               case Conf['Open thread']:
                   if ((g.VIEW !== 'index') || !threadRoot) {
@@ -18258,7 +18295,7 @@ vp-replace
                   if (!thread || !ThreadHiding.db) {
                       return;
                   }
-                  Header$1.scrollTo(threadRoot);
+                  Header.scrollTo(threadRoot);
                   ThreadHiding.toggle(thread);
                   break;
               case Conf['Quick Filter MD5']:
@@ -18415,7 +18452,7 @@ vp-replace
           }
           if (postEl) {
               const { height } = postEl.getBoundingClientRect();
-              if ((Header$1.getTopOf(postEl) >= -height) && (Header$1.getBottomOf(postEl) >= -height)) { // We're at least partially visible
+              if ((Header.getTopOf(postEl) >= -height) && (Header.getBottomOf(postEl) >= -height)) { // We're at least partially visible
                   let next;
                   const { root } = Get$1.postFromNode(postEl).nodes;
                   const axis = delta === +1 ?
@@ -18428,7 +18465,7 @@ vp-replace
                   if (!next.matches(replySelector)) {
                       next = $$1(replySelector, next);
                   }
-                  Header$1.scrollToIfNeeded(next, delta === +1);
+                  Header.scrollToIfNeeded(next, delta === +1);
                   $$1.addClass(next, highlight);
                   $$1.rmClass(postEl, highlight);
                   return;
@@ -18440,7 +18477,7 @@ vp-replace
               replies.reverse();
           }
           for (const reply of replies) {
-              if (((delta === +1) && (Header$1.getTopOf(reply) > 0)) || ((delta === -1) && (Header$1.getBottomOf(reply) > 0))) {
+              if (((delta === +1) && (Header.getTopOf(reply) > 0)) || ((delta === -1) && (Header.getBottomOf(reply) > 0))) {
                   $$1.addClass(reply, highlight);
                   return;
               }
@@ -18902,7 +18939,7 @@ vp-replace
                   return QR.close();
               }
           });
-          return Header$1.addShortcut('qr', sc, 540);
+          return Header.addShortcut('qr', sc, 540);
       },
       initReady() {
           let origToggle;
@@ -19059,7 +19096,7 @@ vp-replace
       toggleSJIS(e) {
           e.preventDefault();
           Conf['sjisPreview'] = !Conf['sjisPreview'];
-          $$1.set('sjisPreview', Conf['sjisPreview']);
+          $$1.set('sjisPreview', Conf['sjisPreview'], QR.sjisPreview);
           return QR.nodes.el.classList.toggle('sjis-preview', Conf['sjisPreview']);
       },
       texPreviewShow() {
@@ -19090,7 +19127,7 @@ vp-replace
       toggleCustomCooldown() {
           const enabled = $$1.hasClass(QR.nodes.customCooldown, 'disabled');
           QR.setCustomCooldown(enabled);
-          return $$1.set('customCooldownEnabled', enabled);
+          return $$1.set('customCooldownEnabled', enabled, QR.setCustomCooldown);
       },
       error(err, focusOverride) {
           let el;
@@ -19102,9 +19139,9 @@ vp-replace
               el = err;
               el.removeAttribute('style');
           }
-          const notice = new Notice('warning', el);
+          const notice = new Notice('warning', el, { timeout: 0 }, QR.close);
           QR.notifications.push(notice);
-          if (!Header$1.areNotificationsEnabled) {
+          if (!Header.areNotificationsEnabled) {
               if (d$1.hidden && !QR.cooldown.auto) {
                   return alert(el.textContent);
               }
@@ -19166,7 +19203,7 @@ vp-replace
           QR.open();
           if (QR.selected.isLocked) {
               const index = QR.posts.indexOf(QR.selected);
-              (QR.posts[index + 1] || new QR.post()).select();
+              (QR.posts[index + 1] || new QR.post(true)).select();
               $$1.addClass(QR.nodes.el, 'dump');
               return QR.cooldown.auto = true;
           }
@@ -19280,7 +19317,7 @@ vp-replace
           $$1.extend(div, {
               innerHTML: 'Could not open file. [<a href="' + E(meta.faq) + '#error-reading-metadata" target="_blank">More info</a>]'
           });
-          return QR.error(div);
+          return QR.error(div, true);
       },
       setFile(e) {
           const { file, name, source } = e.detail;
@@ -19376,10 +19413,10 @@ vp-replace
                       return QR.handleFiles([blob]);
                   }
                   else {
-                      return QR.error("Can't load file.");
+                      return QR.error("Can't load file.", true);
                   }
               });
-          });
+          }, urlDefault, 'URL');
       },
       handleFiles(files) {
           if (this !== QR) { // file input
@@ -19409,7 +19446,7 @@ vp-replace
           else {
               post = QR.posts[QR.posts.length - 1];
               if (isText ? post.com || post.pasting : post.file) {
-                  post = new QR.post();
+                  post = new QR.post(true);
               }
           }
           return post[isText ? 'pasteText' : 'setFile'](file);
@@ -19550,7 +19587,7 @@ vp-replace
                   if (e.button !== 0) {
                       return;
                   }
-                  return $$1.set('QR Size', this.style.cssText);
+                  return $$1.set('QR Size', this.style.cssText, null);
               });
           }
           QR.generatePostableThreadsList();
@@ -19604,7 +19641,7 @@ vp-replace
               QR.abort();
               return;
           }
-          $$1.forceSync('cooldowns');
+          $$1.forceSync();
           if (QR.cooldown.seconds) {
               if (force) {
                   QR.cooldown.clear();
@@ -19664,7 +19701,7 @@ vp-replace
               // stop auto-posting
               QR.cooldown.auto = false;
               QR.status();
-              QR.error(err);
+              QR.error(err, true);
               return;
           }
           // Enable auto-posting if we have stuff to post, disable it otherwise.
@@ -19742,7 +19779,7 @@ vp-replace
               };
               captcha(function (response) {
                   if ((QR.captcha === Captcha.v2) && Captcha.cache.haveCookie()) {
-                      cb?.();
+                      cb?.(response);
                       if (response) {
                           return Captcha.cache.save(response);
                       }
@@ -19835,7 +19872,7 @@ vp-replace
               }
               QR.captcha.setup(QR.cooldown.auto && [QR.nodes.status, d$1.body].includes(d$1.activeElement));
               QR.status();
-              QR.error(err);
+              QR.error(err, true);
               return;
           }
           delete QR.errorCount;
@@ -19878,7 +19915,7 @@ vp-replace
           }
           QR.cleanNotifications();
           if (Conf['Posting Success Notifications']) {
-              QR.notifications.push(new Notice('success', h1.textContent, 5));
+              QR.notifications.push(new Notice('success', h1.textContent, 5, () => $$1.open(`${window.location.origin}/${g.BOARD}/thread/${threadID}#p${postID}`)));
           }
           QR.cooldown.add(threadID, postID);
           const URL = threadID === postID ? ( // new thread
@@ -19929,7 +19966,7 @@ vp-replace
               delete QR.currentCaptcha;
               QR.posts[0].unlock();
               QR.cooldown.auto = false;
-              QR.notifications.push(new Notice('info', 'QR upload aborted.', 5));
+              QR.notifications.push(new Notice('info', 'QR upload aborted.', 5, QR.status));
           }
           return QR.status();
       },
@@ -20172,7 +20209,7 @@ vp-replace
           count() {
               QR.cooldown.update();
               if ((QR.cooldown.seconds === 0) && QR.cooldown.auto && !QR.req) {
-                  return QR.submit();
+                  return QR.submit(Event);
               }
           }
       },
@@ -20205,7 +20242,7 @@ vp-replace
                   const currentTime = post.file.fullImage?.currentTime || 0;
                   return CrossOrigin$1.file(post.file.url, function (blob) {
                       if (!blob) {
-                          return QR.error("Can't load file.");
+                          return QR.error("Can't load file.", true);
                       }
                       else if (isVideo) {
                           const video = $$1.el('video');
@@ -20249,7 +20286,7 @@ vp-replace
                   if (window.Tegaki) {
                       return document.querySelector('#qr .oekaki').hidden = false;
                   }
-              });
+              }, true);
           },
           load(cb) {
               if ($$1('script[src^="//s.4cdn.org/js/tegaki"]', d$1.head)) {
@@ -20289,7 +20326,7 @@ vp-replace
                           :
                               'transparent'
                   });
-              });
+              }, true);
           },
           button() {
               if (QR.selected.file) {
@@ -20353,9 +20390,9 @@ vp-replace
                       return Tegaki.resume();
                   }
                   else {
-                      return cb();
+                      return cb(cb);
                   }
-              }));
+              }, true));
           },
           toggle() {
               return QR.oekaki.load(() => QR.nodes.oekaki.hidden = !QR.nodes.oekaki.hidden);
@@ -20440,7 +20477,7 @@ vp-replace
                       name: post.name,
                       flag: post.flag
                   };
-                  return $$1.set('QR.persona', persona);
+                  return $$1.set('QR.persona', persona, () => QR.persona.always = persona);
               });
           }
       },
@@ -20709,7 +20746,7 @@ vp-replace
           dismissErrors(test = () => true) {
               if (this.errors) {
                   for (const error of this.errors) {
-                      if (doc$1.contains(error) && test(error)) {
+                      if (doc$1.contains(error) && test()) {
                           error.parentNode.previousElementSibling.click();
                       }
                   }
@@ -20743,7 +20780,7 @@ vp-replace
               this.nodes.el.dataset.type = this.file.type;
               this.nodes.el.style.backgroundImage = '';
               if (!QR.mimeTypes.includes(this.file.type)) {
-                  this.fileError('Unsupported file type.');
+                  this.fileError('Unsupported file type.', meta.faq + '#supported-files');
               }
               else if (/^(image|video)\//.test(this.file.type)) {
                   this.readFile();
@@ -20756,7 +20793,7 @@ vp-replace
                   max = Math.min(max, QR.max_size_video);
               }
               if (this.file.size > max) {
-                  return this.fileError(`File too large (file: ${this.filesize}, max: ${$$1.bytesToString(max)}).`);
+                  return this.fileError(`File too large (file: ${this.filesize}, max: ${$$1.bytesToString(max)}).`, meta.faq + '#file-size');
               }
           }
           readFile() {
@@ -20794,10 +20831,10 @@ vp-replace
                   this.nodes.el.dataset.height = height;
                   this.nodes.el.dataset.width = width;
                   if ((height > QR.max_height) || (width > QR.max_width)) {
-                      this.fileError(`Image too large (image: ${height}x${width}px, max: ${QR.max_height}x${QR.max_width}px)`);
+                      this.fileError(`Image too large (image: ${height}x${width}px, max: ${QR.max_height}x${QR.max_width}px)`, meta.faq + '#image-size');
                   }
                   if ((height < QR.min_height) || (width < QR.min_width)) {
-                      return this.fileError(`Image too small (image: ${height}x${width}px, min: ${QR.min_height}x${QR.min_width}px)`);
+                      return this.fileError(`Image too small (image: ${height}x${width}px, min: ${QR.min_height}x${QR.min_width}px)`, meta.faq + '#image-size');
                   }
               }
               else {
@@ -20808,19 +20845,19 @@ vp-replace
                   const max_height = Math.min(QR.max_height, QR.max_height_video);
                   const max_width = Math.min(QR.max_width, QR.max_width_video);
                   if ((videoHeight > max_height) || (videoWidth > max_width)) {
-                      this.fileError(`Video too large (video: ${videoHeight}x${videoWidth}px, max: ${max_height}x${max_width}px)`);
+                      this.fileError(`Video too large (video: ${videoHeight}x${videoWidth}px, max: ${max_height}x${max_width}px)`, meta.faq + '#video-size');
                   }
                   if ((videoHeight < QR.min_height) || (videoWidth < QR.min_width)) {
-                      this.fileError(`Video too small (video: ${videoHeight}x${videoWidth}px, min: ${QR.min_height}x${QR.min_width}px)`);
+                      this.fileError(`Video too small (video: ${videoHeight}x${videoWidth}px, min: ${QR.min_height}x${QR.min_width}px)`, meta.faq + '#video-size');
                   }
                   if (!isFinite(duration)) {
-                      this.fileError('Video lacks duration metadata (try remuxing)');
+                      this.fileError('Video lacks duration metadata (try remuxing)', meta.faq + '#error-reading-metadata');
                   }
                   else if (duration > QR.max_duration_video) {
-                      this.fileError(`Video too long (video: ${duration}s, max: ${QR.max_duration_video}s)`);
+                      this.fileError(`Video too long (video: ${duration}s, max: ${QR.max_duration_video}s)`, meta.faq + '#video-size');
                   }
                   if (BoardConfig.noAudio(g.BOARD.ID) && $$1.hasAudio(el)) {
-                      return this.fileError('Audio not allowed');
+                      return this.fileError('Audio not allowed', meta.faq + '#audio');
                   }
               }
           }
@@ -20880,7 +20917,7 @@ vp-replace
               $$1.rmClass(this.nodes.el, 'has-file');
               this.showFileData();
               URL.revokeObjectURL(this.URL);
-              this.dismissErrors(error => $$1.hasClass(error, 'file-error'));
+              this.dismissErrors(() => !this.file);
               return this.preventAutoPost();
           }
           rmMetadata() {
@@ -21226,7 +21263,7 @@ vp-replace
   // http://api.jquery.com/
   // not chainable
   const $ = (selector, root = document.body) => root.querySelector(selector);
-  $.id = id => d$1.getElementById(id);
+  $.id = (id) => document.getElementById(id);
   $.ready = function (fc) {
       if (d$1.readyState !== 'loading') {
           $.queueTask(fc);
@@ -21236,7 +21273,7 @@ vp-replace
           $.off(d$1, 'DOMContentLoaded', cb);
           return fc();
       };
-      return $.on(d$1, 'DOMContentLoaded', cb);
+      return $.on(document, 'DOMContentLoaded', cb);
   };
   $.formData = function (form) {
       if (form instanceof HTMLFormElement) {
@@ -21273,13 +21310,13 @@ vp-replace
   };
   $.ajax = (function () {
       let pageXHR;
-      if (window.wrappedJSObject && !XMLHttpRequest.wrappedJSObject) {
+      if (window.wrappedJSObject && window.wrappedJSObject.XMLHttpRequest) {
           pageXHR = XPCNativeWrapper(window.wrappedJSObject.XMLHttpRequest);
       }
       else {
           pageXHR = XMLHttpRequest;
       }
-      const r = (function (url, options = {}) {
+      const r = (function (url, options = { onloadend: null, timeout: 10000, responseType: 'json', withCredentials: false, type: 'get', onprogress: null, form: null, headers: null, dataType: null, testCORB: false }) {
           if (options.responseType == null) {
               options.responseType = 'json';
           }
@@ -21313,7 +21350,7 @@ vp-replace
                   // https://bugs.chromium.org/p/chromium/issues/detail?id=920638
                   $.on(r, 'load', () => {
                       if (!Conf['Work around CORB Bug'] && r.readyState === 4 && r.status === 200 && r.statusText === '' && r.response === null) {
-                          $.set('Work around CORB Bug', (Conf['Work around CORB Bug'] = Date.now()));
+                          $.set('Work around CORB Bug', (Conf['Work around CORB Bug'] = Date.now()), () => location.reload());
                       }
                   });
               }
@@ -21391,7 +21428,7 @@ vp-replace
                       }
                       return r.abort();
                   }, false);
-              });
+              }, { requests: true });
               $.on(d$1, '4chanXAjaxProgress', function (e) {
                   let req;
                   if (!(req = requests[e.detail.id])) {
@@ -21416,9 +21453,10 @@ vp-replace
                   return req.onloadend();
               });
           };
-          return $.ajaxPage = function (url, options = {}) {
+          return $.ajaxPage = function (url, options = { onloadend: null, timeout: 10000, responseType: 'json', withCredentials: false, type: 'get', onprogress: null, form: null, headers: null }) {
               let req;
-              let { onloadend, timeout, responseType, withCredentials, type, onprogress, form, headers } = options;
+              let { form } = options;
+              const { onloadend, timeout, responseType, withCredentials, type, onprogress, headers } = options;
               const id = requestID++;
               requests[id] = (req = new CrossOrigin$1.Request());
               $.extend(req, { responseType, onloadend });
@@ -21436,7 +21474,7 @@ vp-replace
   // With the `If-Modified-Since` header we only receive the HTTP headers and no body for 304 responses.
   // This saves a lot of bandwidth and CPU time for both the users and the servers.
   $.lastModified = dict();
-  $.whenModified = function (url, bucket, cb, options = {}) {
+  $.whenModified = function (url, bucket, cb, options = { timeout: 10000, ajax: null }) {
       let t;
       const { timeout, ajax } = options;
       const params = [];
@@ -21467,7 +21505,7 @@ vp-replace
   };
   (function () {
       const reqs = dict();
-      $.cache = function (url, cb, options = {}) {
+      $.cache = function (url, cb, options = { ajax: null }) {
           let req;
           const { ajax } = options;
           if (req = reqs[url]) {
@@ -21503,13 +21541,13 @@ vp-replace
   $.cb = {
       checked() {
           if ($.hasOwn(Conf, this.name)) {
-              $.set(this.name, this.checked);
+              $.set(this.name, this.checked, () => $.event('4chanXSettingsChange', { name: this.name }));
               return Conf[this.name] = this.checked;
           }
       },
       value() {
           if ($.hasOwn(Conf, this.name)) {
-              $.set(this.name, this.value.trim());
+              $.set(this.name, this.value.trim(), () => $.event('4chanXSettingsChange', { name: this.name }));
               return Conf[this.name] = this.value;
           }
       }
@@ -21706,18 +21744,14 @@ vp-replace
           return timeout = setTimeout(exec, wait);
       };
   };
-  $.queueTask = (function () {
-      const taskQueue = [];
-      const execTask = function () {
-          const [func, ...args] = taskQueue.shift();
-          func(...args);
-      };
-      return function () {
-          taskQueue.push(arguments);
-          // setTimeout is throttled in background tabs on firefox
-          Promise.resolve().then(execTask);
-      };
-  })();
+  $.queueTask = function (fn, ...args) {
+      if (args.length) {
+          return setTimeout(fn, 0, ...args);
+      }
+      else {
+          return setTimeout(fn, 0);
+      }
+  };
   $.global = function (fn, data) {
       if (doc$1) {
           const script = $.el('script', { textContent: `(${fn}).call(document.currentScript.dataset);` });
@@ -21837,60 +21871,47 @@ vp-replace
       $.sync = (key, cb) => $.syncing[key] = cb;
       $.forceSync = function () { };
       $.crxWorking = function () {
-          try {
-              if (chrome.runtime.getManifest()) {
-                  return true;
-              }
+          if (chrome.runtime.lastError) {
+              c.error(chrome.runtime.lastError.message);
+              return false;
           }
-          catch (error) { }
-          if (!$.crxWarningShown) {
-              const msg = $.el('div', { innerHTML: '4chan X seems to have been updated. You will need to <a href="javascript:;">reload</a> the page.' });
-              $.on($('a', msg), 'click', () => location.reload());
-              new Notice('warning', msg);
-              $.crxWarningShown = true;
-          }
-          return false;
+          return true;
       };
       $.get = $.oneItemSugar(function (data, cb) {
           if (!$.crxWorking()) {
               return;
           }
           const results = {};
-          const get = function (area) {
-              let keys = Object.keys(data);
-              // XXX slow performance in Firefox
+          let keys = Object.keys(data); // Common keys extraction
+          const processResult = (area, result) => {
+              result = dict.clone(result);
+              if (chrome.runtime.lastError) {
+                  c.error(chrome.runtime.lastError.message);
+                  return;
+              }
+              results[area] = result;
+              if (results.local && results.sync) {
+                  $.extend(results.local, results.sync);
+                  cb(data);
+              }
+          };
+          const get = (area) => {
+              // Moved the keys check inside the get function
               if (($.engine === 'gecko') && (area === 'sync') && (keys.length > 3)) {
                   keys = null;
               }
-              return chrome.storage[area].get(keys, function (result) {
-                  let key;
-                  result = dict.clone(result);
-                  if (chrome.runtime.lastError) {
-                      c.error(chrome.runtime.lastError.message);
-                  }
+              chrome.storage[area].get(keys, function (result) {
                   if (keys === null) {
-                      const result2 = dict();
-                      for (key in result) {
-                          const val = result[key];
-                          if ($.hasOwn(data, key)) {
-                              result2[key] = val;
-                          }
-                      }
-                      result = result2;
+                      result = Object.fromEntries(Object.entries(result).filter(([key, _]) => $.hasOwn(data, key)));
                   }
-                  for (key in data) {
+                  for (const key in data) {
                       $.oldValue[area][key] = result[key];
                   }
-                  results[area] = result;
-                  if (results.local && results.sync) {
-                      $.extend(data, results.sync);
-                      $.extend(data, results.local);
-                      return cb(data);
-                  }
+                  processResult(area, result);
               });
           };
           get('local');
-          return get('sync');
+          get('sync');
       });
       (function () {
           const items = {
@@ -21958,7 +21979,7 @@ vp-replace
                   return cb?.();
               });
           };
-          const setSync = debounce(SECOND, () => setArea('sync'));
+          const setSync = debounce(SECOND, () => setArea('sync', () => { }));
           $.set = $.oneItemSugar(function (data, cb) {
               if (!$.crxWorking()) {
                   return;
@@ -22010,24 +22031,13 @@ vp-replace
           $.sync = (key, cb) => $.syncing[key] = cb;
           $.forceSync = function () { };
           $.delete = function (keys, cb) {
-              let key;
               if (!(keys instanceof Array)) {
                   keys = [keys];
               }
-              return Promise.all((() => {
-                  const result = [];
-                  for (key of keys) {
-                      result.push(GM.deleteValue(g.NAMESPACE + key));
-                  }
-                  return result;
-              })()).then(function () {
-                  const items = dict();
-                  for (key of keys) {
-                      items[key] = undefined;
-                  }
-                  $.syncChannel.postMessage(items);
-                  return cb?.();
-              });
+              for (const key of keys) {
+                  $.deleteValue(g.NAMESPACE + key);
+              }
+              return cb?.();
           };
           $.get = $.oneItemSugar(function (items, cb) {
               const keys = Object.keys(items);
@@ -22220,10 +22230,10 @@ vp-replace
           $.clear = function (cb) {
               // XXX https://github.com/greasemonkey/greasemonkey/issues/2033
               // Also support case where GM_listValues is not defined.
-              $.delete(Object.keys(Conf));
-              $.delete(['previousversion', 'QR Size', 'QR.persona']);
+              $.delete(Object.keys(Conf), cb);
+              $.delete(['previousversion', 'QR Size', 'QR.persona'], cb);
               try {
-                  $.delete($.listValues().map(key => key.replace(g.NAMESPACE, '')));
+                  $.delete($.listValues().map(key => key.replace(g.NAMESPACE, '')), cb);
               }
               catch (error) { }
               return cb?.();
@@ -22904,8 +22914,8 @@ vp-replace
           }
           return $$1.onExists(doc$1, 'body', () => {
               for (const software in SW) {
-                  let changes;
-                  if (changes = SW[software].detect?.()) {
+                  const changes = SW[software].detect?.();
+                  if (changes) {
                       changes.software = software;
                       hostname = location.hostname.replace(/^www\./, '');
                       const properties = (Conf['siteProperties'][hostname] || (Conf['siteProperties'][hostname] = dict()));
@@ -22917,7 +22927,7 @@ vp-replace
                           }
                       }
                       if (changed) {
-                          $$1.set('siteProperties', Conf['siteProperties']);
+                          $$1.set('siteProperties', Conf['siteProperties'], true);
                       }
                       if (!g.SITE) {
                           this.set(hostname);
@@ -22934,8 +22944,8 @@ vp-replace
               hostname = hostname.replace(/^[^.]*\.?/, '');
           }
           if (hostname) {
-              let canonical;
-              if (canonical = Conf['siteProperties'][hostname].canonical) {
+              const canonical = Conf['siteProperties'][hostname].canonical;
+              if (canonical) {
                   hostname = canonical;
               }
           }
@@ -23012,12 +23022,12 @@ vp-replace
           }
           if (this.enabled = Conf['Catalog Links']) {
               let el;
-              CatalogLinks.el = (el = UI.checkbox('Header catalog links', 'Catalog Links'));
+              this.el = (el = UI.checkbox('Header catalog links', 'Catalog Links', Conf['Header catalog links']));
               el.id = 'toggleCatalog';
               const input = $$1('input', el);
               $$1.on(input, 'change', this.toggle);
               $$1.sync('Header catalog links', CatalogLinks.set);
-              return Header$1.menu.addEntry({
+              return Header.menu.addEntry({
                   el,
                   order: 95
               });
@@ -23038,8 +23048,8 @@ vp-replace
       },
       set(useCatalog) {
           Conf['Header catalog links'] = useCatalog;
-          CatalogLinks.setLinks(Header$1.boardList);
-          CatalogLinks.setLinks(Header$1.bottomBoardList);
+          CatalogLinks.setLinks(Header.boardList);
+          CatalogLinks.setLinks(Header.bottomBoardList);
           CatalogLinks.el.title = `Turn catalog links ${useCatalog ? 'off' : 'on'}.`;
           return $$1('input', CatalogLinks.el).checked = useCatalog;
       },
@@ -23154,14 +23164,14 @@ vp-replace
           const menuButton = $$1.el('span', { className: 'menu-button' });
           $$1.extend(menuButton, { innerHTML: '<i></i>' });
           const box = UI.checkbox;
-          const barFixedToggler = box('Fixed Header', 'Fixed Header');
-          const headerToggler = box('Header auto-hide', 'Auto-hide header');
-          const scrollHeaderToggler = box('Header auto-hide on scroll', 'Auto-hide header on scroll');
-          const barPositionToggler = box('Bottom Header', 'Bottom header');
-          const linkJustifyToggler = box('Centered links', 'Centered links');
-          const customNavToggler = box('Custom Board Navigation', 'Custom board navigation');
-          const footerToggler = box('Bottom Board List', 'Hide bottom board list');
-          const shortcutToggler = box('Shortcut Icons', 'Shortcut Icons');
+          const barFixedToggler = box('Fixed Header', 'Fixed Header', 'fixed-header');
+          const headerToggler = box('Header auto-hide', 'Auto-hide header', 'autohide');
+          const scrollHeaderToggler = box('Header auto-hide on scroll', 'Auto-hide header on scroll', 'scroll-header');
+          const barPositionToggler = box('Bottom Header', 'Bottom header', 'bottom-header');
+          const linkJustifyToggler = box('Centered links', 'Centered links', 'centered-links');
+          const customNavToggler = box('Custom Board Navigation', 'Custom board navigation', 'custom-board-navigation');
+          const footerToggler = box('Bottom Board List', 'Hide bottom board list', 'hide-bottom-board-list');
+          const shortcutToggler = box('Shortcut Icons', 'Shortcut Icons', 'shortcut-icons');
           const editCustomNav = $$1.el('a', {
               textContent: 'Edit custom board navigation',
               href: 'javascript:;'
@@ -23754,7 +23764,6 @@ vp-replace
           return notice = new Notice('info', el);
       }
   };
-  var Header$1 = Header;
 
   /*
    * decaffeinate suggestions:
@@ -23789,7 +23798,7 @@ vp-replace
               return;
           }
           $$1.off(d$1, 'visibilitychange', this.add);
-          $$1.add(Header$1.noticesRoot, this.el);
+          $$1.add(Header.noticesRoot, this.el);
           this.el.clientHeight; // force reflow
           this.el.style.opacity = 1;
           if (this.timeout) {
@@ -24259,7 +24268,7 @@ vp-replace
                   ImageCommon.rewind(this);
               }
               el.id = 'ihover';
-              $$1.add(Header$1.hover, el);
+              $$1.add(Header.hover, el);
               if (isVideo) {
                   el.loop = true;
                   el.controls = false;
@@ -24351,7 +24360,7 @@ vp-replace
               innerHTML: '🗲︎'
           });
           $$1.on(el, 'click', this.toggle);
-          return Header$1.addShortcut('prefetch', el, 525);
+          return Header.addShortcut('prefetch', el, 525);
       },
       node() {
           if (this.isClone) {
@@ -24455,7 +24464,7 @@ vp-replace
                   for (const file of post.files) {
                       if (file.videoThumb) {
                           const { thumb } = file;
-                          if (Header$1.isNodeVisible(thumb) || (post.nodes.root === qpClone)) {
+                          if (Header.isNodeVisible(thumb) || (post.nodes.root === qpClone)) {
                               thumb.play();
                           }
                           else {
@@ -25833,7 +25842,7 @@ aero|asia|biz|cat|com|coop|dance|info|int|jobs|mobi|moe|museum|name|net|org|post
               order: 50,
               open() { return psa.hidden; }
           };
-          Header$1.menu.addEntry(entry);
+          Header.menu.addEntry(entry);
           $$1.on(entry.el, 'click', PSAHiding.toggle);
           PSAHiding.btn = (btn = $$1.el('a', {
               title: 'Mark announcement as read and hide.',
@@ -26089,7 +26098,7 @@ aero|asia|biz|cat|com|coop|dance|info|int|jobs|mobi|moe|museum|name|net|org|post
                   title: statsTitle
               }));
               $$1.extend(sc, statsHTML);
-              Header$1.addShortcut('stats', sc, 200);
+              Header.addShortcut('stats', sc, 200);
           }
           else {
               this.dialog = (sc = UI.dialog('thread-stats', { innerHTML: '<div class="move" title="' + E(statsTitle) + '">' + (statsHTML).innerHTML + '</div>' }));
@@ -26845,9 +26854,9 @@ aero|asia|biz|cat|com|coop|dance|info|int|jobs|mobi|moe|museum|name|net|org|post
           });
           $$1.on(menuEntry, 'click', () => {
               RestoreDeletedFromArchive.restore();
-              Header$1.menu.close();
+              Header.menu.close();
           });
-          Header$1.menu.addEntry({
+          Header.menu.addEntry({
               el: menuEntry,
               order: 10,
           });
@@ -27644,7 +27653,7 @@ User agent: ${navigator.userAgent}\
           ['Captcha Configuration', CaptchaReplace],
           ['Image Host Rewriting', ImageHost],
           ['Redirect', Redirect$1],
-          ['Header', Header$1],
+          ['Header', Header],
           ['Catalog Links', CatalogLinks],
           ['Settings', Settings],
           ['Index Generator', Index$1],

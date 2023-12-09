@@ -15,7 +15,7 @@ const DownloadLink = {
     const a = $.el('a', {
       className: 'download-link',
       textContent: 'Download file'
-    }
+    } as Partial<HTMLAnchorElement>
     )
 
     // Specifying the filename with the download attribute only works for same-origin links.
@@ -26,7 +26,7 @@ const DownloadLink = {
       order: 100,
       open({file}) {
         if (!file) { return false }
-        a.href     = file.url
+        a.href = file.url
         a.download = file.name
         return true
       }
