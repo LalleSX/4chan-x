@@ -120,6 +120,7 @@
     "lodash.template": "^4.5.0",
     "markdown-it": "^12.3.2",
     "markdown-it-anchor": "^7.1.0",
+    "pnpm": "^8.11.0",
     "request": "^2.88.2",
     "rollup": "^3.29.4",
     "tslib": "^2.6.2",

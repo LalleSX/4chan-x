@@ -62,6 +62,9 @@ devDependencies:
   markdown-it-anchor:
     specifier: ^7.1.0
     version: 7.1.0(markdown-it@12.3.2)
+  pnpm:
+    specifier: ^8.11.0
+    version: 8.11.0
   request:
     specifier: ^2.88.2
     version: 2.88.2
@@ -2141,6 +2144,12 @@ packages:
   /picomatch@2.3.1:
     resolution: {integrity: sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==}
     engines: {node: '>=8.6'}
+    dev: true
+
+  /pnpm@8.11.0:
+    resolution: {integrity: sha512-nfh8FsmNsntOBR14fmfyIH7EfoCcywe/e17ErNzRYTNVg5o40LkAFEkj1qcFdwC3TSoMyxVYvrJBZHoSBqmnqw==}
+    engines: {node: '>=16.14'}
+    hasBin: true
     dev: true
 
   /postcss-selector-parser@6.0.13:
