@@ -1,10 +1,13 @@
 {
   "compilerOptions": {
-    "moduleResolution": "node16",
-    "target": "ES2021",
+    "moduleResolution": "node",
+    "target": "ES2022",
     "types": [
       "@violentmonkey/types",
       "@types/chrome",
+      "@types/firefox-webext-browser",
+      "@types/greasemonkey",
+      "@types/tampermonkey",
       "node"
     ],
   },
