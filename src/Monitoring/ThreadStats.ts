@@ -5,11 +5,7 @@ import { g, Conf, E, doc, d } from '../globals/globals'
 import $ from '../platform/$'
 import { MINUTE, SECOND } from '../platform/helpers'
 
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
+
 const ThreadStats = {
   postCount: 0,
   fileCount: 0,

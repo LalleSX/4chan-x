@@ -14,14 +14,6 @@ import UI from '../General/UI'
 import { MINUTE, SECOND } from '../platform/helpers'
 import type Thread from '../classes/Thread'
 
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS201: Simplify complex destructure assignments
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
-
 const ThreadUpdater = {
   init(this: typeof ThreadUpdater) {
     let sc

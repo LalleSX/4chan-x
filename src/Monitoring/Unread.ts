@@ -10,12 +10,7 @@ import QuoteYou from '../Quotelinks/QuoteYou'
 import Favicon from './Favicon'
 import ThreadWatcher from './ThreadWatcher'
 
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
+
 const Unread = {
   init() {
     if ((g.VIEW !== 'thread') || (

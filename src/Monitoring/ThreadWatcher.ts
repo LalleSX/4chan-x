@@ -21,13 +21,6 @@ import UI from '../General/UI'
 import Get from '../General/Get'
 import { dict, HOUR, MINUTE } from '../platform/helpers'
 
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS104: Avoid inline assignments
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
 
 const ThreadWatcher = {
   init() {

@@ -6,11 +6,6 @@ import ExpandComment from '../Miscellaneous/ExpandComment'
 import Unread from '../Monitoring/Unread'
 import $ from '../platform/$'
 
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
 const QuoteInline = {
   init() {
     if (!['index', 'thread'].includes(g.VIEW) || !Conf['Quote Inlining']) { return }

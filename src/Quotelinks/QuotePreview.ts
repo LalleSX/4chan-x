@@ -7,11 +7,6 @@ import { Conf, d, doc, g } from '../globals/globals'
 import ExpandComment from '../Miscellaneous/ExpandComment'
 import $ from '../platform/$'
 
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
 const QuotePreview = {
   init() {
     if (!Conf['Quote Previewing']) { return }

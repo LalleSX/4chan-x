@@ -5,12 +5,6 @@ import { g, Conf, E, d } from '../globals/globals'
 import $ from '../platform/$'
 import QuoteThreading from '../Quotelinks/QuoteThreading'
 
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS104: Avoid inline assignments
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
 const ReplyPruning = {
   init() {
     if ((g.VIEW !== 'thread') || !Conf['Reply Pruning']) { return }

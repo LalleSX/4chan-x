@@ -7,11 +7,7 @@ import $ from '../platform/$'
 import $$ from '../platform/$$'
 import SW from '../site/SW'
 
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
+
 const FileInfo = {
   init() {
     if (!['index', 'thread', 'archive'].includes(g.VIEW) || !Conf['File Info Formatting']) { return }

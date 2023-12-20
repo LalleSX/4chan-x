@@ -12,11 +12,7 @@ import Volume from './Volume'
 import Audio from './Audio'
 import type { default as Post, PostClone } from '../classes/Post'
 
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
+
 const ImageExpand = {
   init() {
     if (!(this.enabled = Conf['Image Expansion'] && ['index', 'thread'].includes(g.VIEW))) { return }

@@ -12,12 +12,6 @@ import Settings from './Settings'
 import UI from './UI'
 import meta from '../../package.json'
 
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS104: Avoid inline assignments
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
 const Header = {
   init() {
     $.onExists(doc, 'body', () => {

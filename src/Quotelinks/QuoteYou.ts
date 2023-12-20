@@ -10,11 +10,6 @@ import $ from '../platform/$'
 import $$ from '../platform/$$'
 import PostRedirect from '../Posting/PostRedirect'
 
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
 const QuoteYou = {
   init() {
     if (!Conf['Remember Your Posts']) { return }

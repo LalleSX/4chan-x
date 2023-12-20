@@ -2,11 +2,7 @@ import Callbacks from '../classes/Callbacks'
 import { Conf, g } from '../globals/globals'
 import $$ from '../platform/$$'
 
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
+
 const ImageHost = {
   init() {
     if ((!(this.useFaster = /\S/.test(Conf['fourchanImageHost']))) || (g.SITE.software !== 'yotsuba') || !['index', 'thread'].includes(g.VIEW)) { return }

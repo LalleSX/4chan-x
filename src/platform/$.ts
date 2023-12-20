@@ -544,7 +544,7 @@ $.hasAudio = video =>
   video.mozHasAudio || !!video.webkitAudioDecodedByteCount ||
   video.nextElementSibling?.tagName === 'AUDIO' // sound posts
 
-$.luma = rgb => (rgb[0] * 0.299) + (rgb[1] * 0.587) + (rgb[2] * 0.114)
+$.luma = (rgb: number[]) => (rgb[0] * 0.299) + (rgb[1] * 0.587) + (rgb[2] * 0.114)
 
 $.unescape = function(text) {
   if (text == null) { return text }

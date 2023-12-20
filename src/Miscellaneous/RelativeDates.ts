@@ -5,12 +5,7 @@ import { g, Conf, d, doc } from '../globals/globals'
 import $ from '../platform/$'
 import { DAY, HOUR, MINUTE, SECOND } from '../platform/helpers'
 
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS205: Consider reworking code to avoid use of IIFEs
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
+
 const RelativeDates = {
   INTERVAL: 30000,
 

@@ -7,11 +7,7 @@ import { SECOND } from '../platform/helpers'
 import ImageCommon from './ImageCommon'
 import Volume from './Volume'
 
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
+
 const ImageHover = {
   init() {
     if (!['index', 'thread'].includes(g.VIEW)) { return }

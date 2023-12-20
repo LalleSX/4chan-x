@@ -4,12 +4,7 @@ import CrossOrigin from '../platform/CrossOrigin'
 import { Conf, d, g } from '../globals/globals'
 import Get from '../General/Get'
 
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
+
 const Metadata = {
   init() {
     if (!Conf['WEBM Metadata'] || !['index', 'thread'].includes(g.VIEW)) { return }

@@ -7,14 +7,6 @@ import Unread from '../Monitoring/Unread'
 import $ from '../platform/$'
 import { dict } from '../platform/helpers'
 
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
-/*
-  <3 aeosynth
-*/
 
 const QuoteThreading = {
   init() {

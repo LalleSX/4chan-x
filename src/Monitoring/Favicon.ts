@@ -39,11 +39,6 @@ import empty from './Favicon/empty.gif'
 import $ from '../platform/$'
 import { Conf, d } from '../globals/globals'
 
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
 
 const Favicon = {
   init() {

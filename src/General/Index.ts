@@ -1,4 +1,3 @@
-
 import Callbacks from '../classes/Callbacks'
 import CatalogThread from '../classes/CatalogThread'
 import Notice from '../classes/Notice'

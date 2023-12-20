@@ -3,11 +3,7 @@ import { Conf, g, E } from '../globals/globals'
 import $ from '../platform/$'
 import $$ from '../platform/$$'
 
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
+
 const PostJumper = { 
   init() {
     if (!Conf['Unique ID and Capcode Navigation'] || !['index', 'thread'].includes(g.VIEW)) { return }

@@ -3,11 +3,7 @@ import Header from '../General/Header'
 import { g, Conf, d, doc } from '../globals/globals'
 import $ from '../platform/$'
 
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
+
 const ImageLoader = {
   init() {
     if (!['index', 'thread', 'archive'].includes(g.VIEW)) { return }

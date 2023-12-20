@@ -4,11 +4,7 @@ import { g, Conf } from '../globals/globals'
 import ExpandComment from '../Miscellaneous/ExpandComment'
 import $ from '../platform/$'
 
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
+
 const QuoteOP = {
   init() {
     if (!['index', 'thread'].includes(g.VIEW) || !Conf['Mark OP Quotes']) { return }

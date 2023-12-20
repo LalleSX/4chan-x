@@ -2,11 +2,7 @@ import { g, Conf, d } from '../globals/globals'
 import $ from '../platform/$'
 import Menu from './Menu'
 
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
+
 const CopyTextLink = {
   init() {
     if (!['index', 'thread'].includes(g.VIEW) || !Conf['Menu'] || !Conf['Copy Text Link']) { return }

@@ -2,11 +2,7 @@ import Callbacks from '../classes/Callbacks'
 import { g } from '../globals/globals'
 import { dict } from '../platform/helpers'
 
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
+
 const Recursive = {
   recursives: dict(),
   init() {

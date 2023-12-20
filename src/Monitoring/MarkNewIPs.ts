@@ -2,12 +2,6 @@ import Callbacks from '../classes/Callbacks'
 import { g, Conf, d } from '../globals/globals'
 import $ from '../platform/$'
 
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
 const MarkNewIPs = {
   init() {
     if ((g.SITE.software !== 'yotsuba') || (g.VIEW !== 'thread') || !Conf['Mark New IPs']) { return }

@@ -16,12 +16,6 @@ import generateCatalogThreadHtml from './SW.yotsuba.Build/CatalogThreadHtml'
 import h, { hFragment, isEscaped } from '../globals/jsx'
 import { dict, MINUTE } from '../platform/helpers'
 
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS205: Consider reworking code to avoid use of IIFEs
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
 const SWYotsuba = {
   isOPContainerThread: false,
   hasIPCount: true,

@@ -2,11 +2,6 @@ import { d, g } from '../globals/globals'
 import $ from '../platform/$'
 import QR from './QR'
 
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
 const CaptchaT = {
   init() {
     if (d.cookie.indexOf('pass_enabled=1') >= 0) { return }

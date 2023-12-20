@@ -3,11 +3,7 @@ import { Conf, doc } from '../globals/globals'
 import $ from '../platform/$'
 import $$ from '../platform/$$'
 
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
+
 const AntiAutoplay = {
   init() {
     if (!Conf['Disable Autoplaying Sounds']) { return }
