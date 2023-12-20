@@ -1,16 +1,17 @@
 import $ from '../platform/$'
 import { g } from '../globals/globals'
 
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
+// Assuming the callback type is a dictionary with string keys and function values
+interface Callbacks {
+  [key: string]: (value: any) => void;
+}
+
 export default class Connection {
-  target: any
-  origin: any
-  cb: {}
-  constructor(target, origin, cb={}) {
+  target: Window | HTMLIFrameElement
+  origin: string
+  cb: Callbacks
+
+  constructor(target: Window | HTMLIFrameElement, origin: string, cb: Callbacks = {}) {
     this.send = this.send.bind(this)
     this.onMessage = this.onMessage.bind(this)
     this.target = target
@@ -19,28 +20,26 @@ export default class Connection {
     $.on(window, 'message', this.onMessage)
   }
 
-  targetWindow() {
-    if (this.target instanceof window.HTMLIFrameElement) {
-      return this.target.contentWindow
-    } else {
-      return this.target
+  private targetWindow(): Window {
+    return this.target instanceof HTMLIFrameElement ? this.target.contentWindow : this.target
+  }
+
+  send(data: any): void {
+    this.targetWindow().postMessage(`${g.NAMESPACE}${JSON.stringify(data)}`, this.origin)
+  }
+
+  private onMessage(e: MessageEvent): void {
+    if (e.source !== this.targetWindow() ||
+      e.origin !== this.origin ||
+      typeof e.data !== 'string' ||
+      !e.data.startsWith(g.NAMESPACE)) {
+      return
     }
-  }
-
-  send(data) {
-    return this.targetWindow().postMessage(`${g.NAMESPACE}${JSON.stringify(data)}`, this.origin)
-  }
-
-  onMessage(e) {
-    if ((e.source !== this.targetWindow()) ||
-      (e.origin !== this.origin) ||
-      (typeof e.data !== 'string') ||
-      (e.data.slice(0, g.NAMESPACE.length) !== g.NAMESPACE)) { return }
+    
     const data = JSON.parse(e.data.slice(g.NAMESPACE.length))
     for (const type in data) {
-      const value = data[type]
-      if ($.hasOwn(this.cb, type)) {
-        this.cb[type](value)
+      if (this.cb[type]) {
+        this.cb[type](data[type])
       }
     }
   }

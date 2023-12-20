@@ -1,115 +1,172 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
-export default class RandomAccessList {
-  length: number
-  last: any
-  first: any
-  constructor(items) {
+interface ListItem<T> {
+  prev: ListItem<T> | null;
+  next: ListItem<T> | null;
+  data: T;
+  ID: string;
+}
+
+export default class RandomAccessList<T> {
+  private length: number
+  private last: ListItem<T> | null
+  private first: ListItem<T> | null
+  private items: Record<string, ListItem<T>>
+
+  constructor(items?: T[]) {
     this.length = 0
-    if (items) { for (const item of items) { this.push(item) } }
+    this.last = null
+    this.first = null
+    this.items = {}
+
+    if (items) {
+      for (const item of items) {
+        this.push(item)
+      }
+    }
   }
 
-  push(data) {
-    let item
-    let {ID} = data
-    if (!ID) { ID = data.id }
-    if (this[ID]) { return }
-    const {last} = this
-    this[ID] = (item = {
-      prev: last,
+  push(data: T) {
+    // Assuming data has a property ID of type string
+    const itemID = data['ID']
+
+    if (this.items[itemID]) {
+      return
+    }
+
+    const newItem: ListItem<T> = {
+      prev: this.last,
       next: null,
       data,
-      ID
-    })
-    item.prev = last
-    this.last = last ?
-      (last.next = item)
-    :
-      (this.first = item)
-    return this.length++
+      ID: itemID,
+    }
+
+    if (this.last) {
+      this.last.next = newItem
+    } else {
+      this.first = newItem
+    }
+
+    this.last = newItem
+    this.items[itemID] = newItem
+    this.length++
   }
 
-  before(root, item) {
-    if ((item.next === root) || (item === root)) { return }
+  before(rootID: string, itemID: string) {
+    const root = this.items[rootID]
+    const item = this.items[itemID]
 
-    this.rmi(item)
+    if (!root || !item || item.next === root || item === root) {
+      return
+    }
 
-    const {prev} = root
+    this.remove(itemID)
+
+    const prev = root.prev
+
     root.prev = item
     item.next = root
     item.prev = prev
+
     if (prev) {
-      return prev.next = item
+      prev.next = item
     } else {
-      return this.first = item
+      this.first = item
     }
   }
 
-  after(root, item) {
-    if ((item.prev === root) || (item === root)) { return }
+  after(rootID: string, itemID: string) {
+    const root = this.items[rootID]
+    const item = this.items[itemID]
 
-    this.rmi(item)
+    if (!root || !item || item.prev === root || item === root) {
+      return
+    }
 
-    const {next} = root
+    this.remove(itemID)
+
+    const next = root.next
+
     root.next = item
     item.prev = root
     item.next = next
+
     if (next) {
-      return next.prev = item
+      next.prev = item
     } else {
-      return this.last = item
+      this.last = item
     }
   }
 
-  prepend(item) {
-    const {first} = this
-    if ((item === first) || !this[item.ID]) { return }
-    this.rmi(item)
-    item.next  = first
+  prepend(itemID: string) {
+    const item = this.items[itemID]
+    const first = this.first
+
+    if (!item || item === first) {
+      return
+    }
+
+    this.remove(itemID)
+    item.next = first
+
     if (first) {
       first.prev = item
     } else {
       this.last = item
     }
+
     this.first = item
-    return delete item.prev
+    delete item.prev
   }
 
-  shift() {
-    return this.rm(this.first.ID)
+  shift(): T | undefined {
+    const firstItem = this.first?.data
+    if (firstItem) {
+      this.remove(this.first.ID)
+      return firstItem
+    }
   }
 
-  order() {
-    let item
-    const order = [(item = this.first)]
-    while ((item = item.next)) { order.push(item) }
+  order(): ListItem<T>[] {
+    const order: ListItem<T>[] = []
+    let item = this.first
+
+    while (item) {
+      order.push(item)
+      item = item.next
+    }
+
     return order
   }
 
-  rm(ID) {
-    const item = this[ID]
-    if (!item) { return }
-    delete this[ID]
+  remove(ID: string) {
+    const item = this.items[ID]
+
+    if (!item) {
+      return
+    }
+
+    delete this.items[ID]
     this.length--
-    this.rmi(item)
-    delete item.next
-    return delete item.prev
+
+    this.removeItem(item)
   }
 
-  rmi(item) {
-    const {prev, next} = item
+  private removeItem(item: ListItem<T>) {
+    const { prev, next } = item
+
     if (prev) {
       prev.next = next
     } else {
       this.first = next
     }
+
     if (next) {
-      return next.prev = prev
+      next.prev = prev
     } else {
-      return this.last = prev
+      this.last = prev
     }
+  }
+
+  getLength(): number {
+    return this.length
   }
 }

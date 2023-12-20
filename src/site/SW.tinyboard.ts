@@ -220,7 +220,9 @@ $\
         .replace(/<br\b[^<]*>/gi, '\n')
         .replace(/<[^>]*>/g, '')
       return $.unescape(html)
-    }
+    },
+    staticPath: '/static/',
+    gifIcon: '.gif',
   },
 
   areMD5sDeferred(board) {
@@ -306,6 +308,7 @@ $\
 
   catalogPin(threadRoot) {
     return threadRoot.dataset.sticky = 'true'
-  }
+  },
+  ID: 'tinyboard',
 }
 export default SWTinyboard

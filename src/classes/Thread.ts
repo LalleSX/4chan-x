@@ -62,8 +62,8 @@ export default class Thread {
     g.threads.push(this.fullID, this)
   }
 
-  setPage(pageNum) {
-    let icon
+  setPage(pageNum: any) {
+    let icon: HTMLElement
     const {info, reply} = this.OP.nodes
     if (!(icon = $('.page-num', info))) {
       icon = $.el('span', {className: 'page-num'})
@@ -74,14 +74,14 @@ export default class Thread {
     if (this.catalogView) { return this.catalogView.nodes.pageCount.textContent = pageNum }
   }
 
-  setCount(type, count, reachedLimit) {
+  setCount(type: any, count: any, reachedLimit: any) {
     if (!this.catalogView) { return }
     const el = this.catalogView.nodes[`${type}Count`]
     el.textContent = count
     return (reachedLimit ? $.addClass : $.rmClass)(el, 'warning')
   }
 
-  setStatus(type, status) {
+  setStatus(type: string, status: boolean) {
     const name = `is${type}`
     if (this[name] === status) { return }
     this[name] = status
@@ -91,7 +91,7 @@ export default class Thread {
     return this.setIcon('Archived', this.isArchived)
   }
 
-  setIcon(type, status) {
+  setIcon(type: string, status: boolean) {
     const typeLC = type.toLowerCase()
     let icon = $(`.${typeLC}Icon`, this.OP.nodes.info)
     if (!!icon === status) { return }
