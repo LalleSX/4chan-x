@@ -1,94 +1,114 @@
 import { Conf, g } from '../globals/globals'
 import $ from '../platform/$'
 
-
 const Get = {
-  url(type, IDs, ...args) {
-    let f, site
-    if ((site = g.sites[IDs.siteID]) && (f = $.getOwn(site.urls, type))) {
-      return f(IDs, ...args)
-    } else {
-      return undefined
-    }
+  /**
+   * Constructs a URL based on the given type and IDs.
+   */
+  url(type: string, IDs: any, ...args: any[]): string | undefined {
+    const site = g.sites[IDs.siteID]
+    const f = site ? $.getOwn(site.urls, type) : undefined
+    return f ? f(IDs, ...args) : undefined
   },
-  threadExcerpt(thread) {
-    const {OP} = thread
-    const excerpt = (`/${decodeURIComponent(thread.board.ID)}/ - `) + (
-      OP.info.subject?.trim() ||
+
+  /**
+   * Creates an excerpt from a thread.
+   */
+  threadExcerpt(thread: any): string {
+    const { OP } = thread
+    const boardPath = `/${decodeURIComponent(thread.board.ID)}/ - `
+    const excerptContent = OP.info.subject?.trim() ||
       OP.commentDisplay().replace(/\n+/g, ' // ') ||
       OP.file?.name ||
-      `No.${OP}`)
-    if (excerpt.length > 73) { return `${excerpt.slice(0, 70)}...` }
-    return excerpt
+      `No.${OP}`
+
+    const excerpt = boardPath + excerptContent
+    return excerpt.length > 73 ? `${excerpt.slice(0, 70)}...` : excerpt
   },
-  threadFromRoot(root) {
-    if (root == null) { return null }
-    const {board} = root.dataset
-    return g.threads.get(`${board ? encodeURIComponent(board) : g.BOARD.ID}.${root.id.match(/\d*$/)[0]}`)
+
+  /**
+   * Retrieves a thread from its root element.
+   */
+  threadFromRoot(root: HTMLElement | null): any {
+    if (!root) {return null}
+    const { board } = root.dataset
+    const boardID = board ? encodeURIComponent(board) : g.BOARD.ID
+    const threadID = root.id.match(/\d*$/)[0]
+    return g.threads.get(`${boardID}.${threadID}`)
   },
-  threadFromNode(node) {
+
+  /**
+   * Retrieves a thread from any node within it.
+   */
+  threadFromNode(node: Node): any {
     return Get.threadFromRoot($.x(`ancestor-or-self::${g.SITE.xpath.thread}`, node))
   },
-  postFromRoot(root) {
-    if (root == null) { return null }
-    const post  = g.posts.get(root.dataset.fullID)
+
+  /**
+   * Retrieves a post from its root element.
+   */
+  postFromRoot(root: HTMLElement | null): any {
+    if (!root) {return null}
+    const post = g.posts.get(root.dataset.fullID)
     const index = root.dataset.clone
-    if (index) { return post.clones[+index] } else { return post }
+    return index ? post.clones[+index] : post
   },
-  postFromNode(root) {
+
+  /**
+   * Retrieves a post from any node within it.
+   */
+  postFromNode(root: Node): any {
     return Get.postFromRoot($.x(`ancestor-or-self::${g.SITE.xpath.postContainer}[1]`, root))
   },
-  postDataFromLink(link) {
+
+  /**
+   * Extracts post data from a link element.
+   */
+  postDataFromLink(link: HTMLAnchorElement): any {
     let boardID, postID, threadID
-    if (link.dataset.postID) { // resurrected quote
-      ({boardID, threadID, postID} = link.dataset)
-      if (!threadID) { threadID = 0 }
+    if (link.dataset.postID) {
+      ({ boardID, threadID, postID } = link.dataset)
+      threadID = threadID || 0
     } else {
       const match = link.href.match(g.SITE.regexp.quotelink);
-      [boardID, threadID, postID] = match.slice(1)
-      if (!postID) { postID = threadID }
+      [boardID, threadID, postID] = match?.slice(1) || []
+      postID = postID || threadID
     }
-    return {
-      boardID,
-      threadID: +threadID,
-      postID:   +postID
-    }
+    return { boardID, threadID: +threadID, postID: +postID }
   },
-  allQuotelinksLinkingTo(post) {
-    // Get quotelinks & backlinks linking to the given post.
+
+  /**
+   * Finds all quotelinks linking to a given post.
+   */
+  allQuotelinksLinkingTo(post: any): any[] {
     const quotelinks = []
-    const {posts} = g
-    const {fullID} = post
-    const handleQuotes = function(qPost, type) {
+    const handleQuotes = (qPost: any, type: string) => {
       quotelinks.push(...(qPost.nodes[type] || []))
-      for (const clone of qPost.clones) { quotelinks.push(...(clone.nodes[type] || [])) }
+      qPost.clones.forEach((clone: any) => {
+        quotelinks.push(...(clone.nodes[type] || []))
+      })
     }
-    // First:
-    //   In every posts,
-    //   if it did quote this post,
-    //   get all their backlinks.
-    posts.forEach(function(qPost) {
-      if (qPost.quotes.includes(fullID)) {
-        return handleQuotes(qPost, 'quotelinks')
+
+    // Process quotes and backlinks
+    g.posts.forEach((qPost: any) => {
+      if (qPost.quotes.includes(post.fullID)) {
+        handleQuotes(qPost, 'quotelinks')
       }
     })
 
-    // Second:
-    //   If we have quote backlinks:
-    //   in all posts this post quoted
-    //   and their clones,
-    //   get all of their backlinks.
     if (Conf['Quote Backlinks']) {
-      for (const quote of post.quotes) { let qPost
-      if ((qPost = posts.get(quote))) { handleQuotes(qPost, 'backlinks') } }
+      post.quotes.forEach((quote: any) => {
+        const qPost = g.posts.get(quote)
+        if (qPost) {handleQuotes(qPost, 'backlinks')}
+      })
     }
 
-    // Third:
-    //   Filter out irrelevant quotelinks.
-    return quotelinks.filter(function(quotelink) {
-      const {boardID, postID} = Get.postDataFromLink(quotelink)
-      return (boardID === post.board.ID) && (postID === post.ID)
+    // Filter irrelevant quotelinks
+    return quotelinks.filter((quotelink: HTMLAnchorElement) => {
+      const { boardID, postID } = Get.postDataFromLink(quotelink)
+      return boardID === post.board.ID && postID === post.ID
     })
   }
 }
+
 export default Get
