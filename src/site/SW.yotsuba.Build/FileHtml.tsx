@@ -1,7 +1,7 @@
 import h, { EscapedHtml, isEscaped } from '../../globals/jsx'
 
 export default function generateFileHtml(
-  file, ID, boardID, fileURL, shortFilename, fileThumb, o, staticPath, gifIcon
+  file: { MD5: string, name: string, size: string, dimensions: string, tag: string, width: number, height: number, isSpoiler: boolean, hasDownscale: boolean, theight: number, twidth: number } | null, ID: string, boardID: string, fileURL: string, shortFilename: string, fileThumb: string, o, staticPath: string, gifIcon: string
 ): EscapedHtml {
   if (file) {
     const fileContent: (EscapedHtml | string)[] = []
