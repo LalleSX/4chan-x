@@ -113,9 +113,11 @@
     "@violentmonkey/types": "^0.1.7",
     "chrome-webstore-upload": "^1.0.0",
     "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-json": "^3.1.0",
     "eslint-plugin-markdown": "^3.0.1",
+    "eslint-plugin-prettier": "^5.1.2",
     "eslint-plugin-vue": "^9.19.2",
     "eslint-plugin-yaml": "^0.5.0",
     "esprima": "^4.0.1",
@@ -146,12 +148,13 @@
   "license": "MIT",
   "readmeFilename": "README.md",
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=20.0.0"
   },
   "type": "module",
   "scripts": {
     "build": "node ./tools/rollup",
     "build:min": "node ./tools/rollup -min",
-    "lint": "eslint --fix --ext .ts,.tsx src/"
+    "lint": "eslint --fix --ext .ts,.tsx src/",
+    "prettier": "prettier --write --ignore-path .gitignore \"**/*.{js,ts,tsx,json,md,yml}\""
   }
 }
