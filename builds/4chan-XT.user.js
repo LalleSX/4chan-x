@@ -2202,6 +2202,13 @@ https://*.hcaptcha.com
               'customTitles',
           ];
       }
+      /**
+       *
+       * @param key is one of the keys in DataBoard.keys
+       * @param sync is a function that syncs the data to the server
+       * @param dontClean is a boolean that prevents the data from being cleaned
+       * @returns the DataBoard object
+       */
       constructor(key, sync, dontClean) {
           this.changes = [];
           this.onSync = this.onSync.bind(this);
@@ -5431,7 +5438,11 @@ https://*.hcaptcha.com
           if (!Conf['Remember Your Posts']) {
               return;
           }
-          this.db = new DataBoard('yourPosts');
+          this.db = new DataBoard('yourPosts', {
+              boardID: { type: 'string' },
+              threadID: { type: 'string' },
+              postID: { type: 'string' },
+          }, true);
           $$1.sync('Remember Your Posts', enabled => (Conf['Remember Your Posts'] = enabled));
           $$1.on(d$1, 'QRPostSuccessful', function (e) {
               const cb = PostRedirect.delay();
@@ -17516,6 +17527,7 @@ vp-replace
               cb: this.node,
           });
       },
+      nodes: null,
       node() {
           return (() => {
               const result = [];
@@ -17732,7 +17744,7 @@ vp-replace
           }
           // Scroll to post
           if (Conf['Scroll to Post'] && (post = g.posts.get(file.dataset.post))) {
-              Header.scrollTo(post.nodes.root);
+              Header.scrollTo(post.nodes.root, true, true);
           }
           // Preload next image
           if (isNaN(oldID) || newID === (oldID + 1) % Gallery.images.length) {
@@ -17868,7 +17880,7 @@ vp-replace
               }
           },
           toggle() {
-              return (Gallery.nodes ? Gallery.cb.close : Gallery.build)();
+              return (Gallery.nodes ? Gallery.cb.close : Gallery.build)(this);
           },
           blank(e) {
               if (e.target === this) {
@@ -17912,15 +17924,14 @@ vp-replace
           rotateRight() {
               return Gallery.cb.rotate(90);
           },
-          rotate: debounce(100, function (delta) {
+          rotate(degrees) {
               const { current } = Gallery.nodes;
-              if (current.nodeName === 'IFRAME') {
-                  return;
-              }
-              current.dataRotate = ((current.dataRotate || 0) + delta) % 360;
-              current.style.transform = `rotate(${current.dataRotate}deg)`;
+              const { dataRotate } = current;
+              const newRotate = (dataRotate || 0) + degrees;
+              current.dataRotate = newRotate;
+              current.style.transform = `rotate(${newRotate}deg)`;
               return Gallery.cb.setHeight();
-          }),
+          },
           close() {
               $$1.off(Gallery.nodes.current, 'error', Gallery.error);
               ImageCommon.pause(Gallery.nodes.current);
@@ -17996,7 +18007,7 @@ vp-replace
               });
           },
           createSubEntry(name) {
-              const label = UI.checkbox(name, name);
+              const label = UI.checkbox(name, name, Conf[name]);
               const input = label.firstElementChild;
               if (['Hide Thumbnails', 'Fit Width', 'Fit Height'].includes(name)) {
                   $$1.on(input, 'change', Gallery.cb.setFitness);
@@ -19734,7 +19745,7 @@ vp-replace
                           return document.head.appendChild(script);
                       }
                   }
-              });
+              }, true);
           },
           afterSetup(mutations) {
               for (const mutation of mutations) {
@@ -23203,7 +23214,7 @@ vp-replace
                   return cb?.();
               });
           });
-          $.clear = cb => GM.listValues()
+          $.clear = (cb) => GM.listValues()
               .then(keys => $.delete(keys.map(key => key.replace(g.NAMESPACE, '')), cb))
               .catch(() => $.delete(Object.keys(Conf).concat([
               'previousversion',
