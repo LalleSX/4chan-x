@@ -3,33 +3,33 @@ import UI from '../General/UI'
 import { g, Conf } from '../globals/globals'
 import $ from '../platform/$'
 
-
 const Menu = {
   init() {
-    if (!['index', 'thread'].includes(g.VIEW) || !Conf['Menu']) { return }
+    if (!['index', 'thread'].includes(g.VIEW) || !Conf['Menu']) {
+      return
+    }
 
     this.button = $.el('a', {
       className: 'menu-button',
-      href:      'javascript:;'
-    }
-    )
+      href: 'javascript:;',
+    })
 
-    $.extend(this.button, {textContent: '🞃'})
+    $.extend(this.button, { textContent: '🞃' })
 
     this.menu = new UI.Menu('post')
     Callbacks.Post.push({
       name: 'Menu',
-      cb:   this.node
+      cb: this.node,
     })
 
     return Callbacks.CatalogThread.push({
       name: 'Menu',
-      cb:   this.catalogNode
+      cb: this.catalogNode,
     })
   },
 
   button: null,
-  menu:   null,
+  menu: null,
 
   node() {
     if (this.isClone) {
@@ -43,15 +43,20 @@ const Menu = {
   },
 
   catalogNode() {
-    return $.after(this.nodes.icons, Menu.makeButton(this.thread.OP, this.button))
+    return $.after(
+      this.nodes.icons,
+      Menu.makeButton(this.thread.OP, this.button)
+    )
   },
 
   makeButton(post, button) {
-    if (!button) { button = Menu.button.cloneNode(true) }
-    $.on(button, 'click', function(e) {
+    if (!button) {
+      button = Menu.button.cloneNode(true)
+    }
+    $.on(button, 'click', function (e) {
       return Menu.menu.toggle(e, this, post)
     })
     return button
-  }
+  },
 }
 export default Menu

@@ -1,8 +1,8 @@
 interface ListItem<T> {
-  prev: ListItem<T> | null;
-  next: ListItem<T> | null;
-  data: T;
-  ID: string;
+  prev: ListItem<T> | null
+  next: ListItem<T> | null
+  data: T
+  ID: string
 }
 
 export default class RandomAccessList<T> {

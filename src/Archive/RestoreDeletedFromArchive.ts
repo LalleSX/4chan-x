@@ -9,7 +9,10 @@ import QuoteThreading from '../Quotelinks/QuoteThreading'
 
 const RestoreDeletedFromArchive = {
   restore() {
-    const url = Redirect.to('threadJSON', { boardID: g.boardID, threadID: g.threadID })
+    const url = Redirect.to('threadJSON', {
+      boardID: g.boardID,
+      threadID: g.threadID,
+    })
     if (!url) {
       new Notice('warning', 'No archive found', 3)
       return
@@ -18,12 +21,15 @@ const RestoreDeletedFromArchive = {
     if (encryptionOK || Conf['Exempt Archives from Encryption']) {
       CrossOrigin.cache(url, function (this: XMLHttpRequest) {
         let nrRestored = 0
-        const archivePosts = this.response[g.threadID.toString()].posts as Record<string, RawArchivePost>
+        const archivePosts = this.response[g.threadID.toString()]
+          .posts as Record<string, RawArchivePost>
         for (const [postID, raw] of Object.entries(archivePosts)) {
           const key = `${g.boardID}.${postID}`
           if (!g.posts.keys.includes(key)) {
             const postIdNr = +postID
-            let indexOfNext = g.posts.keys.findIndex(key => +(key.split('.')[1]) > postIdNr)
+            let indexOfNext = g.posts.keys.findIndex(
+              key => +key.split('.')[1] > postIdNr
+            )
             if (indexOfNext === -1) {
               indexOfNext = g.posts.keys.length
             }
@@ -35,7 +41,9 @@ const RestoreDeletedFromArchive = {
             g.posts.keys.splice(indexOfNext, 0, key)
 
             if (!QuoteThreading.insert(newPost)) {
-              g.posts.get(g.posts.keys[indexOfNext - 1]).root.insertAdjacentElement('afterend', newPost.root)
+              g.posts
+                .get(g.posts.keys[indexOfNext - 1])
+                .root.insertAdjacentElement('afterend', newPost.root)
             }
 
             ++nrRestored
@@ -57,7 +65,9 @@ const RestoreDeletedFromArchive = {
   },
 
   init() {
-    if (g.VIEW !== 'thread') {return}
+    if (g.VIEW !== 'thread') {
+      return
+    }
 
     const menuEntry = $.el('a', {
       href: 'javascript:;',

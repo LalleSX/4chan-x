@@ -9,13 +9,17 @@ const ImageHost = {
     const isCorrectSoftware = g.SITE.software === 'yotsuba'
     const isCorrectView = ['index', 'thread'].includes(g.VIEW)
 
-    if (!(this.useFaster = isConfigured) || !isCorrectSoftware || !isCorrectView) {
+    if (
+      !(this.useFaster = isConfigured) ||
+      !isCorrectSoftware ||
+      !isCorrectView
+    ) {
       return
     }
 
     return Callbacks.Post.push({
       name: 'Image Host Rewriting',
-      cb: this.node
+      cb: this.node,
     })
   },
 
@@ -51,7 +55,11 @@ const ImageHost = {
       return
     }
     const host = ImageHost.host()
-    if (this.file && ImageHost.test(this.file.url.split('/')[2]) && !/\.swf$/.test(this.file.url)) {
+    if (
+      this.file &&
+      ImageHost.test(this.file.url.split('/')[2]) &&
+      !/\.swf$/.test(this.file.url)
+    ) {
       this.file.link.hostname = host
       if (this.file.thumbLink) {
         this.file.thumbLink.hostname = host
@@ -71,7 +79,7 @@ const ImageHost = {
         }
       }
     }
-  }
+  },
 }
 
 export default ImageHost

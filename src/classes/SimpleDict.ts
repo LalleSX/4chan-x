@@ -18,8 +18,8 @@ export default class SimpleDict<T> {
       return undefined
     } else {
       const keyStr = `${key}`
-      this.keys.push(keyStr);
-      (this as any)[keyStr] = data
+      this.keys.push(keyStr)
+      ;(this as any)[keyStr] = data
       return data
     }
   }

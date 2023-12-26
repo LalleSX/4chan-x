@@ -1,8 +1,9 @@
-import { createFilter } from "@rollup/pluginutils";
+import { createFilter } from '@rollup/pluginutils'
 
 export default async function setupFileInliner(packageJson) {
   /** @param {string} string */
-  const escape = (string) => string.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$\{/g, '\\\${');
+  const escape = string =>
+    string.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$\{/g, '\\${')
 
   /**
    * @param {Object} opts
@@ -15,36 +16,36 @@ export default async function setupFileInliner(packageJson) {
    */
   return function inlineFile(opts) {
     if (!opts.include) {
-      throw Error("include option should be specified");
+      throw Error('include option should be specified')
     }
 
     if (opts.transformer && typeof opts.transformer !== 'function') {
-      throw new Error('If transformer is given, it must be a function');
+      throw new Error('If transformer is given, it must be a function')
     }
 
-    const wrap = 'wrap' in opts ? opts.wrap : true;
+    const wrap = 'wrap' in opts ? opts.wrap : true
 
-    const filter = createFilter(opts.include, opts.exclude);
+    const filter = createFilter(opts.include, opts.exclude)
 
     return {
-      name: "inlineFile",
+      name: 'inlineFile',
 
       async transform(code, id) {
         if (filter(id)) {
           if (opts.transformer) {
-            code = opts.transformer(code);
+            code = opts.transformer(code)
           }
           if (wrap) {
-            code = escape(code);
+            code = escape(code)
             code = code.replace(/<%= meta\.(\w+) %>/g, (match, $1) => {
-              return escape(packageJson.meta[$1]);
-            });
-            code = `export default \`${code}\`;`;
+              return escape(packageJson.meta[$1])
+            })
+            code = `export default \`${code}\`;`
           }
 
-          return { code, map: { mappings: '' } };
+          return { code, map: { mappings: '' } }
         }
-      }
-    };
-  };
+      },
+    }
+  }
 }

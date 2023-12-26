@@ -42,15 +42,16 @@ import { icons } from './style'
 import { g } from '../globals/globals'
 
 // <%
-  // var inc       = require['style'];
-  // var faCSS     = read('/node_modules/font-awesome/css/font-awesome.css');
-  // var mainCSS   = ['font-awesome', 'style', 'yotsuba', 'yotsuba-b', 'futaba', 'burichan', 'tomorrow', 'photon', 'spooky'].map(x => read(`${x}.css`)).join('');
+// var inc       = require['style'];
+// var faCSS     = read('/node_modules/font-awesome/css/font-awesome.css');
+// var mainCSS   = ['font-awesome', 'style', 'yotsuba', 'yotsuba-b', 'futaba', 'burichan', 'tomorrow', 'photon', 'spooky'].map(x => read(`${x}.css`)).join('');
 //   var iconNames = files.filter(f => /^linkify\.[^.]+\.png$/.test(f));
 //   var icons     = iconNames.map(readBase64);
 // %>
 
-const mainCSS = style + yotsuba +yotsubaB+futaba+burichan+tomorrow + photon + spooky
-const faIcons: { name: string, data: string }[] = [
+const mainCSS =
+  style + yotsuba + yotsubaB + futaba + burichan + tomorrow + photon + spooky
+const faIcons: { name: string; data: string }[] = [
   { name: 'Audio', data: linkifyAudio },
   { name: 'Bitchute', data: linkifyBitchute },
   { name: 'Clyp', data: linkifyClyp },
@@ -75,29 +76,31 @@ const faIcons: { name: string, data: string }[] = [
 ]
 
 const CSS = {
-
   boards: mainCSS + icons(faIcons) + supports,
 
   report,
 
   www,
 
-  sub: function(css: string) {
+  sub: function (css: string) {
     const variables = {
-      site: g.SITE.selectors
+      site: g.SITE.selectors,
     }
-    return css.replace(/\$[\w$]+/g, function(name) {
+    return css.replace(/\$[\w$]+/g, function (name) {
       const words = name.slice(1).split('$')
       let sel = variables
       for (let i = 0; i < words.length; i++) {
-        if (typeof sel !== 'object') {return ':not(*)'}
+        if (typeof sel !== 'object') {
+          return ':not(*)'
+        }
         sel = $.getOwn(sel, words[i])
       }
-      if (typeof sel !== 'string') {return ':not(*)'}
+      if (typeof sel !== 'string') {
+        return ':not(*)'
+      }
       return sel
     })
-  }
-
+  },
 }
 
 export default CSS

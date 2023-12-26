@@ -24,12 +24,21 @@ const Audio = {
       audio.pause()
     })
 
-    audio.addEventListener('canplay', () => {
-      if (audio.currentTime < .1) {video.currentTime = 0}
-    }, { once: true })
+    audio.addEventListener(
+      'canplay',
+      () => {
+        if (audio.currentTime < 0.1) {
+          video.currentTime = 0
+        }
+      },
+      { once: true }
+    )
   },
 
-  setupAudioSlider(video: HTMLVideoElement, audio: HTMLAudioElement): HTMLSpanElement {
+  setupAudioSlider(
+    video: HTMLVideoElement,
+    audio: HTMLAudioElement
+  ): HTMLSpanElement {
     const container = document.createElement('span')
 
     // \u00A0 is non breaking space

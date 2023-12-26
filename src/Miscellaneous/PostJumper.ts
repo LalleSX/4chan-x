@@ -3,16 +3,20 @@ import { Conf, g, E } from '../globals/globals'
 import $ from '../platform/$'
 import $$ from '../platform/$$'
 
-
-const PostJumper = { 
+const PostJumper = {
   init() {
-    if (!Conf['Unique ID and Capcode Navigation'] || !['index', 'thread'].includes(g.VIEW)) { return }
+    if (
+      !Conf['Unique ID and Capcode Navigation'] ||
+      !['index', 'thread'].includes(g.VIEW)
+    ) {
+      return
+    }
 
     this.buttons = this.makeButtons()
 
     return Callbacks.Post.push({
       name: 'Post Jumper',
-      cb:   this.node
+      cb: this.node,
     })
   },
 
@@ -25,19 +29,19 @@ const PostJumper = {
     }
 
     if (this.nodes.uniqueIDRoot) {
-      PostJumper.addButtons(this,'uniqueID')
+      PostJumper.addButtons(this, 'uniqueID')
     }
 
     if (this.nodes.capcode) {
-      return PostJumper.addButtons(this,'capcode')
+      return PostJumper.addButtons(this, 'capcode')
     }
   },
 
-  addButtons(post,type) {
+  addButtons(post, type) {
     const value = post.info[type]
     const buttons = PostJumper.buttons.cloneNode(true)
-    $.extend(buttons.dataset, {type, value})
-    $.after(post.nodes[type+(type === 'capcode' ? '' : 'Root')], buttons)
+    $.extend(buttons.dataset, { type, value })
+    $.after(post.nodes[type + (type === 'capcode' ? '' : 'Root')], buttons)
     return PostJumper.addListeners(buttons)
   },
 
@@ -49,24 +53,33 @@ const PostJumper = {
   buttonClick() {
     let toJumper
     const dir = $.hasClass(this, 'prev') ? -1 : 1
-    if (toJumper = PostJumper.find(this.parentNode, dir)) {
+    if ((toJumper = PostJumper.find(this.parentNode, dir))) {
       return PostJumper.scroll(this.parentNode, toJumper)
     }
   },
 
   find(jumper, dir) {
-    const {type, value} = jumper.dataset
+    const { type, value } = jumper.dataset
     const xpath = `span[contains(@class,"postJumper") and @data-value="${value}" and @data-type="${type}"]`
     const axis = dir < 0 ? 'preceding' : 'following'
     let jumper2 = jumper
-    while (jumper2 = $.x(`${axis}::${xpath}`, jumper2)) {
-      if (jumper2.getBoundingClientRect().height) { return jumper2 }
+    while ((jumper2 = $.x(`${axis}::${xpath}`, jumper2))) {
+      if (jumper2.getBoundingClientRect().height) {
+        return jumper2
+      }
     }
-    if (jumper2 = $.x(`(//${xpath})[${dir < 0 ? 'last()' : '1'}]`)) {
-      if (jumper2.getBoundingClientRect().height) { return jumper2 }
+    if ((jumper2 = $.x(`(//${xpath})[${dir < 0 ? 'last()' : '1'}]`))) {
+      if (jumper2.getBoundingClientRect().height) {
+        return jumper2
+      }
     }
-    while ((jumper2 = $.x(`${axis}::${xpath}`, jumper2)) && (jumper2 !== jumper)) {
-      if (jumper2.getBoundingClientRect().height) { return jumper2 }
+    while (
+      (jumper2 = $.x(`${axis}::${xpath}`, jumper2)) &&
+      jumper2 !== jumper
+    ) {
+      if (jumper2.getBoundingClientRect().height) {
+        return jumper2
+      }
     }
     return null
   },
@@ -76,16 +89,26 @@ const PostJumper = {
     const charNext = '\u23EC'
     const classPrev = 'prev'
     const classNext = 'next'
-    const span = $.el('span',
-      {className: 'postJumper'})
-    $.extend(span, {innerHTML: '<a href="javascript:;" class="' + E(classPrev) + '">' + E(charPrev) + '</a><a href="javascript:;" class="' + E(classNext) + '">' + E(charNext) + '</a>'})
+    const span = $.el('span', { className: 'postJumper' })
+    $.extend(span, {
+      innerHTML:
+        '<a href="javascript:;" class="' +
+        E(classPrev) +
+        '">' +
+        E(charPrev) +
+        '</a><a href="javascript:;" class="' +
+        E(classNext) +
+        '">' +
+        E(charNext) +
+        '</a>',
+    })
     return span
   },
 
   scroll(fromJumper, toJumper) {
     const prevPos = fromJumper.getBoundingClientRect().top
     const destPos = toJumper.getBoundingClientRect().top
-    return window.scrollBy(0, destPos-prevPos)
-  }
+    return window.scrollBy(0, destPos - prevPos)
+  },
 }
 export default PostJumper

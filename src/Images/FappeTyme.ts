@@ -6,12 +6,17 @@ import $ from '../platform/$'
 
 const FappeTyme = {
   init() {
-    if ((!Conf['Fappe Tyme'] && !Conf['Werk Tyme']) || !['index', 'thread', 'archive'].includes(g.VIEW)) { return }
+    if (
+      (!Conf['Fappe Tyme'] && !Conf['Werk Tyme']) ||
+      !['index', 'thread', 'archive'].includes(g.VIEW)
+    ) {
+      return
+    }
 
     this.nodes = {}
     this.enabled = {
       fappe: false,
-      werk:  Conf['werk']
+      werk: Conf['werk'],
     }
 
     for (const type of ['Fappe', 'Werk']) {
@@ -21,22 +26,26 @@ const FappeTyme = {
         el.title = `${type} Tyme`
 
         this.nodes[lc] = el.firstElementChild
-        if (Conf[lc]) { this.set(lc, true) }
+        if (Conf[lc]) {
+          this.set(lc, true)
+        }
         $.on(this.nodes[lc], 'change', this.toggle.bind(this, lc))
 
         Header.menu.addEntry({
           el,
-          order: 97
+          order: 97,
         })
 
         const indicator = $.el('span', {
           className: 'indicator',
           textContent: type[0],
-          title: `${type} Tyme active`
-        }
-        )
-        $.on(indicator, 'click', function() {
-          const check = $.getOwn(FappeTyme.nodes, this.parentNode.id.replace('shortcut-', ''))
+          title: `${type} Tyme active`,
+        })
+        $.on(indicator, 'click', function () {
+          const check = $.getOwn(
+            FappeTyme.nodes,
+            this.parentNode.id.replace('shortcut-', '')
+          )
           check.checked = !check.checked
           return $.event('change', null, check)
         })
@@ -50,12 +59,12 @@ const FappeTyme = {
 
     Callbacks.Post.push({
       name: 'Fappe Tyme',
-      cb:   this.node
+      cb: this.node,
     })
 
     return Callbacks.CatalogThread.push({
       name: 'Werk Tyme',
-      cb:   this.catalogNode
+      cb: this.catalogNode,
     })
   },
 
@@ -65,23 +74,26 @@ const FappeTyme = {
 
   catalogNode() {
     const file = this.thread.OP.files[0]
-    if (!file) { return }
+    if (!file) {
+      return
+    }
     const filename = $.el('div', {
       textContent: file.name,
-      className:   'werkTyme-filename'
-    }
-    )
+      className: 'werkTyme-filename',
+    })
     return $.add(this.nodes.thumb.parentNode, filename)
   },
 
   set(type, enabled) {
-    this.enabled[type] = (this.nodes[type].checked = enabled)
+    this.enabled[type] = this.nodes[type].checked = enabled
     return $[`${enabled ? 'add' : 'rm'}Class`](doc, `${type}Tyme`)
   },
 
   toggle(type) {
     this.set(type, !this.enabled[type])
-    if (type === 'werk') { return $.cb.checked.call(this.nodes[type]) }
-  }
+    if (type === 'werk') {
+      return $.cb.checked.call(this.nodes[type])
+    }
+  },
 }
 export default FappeTyme

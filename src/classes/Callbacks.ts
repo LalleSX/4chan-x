@@ -1,9 +1,9 @@
 import Main from '../main/Main'
 
-type CallbackFunction = (node: any) => void;
+type CallbackFunction = (node: any) => void
 
 interface ICallback {
-  [key: string]: CallbackFunction;
+  [key: string]: CallbackFunction
 }
 
 export default class Callbacks {

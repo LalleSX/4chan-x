@@ -9,14 +9,20 @@ export default class Notice {
   el: HTMLElement
   closed: boolean
 
-  constructor(type: string, content: string | Node, timeout?: number, onclose?: () => void) {
+  constructor(
+    type: string,
+    content: string | Node,
+    timeout?: number,
+    onclose?: () => void
+  ) {
     this.add = this.add.bind(this)
     this.close = this.close.bind(this)
 
     this.timeout = timeout
     this.onclose = onclose
     this.el = $.el('div', {
-      innerHTML: '<a href="javascript:;" class="close" title="Close">✕</a><div class="message"></div>'
+      innerHTML:
+        '<a href="javascript:;" class="close" title="Close">✕</a><div class="message"></div>',
     })
     this.el.style.opacity = '0'
     this.setType(type)
@@ -31,11 +37,13 @@ export default class Notice {
   }
 
   setType(type: string): string {
-    return this.el.className = `notification ${type}`
+    return (this.el.className = `notification ${type}`)
   }
 
   add(): void {
-    if (this.closed) { return }
+    if (this.closed) {
+      return
+    }
     if (d.hidden) {
       $.on(d, 'visibilitychange', this.add)
       return
@@ -44,7 +52,9 @@ export default class Notice {
     $.add(Header.noticesRoot, this.el)
     this.el.clientHeight // force reflow
     this.el.style.opacity = '1'
-    if (this.timeout) { setTimeout(this.close, this.timeout * SECOND) }
+    if (this.timeout) {
+      setTimeout(this.close, this.timeout * SECOND)
+    }
   }
 
   close(): void {

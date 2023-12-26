@@ -27,11 +27,18 @@ const Captcha = {
     },
 
     neededRaw() {
-      return !(
-        this.haveCookie() || this.captchas.length || QR.req || this.submitCB
-      ) && (
-          (QR.posts.length > 1) || Conf['Auto-load captcha'] || !QR.posts[0].isOnlyQuotes() || QR.posts[0].file
-        )
+      return (
+        !(
+          this.haveCookie() ||
+          this.captchas.length ||
+          QR.req ||
+          this.submitCB
+        ) &&
+        (QR.posts.length > 1 ||
+          Conf['Auto-load captcha'] ||
+          !QR.posts[0].isOnlyQuotes() ||
+          QR.posts[0].file)
+      )
     },
 
     needed() {
@@ -39,7 +46,9 @@ const Captcha = {
     },
 
     prerequest() {
-      if (!Conf['Prerequest Captcha']) { return }
+      if (!Conf['Prerequest Captcha']) {
+        return
+      }
       // Post count temporarily off by 1 when called from QR.post.rm, QR.close, or QR.submit
       return $.queueTask(() => {
         if (
@@ -47,15 +56,17 @@ const Captcha = {
           this.neededRaw() &&
           !$.event('LoadCaptcha') &&
           !QR.captcha.occupied() &&
-          (QR.cooldown.seconds <= 60) &&
-          (QR.selected === QR.posts[QR.posts.length - 1]) &&
+          QR.cooldown.seconds <= 60 &&
+          QR.selected === QR.posts[QR.posts.length - 1] &&
           !QR.selected.isOnlyQuotes()
         ) {
-          const isReply = (QR.selected.thread !== 'new')
+          const isReply = QR.selected.thread !== 'new'
           if (!$.event('RequestCaptcha', { isReply })) {
             this.prerequested = true
             this.submitCB = captcha => {
-              if (captcha) { return this.save(captcha) }
+              if (captcha) {
+                return this.save(captcha)
+              }
             }
             return this.updateCount()
           }
@@ -64,14 +75,14 @@ const Captcha = {
     },
 
     haveCookie() {
-      return /\b_ct=/.test(d.cookie) && (QR.posts[0].thread !== 'new')
+      return /\b_ct=/.test(d.cookie) && QR.posts[0].thread !== 'new'
     },
 
     getOne() {
       let captcha
       delete this.prerequested
       this.clear()
-      if (captcha = this.captchas.shift()) {
+      if ((captcha = this.captchas.shift())) {
         this.count()
         return captcha
       } else {
@@ -81,7 +92,9 @@ const Captcha = {
 
     request(isReply) {
       if (!this.submitCB) {
-        if ($.event('RequestCaptcha', { isReply })) { return }
+        if ($.event('RequestCaptcha', { isReply })) {
+          return
+        }
       }
       return cb => {
         this.submitCB = cb
@@ -99,7 +112,7 @@ const Captcha = {
 
     saveAPI(captcha) {
       let cb
-      if (cb = this.submitCB) {
+      if ((cb = this.submitCB)) {
         delete this.submitCB
         cb(captcha)
         return this.updateCount()
@@ -110,7 +123,7 @@ const Captcha = {
 
     noCaptcha(detail) {
       let cb
-      if (cb = this.submitCB) {
+      if ((cb = this.submitCB)) {
         if (!this.haveCookie() || detail?.error) {
           QR.error(detail?.error || 'Failed to retrieve captcha.')
           QR.captcha.setup(d.activeElement === QR.nodes.status)
@@ -123,7 +136,7 @@ const Captcha = {
 
     save(captcha) {
       let cb
-      if (cb = this.submitCB) {
+      if ((cb = this.submitCB)) {
         this.abort()
         cb(captcha)
         return
@@ -139,7 +152,9 @@ const Captcha = {
         const now = Date.now()
         for (i = 0; i < this.captchas.length; i++) {
           const captcha = this.captchas[i]
-          if (captcha.timeout > now) { break }
+          if (captcha.timeout > now) {
+            break
+          }
         }
         if (i) {
           this.captchas = this.captchas.slice(i)
@@ -151,22 +166,35 @@ const Captcha = {
     count() {
       clearTimeout(this.timer)
       if (this.captchas.length) {
-        this.timer = setTimeout(this.clear.bind(this), this.captchas[0].timeout - Date.now())
+        this.timer = setTimeout(
+          this.clear.bind(this),
+          this.captchas[0].timeout - Date.now()
+        )
       }
       return this.updateCount()
     },
 
     updateCount() {
       return $.event('CaptchaCount', this.captchas.length)
-    }
-  }, Replace: CaptchaReplace, t: CaptchaT, v2: {
+    },
+  },
+  Replace: CaptchaReplace,
+  t: CaptchaT,
+  v2: {
     lifetime: 2 * MINUTE,
 
     init() {
-      if (d.cookie.indexOf('pass_enabled=1') >= 0) { return }
-      if (!(this.isEnabled = !!$('#g-recaptcha, #captcha-forced-noscript') || !$.id('postForm'))) { return }
+      if (d.cookie.indexOf('pass_enabled=1') >= 0) {
+        return
+      }
+      if (
+        !(this.isEnabled =
+          !!$('#g-recaptcha, #captcha-forced-noscript') || !$.id('postForm'))
+      ) {
+        return
+      }
 
-      if (this.noscript = Conf['Force Noscript Captcha'] || !Main.jsEnabled) {
+      if ((this.noscript = Conf['Force Noscript Captcha'] || !Main.jsEnabled)) {
         $.addClass(QR.nodes.el, 'noscript-captcha')
       }
 
@@ -176,9 +204,8 @@ const Captcha = {
       const root = $.el('div', { className: 'captcha-root' })
       $.extend(root, {
         innerHTML:
-          '<div class="captcha-counter"><a href="javascript:;"></a></div>'
-      }
-      )
+          '<div class="captcha-counter"><a href="javascript:;"></a></div>',
+      })
       const counter = $('.captcha-counter > a', root)
       this.nodes = { root, counter }
       this.count()
@@ -187,7 +214,9 @@ const Captcha = {
 
       $.on(counter, 'click', this.toggle.bind(this))
       $.on(counter, 'keydown', e => {
-        if (Keybinds.keyCode(e) !== 'Space') { return }
+        if (Keybinds.keyCode(e) !== 'Space') {
+          return
+        }
         this.toggle()
         e.preventDefault()
         return e.stopPropagation()
@@ -204,7 +233,7 @@ const Captcha = {
     noscriptURL() {
       let lang
       let url = `https://www.google.com/recaptcha/api/fallback?k=${meta.recaptchaKey}`
-      if (lang = Conf['captchaLanguage'].trim()) {
+      if ((lang = Conf['captchaLanguage'].trim())) {
         url += `&hl=${encodeURIComponent(lang)}`
       }
       return url
@@ -215,9 +244,9 @@ const Captcha = {
       return $.queueTask(() => {
         const needed = Captcha.cache.needed()
         if (needed && !this.prevNeeded) {
-          this.setup(QR.cooldown.auto && (d.activeElement === QR.nodes.status))
+          this.setup(QR.cooldown.auto && d.activeElement === QR.nodes.status)
         }
-        return this.prevNeeded = needed
+        return (this.prevNeeded = needed)
       })
     },
 
@@ -230,7 +259,9 @@ const Captcha = {
     },
 
     setup(focus, force) {
-      if (!this.isEnabled || (!Captcha.cache.needed() && !force)) { return }
+      if (!this.isEnabled || (!Captcha.cache.needed() && !force)) {
+        return
+      }
 
       if (focus) {
         $.addClass(QR.nodes.el, 'focus')
@@ -247,7 +278,14 @@ const Captcha = {
         // XXX https://bugzilla.mozilla.org/show_bug.cgi?id=1226835
         $.queueTask(() => {
           let iframe
-          if (this.nodes.container && (d.activeElement === this.nodes.counter) && (iframe = $('iframe[src^="https://www.google.com/recaptcha/"]', this.nodes.container))) {
+          if (
+            this.nodes.container &&
+            d.activeElement === this.nodes.counter &&
+            (iframe = $(
+              'iframe[src^="https://www.google.com/recaptcha/"]',
+              this.nodes.container
+            ))
+          ) {
             iframe.focus()
             return QR.focus()
           }
@@ -257,10 +295,12 @@ const Captcha = {
 
       this.nodes.container = $.el('div', { className: 'captcha-container' })
       $.prepend(this.nodes.root, this.nodes.container)
-      new MutationObserver(this.afterSetup.bind(this)).observe(this.nodes.container, {
-        childList: true,
-        subtree: true
-      }
+      new MutationObserver(this.afterSetup.bind(this)).observe(
+        this.nodes.container,
+        {
+          childList: true,
+          subtree: true,
+        }
       )
 
       if (this.noscript) {
@@ -274,9 +314,8 @@ const Captcha = {
       const iframe = $.el('iframe', {
         id: 'qr-captcha-iframe',
         scrolling: 'no',
-        src: this.noscriptURL()
-      }
-      )
+        src: this.noscriptURL(),
+      })
       const div = $.el('div')
       const textarea = $.el('textarea')
       $.add(div, textarea)
@@ -288,14 +327,23 @@ const Captcha = {
         const render = function () {
           const { classList } = document.documentElement
           const container = document.querySelector('#qr .captcha-container')
-          return container.dataset.widgetID = window.grecaptcha.render(container, {
-            sitekey: meta.recaptchaKey,
-            theme: classList.contains('tomorrow') || classList.contains('spooky') || classList.contains('dark-captcha') ? 'dark' : 'light',
-            callback(response) {
-              return window.dispatchEvent(new CustomEvent('captcha:success', { detail: response }))
+          return (container.dataset.widgetID = window.grecaptcha.render(
+            container,
+            {
+              sitekey: meta.recaptchaKey,
+              theme:
+                classList.contains('tomorrow') ||
+                classList.contains('spooky') ||
+                classList.contains('dark-captcha')
+                  ? 'dark'
+                  : 'light',
+              callback(response) {
+                return window.dispatchEvent(
+                  new CustomEvent('captcha:success', { detail: response })
+                )
+              },
             }
-          }
-          )
+          ))
         }
         if (window.grecaptcha) {
           return render()
@@ -305,9 +353,14 @@ const Captcha = {
             render()
             return cbNative()
           }
-          if (!document.head.querySelector('script[src^="https://www.google.com/recaptcha/api.js"]')) {
+          if (
+            !document.head.querySelector(
+              'script[src^="https://www.google.com/recaptcha/api.js"]'
+            )
+          ) {
             const script = document.createElement('script')
-            script.src = 'https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoaded&render=explicit'
+            script.src =
+              'https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoaded&render=explicit'
             return document.head.appendChild(script)
           }
         }
@@ -318,30 +371,49 @@ const Captcha = {
       for (const mutation of mutations) {
         for (const node of mutation.addedNodes) {
           let iframe, textarea
-          if (iframe = $.x('./descendant-or-self::iframe[starts-with(@src, "https://www.google.com/recaptcha/")]', node)) { this.setupIFrame(iframe) }
-          if (textarea = $.x('./descendant-or-self::textarea', node)) { this.setupTextArea(textarea) }
+          if (
+            (iframe = $.x(
+              './descendant-or-self::iframe[starts-with(@src, "https://www.google.com/recaptcha/")]',
+              node
+            ))
+          ) {
+            this.setupIFrame(iframe)
+          }
+          if ((textarea = $.x('./descendant-or-self::textarea', node))) {
+            this.setupTextArea(textarea)
+          }
         }
       }
     },
 
     setupIFrame(iframe) {
       let needle
-      if (!doc.contains(iframe)) { return }
+      if (!doc.contains(iframe)) {
+        return
+      }
       Captcha.replace.iframe(iframe)
       $.addClass(QR.nodes.el, 'captcha-open')
       this.fixQRPosition()
       $.on(iframe, 'load', this.fixQRPosition)
-      if (d.activeElement === this.nodes.counter) { iframe.focus() }
+      if (d.activeElement === this.nodes.counter) {
+        iframe.focus()
+      }
       // XXX Make sure scroll on space prevention (see src/css/style.css) doesn't cause scrolling of div
-      if (['blink', 'edge'].includes($.engine) && (needle = iframe.parentNode, $$('#qr .captcha-container > div > div:first-of-type').includes(needle))) {
-        return $.on(iframe.parentNode, 'scroll', function () { return this.scrollTop = 0 })
+      if (
+        ['blink', 'edge'].includes($.engine) &&
+        ((needle = iframe.parentNode),
+        $$('#qr .captcha-container > div > div:first-of-type').includes(needle))
+      ) {
+        return $.on(iframe.parentNode, 'scroll', function () {
+          return (this.scrollTop = 0)
+        })
       }
     },
 
     fixQRPosition() {
       if (QR.nodes.el.getBoundingClientRect().bottom > doc.clientHeight) {
         QR.nodes.el.style.top = ''
-        return QR.nodes.el.style.bottom = '0px'
+        return (QR.nodes.el.style.bottom = '0px')
       }
     },
 
@@ -350,7 +422,9 @@ const Captcha = {
     },
 
     destroy() {
-      if (!this.isEnabled) { return }
+      if (!this.isEnabled) {
+        return
+      }
       delete this.timeouts.destroy
       $.rmClass(QR.nodes.el, 'captcha-open')
       if (this.nodes.container) {
@@ -370,10 +444,12 @@ const Captcha = {
     save(pasted, token) {
       Captcha.cache.save({
         response: token || $('textarea', this.nodes.container).value,
-        timeout: Date.now() + this.lifetime
+        timeout: Date.now() + this.lifetime,
       })
 
-      const focus = (d.activeElement?.nodeName === 'IFRAME') && /https?:\/\/www\.google\.com\/recaptcha\//.test(d.activeElement.src)
+      const focus =
+        d.activeElement?.nodeName === 'IFRAME' &&
+        /https?:\/\/www\.google\.com\/recaptcha\//.test(d.activeElement.src)
       if (Captcha.cache.needed()) {
         if (focus) {
           if (QR.cooldown.auto || Conf['Post on Captcha Completion']) {
@@ -387,12 +463,21 @@ const Captcha = {
         if (pasted) {
           this.destroy()
         } else {
-          if (this.timeouts.destroy == null) { this.timeouts.destroy = setTimeout(this.destroy.bind(this), 3 * SECOND) }
+          if (this.timeouts.destroy == null) {
+            this.timeouts.destroy = setTimeout(
+              this.destroy.bind(this),
+              3 * SECOND
+            )
+          }
         }
-        if (focus) { QR.nodes.status.focus() }
+        if (focus) {
+          QR.nodes.status.focus()
+        }
       }
 
-      if (Conf['Post on Captcha Completion'] && !QR.cooldown.auto) { return QR.submit() }
+      if (Conf['Post on Captcha Completion'] && !QR.cooldown.auto) {
+        return QR.submit()
+      }
     },
 
     count() {
@@ -403,7 +488,12 @@ const Captcha = {
     },
 
     reload() {
-      if ($('iframe[src^="https://www.google.com/recaptcha/api/fallback?"]', this.nodes.container)) {
+      if (
+        $(
+          'iframe[src^="https://www.google.com/recaptcha/api/fallback?"]',
+          this.nodes.container
+        )
+      ) {
         this.destroy()
         return this.setup(false, true)
       } else {
@@ -416,7 +506,7 @@ const Captcha = {
 
     occupied() {
       return !!this.nodes.container && !this.timeouts.destroy
-    }
-  }
+    },
+  },
 }
 export default Captcha

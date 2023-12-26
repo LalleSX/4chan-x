@@ -2,19 +2,22 @@ import Callbacks from '../classes/Callbacks'
 import { g } from '../globals/globals'
 import { dict } from '../platform/helpers'
 
-
 const Recursive = {
   recursives: dict(),
   init() {
-    if (!['index', 'thread'].includes(g.VIEW)) { return }
+    if (!['index', 'thread'].includes(g.VIEW)) {
+      return
+    }
     return Callbacks.Post.push({
       name: 'Recursive',
-      cb:   this.node
+      cb: this.node,
     })
   },
 
   node() {
-    if (this.isClone || this.isFetchedQuote) { return }
+    if (this.isClone || this.isFetchedQuote) {
+      return
+    }
     for (const quote of this.quotes) {
       let obj
       if ((obj = Recursive.recursives[quote])) {
@@ -27,17 +30,21 @@ const Recursive = {
   },
 
   add(recursive, post, ...args) {
-    const obj = Recursive.recursives[post.fullID] || (Recursive.recursives[post.fullID] = {
-      recursives: [],
-      args: []
-    })
+    const obj =
+      Recursive.recursives[post.fullID] ||
+      (Recursive.recursives[post.fullID] = {
+        recursives: [],
+        args: [],
+      })
     obj.recursives.push(recursive)
     return obj.args.push(args)
   },
 
   rm(recursive, post) {
     let obj
-    if (!(obj = Recursive.recursives[post.fullID])) { return }
+    if (!(obj = Recursive.recursives[post.fullID])) {
+      return
+    }
     for (let i = 0; i < obj.recursives.length; i++) {
       const rec = obj.recursives[i]
       if (rec === recursive) {
@@ -48,12 +55,12 @@ const Recursive = {
   },
 
   apply(recursive, post, ...args) {
-    const {fullID} = post
-    return g.posts.forEach(function(post) {
+    const { fullID } = post
+    return g.posts.forEach(function (post) {
       if (post.quotes.includes(fullID)) {
         return recursive(post, ...args)
       }
     })
-  }
+  },
 }
 export default Recursive

@@ -9,7 +9,7 @@
       "@types/greasemonkey",
       "@types/tampermonkey",
       "node"
-    ],
+    ]
   },
   "extends": "../tsconfig.json"
 }

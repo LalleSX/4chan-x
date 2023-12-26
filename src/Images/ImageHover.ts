@@ -20,7 +20,10 @@ const ImageHover = {
     }
 
     if (Conf['Image Hover in Catalog']) {
-      Callbacks.CatalogThread.push({ name: 'Image Hover', cb: this.catalogNode })
+      Callbacks.CatalogThread.push({
+        name: 'Image Hover',
+        cb: this.catalogNode,
+      })
     }
   },
 
@@ -28,7 +31,9 @@ const ImageHover = {
   node() {
     return this.files
       .filter(file => (file.isImage || file.isVideo) && file.thumb)
-      .map(file => $.on(file.thumb, 'mouseover', ImageHover.mouseover(this, file)))
+      .map(file =>
+        $.on(file.thumb, 'mouseover', ImageHover.mouseover(this, file))
+      )
   },
 
   // Handles mouseover events in catalog view.
@@ -37,19 +42,27 @@ const ImageHover = {
     if (!file || (!file.isImage && !file.isVideo)) {
       return
     }
-    return $.on(this.nodes.thumb, 'mouseover', ImageHover.mouseover(this.thread.OP, file))
+    return $.on(
+      this.nodes.thumb,
+      'mouseover',
+      ImageHover.mouseover(this.thread.OP, file)
+    )
   },
 
   // Returns a function that handles the mouseover event for a given post and file.
   mouseover(post, file) {
-    return function(e) {
+    return function (e) {
       let el, height, width
       if (!doc.contains(this)) {
         return
       }
 
       const { isVideo } = file
-      if (file.isExpanding || file.isExpanded || g.SITE.isThumbExpanded?.(file)) {
+      if (
+        file.isExpanding ||
+        file.isExpanded ||
+        g.SITE.isThumbExpanded?.(file)
+      ) {
         return
       }
 
@@ -67,16 +80,17 @@ const ImageHover = {
         height,
         width,
         noRemove: true,
-        cb: ImageHover.hoverCallback(el, error)
+        cb: ImageHover.hoverCallback(el, error),
       })
     }
   },
 
   // Prepares the hover element for display.
   prepareElement(file, post, error) {
-    const el = ImageCommon.cache?.dataset.fileID === `${post.fullID}.${file.index}`
-      ? ImageCommon.popCache()
-      : $.el(file.isVideo ? 'video' : 'img')
+    const el =
+      ImageCommon.cache?.dataset.fileID === `${post.fullID}.${file.index}`
+        ? ImageCommon.popCache()
+        : $.el(file.isVideo ? 'video' : 'img')
 
     $.on(el, 'error', error)
     el.dataset.fileID = `${post.fullID}.${file.index}`
@@ -119,7 +133,7 @@ const ImageHover = {
 
   // Callback function for hover event.
   hoverCallback(el, error) {
-    return function() {
+    return function () {
       $.off(el, 'error', error)
       ImageCommon.pushCache(el)
       ImageCommon.pause(el)
@@ -130,7 +144,7 @@ const ImageHover = {
 
   // Handles errors during hover.
   error(post, file) {
-    return function() {
+    return function () {
       if (ImageCommon.decodeError(this, file)) {
         return
       }
@@ -138,7 +152,7 @@ const ImageHover = {
         this.src = URL ? URL + (this.src === URL ? '?' + Date.now() : '') : ''
       })
     }
-  }
+  },
 }
 
 export default ImageHover

@@ -14,59 +14,59 @@ export interface BoardConfig {
   board_flags: any
   require_subject: any
   text_only: any
-  board:      string
+  board: string
   bump_limit: number
   cooldowns: {
-    threads: number,
-    replies: number,
-    images:  number,
+    threads: number
+    replies: number
+    images: number
   }
-  custom_spoilers:   1 | 0,
-  image_limit:       number,
-  is_archived:       1 | 0,
+  custom_spoilers: 1 | 0
+  image_limit: number
+  is_archived: 1 | 0
   max_comment_chars: number
-  max_filesize:      number
+  max_filesize: number
   max_webm_duration: number
   max_webm_filesize: number
-  meta_description:  string,
-  pages:             number,
-  per_page:          number,
-  spoilers:          number,
-  title:             string
-  ws_board:           1 | 0
+  meta_description: string
+  pages: number
+  per_page: number
+  spoilers: number
+  title: string
+  ws_board: 1 | 0
 }
 
 export interface Board {
   cooldowns(): any
-  ID:      string,
-  boardID: string,
-  siteID:  string,
-  config:  BoardConfig,
-  posts:   SimpleDict<Post>,
-  threads: SimpleDict<Thread>,
-  url:     string,
+  ID: string
+  boardID: string
+  siteID: string
+  config: BoardConfig
+  posts: SimpleDict<Post>
+  threads: SimpleDict<Thread>
+  url: string
 }
 
 export const Conf = Object.create(null)
 
 export const g: {
-  VERSION:   string,
-  NAMESPACE: string,
-  sites:     (typeof SWTinyboard)[],
-  boardID?:  string,
-  boards:    Board[],
-  posts?:    SimpleDict<Post>,
-  threads?:  SimpleDict<Thread>,
-  threadID?: number,
-  THREADID?: number,
-  SITE?:     typeof SWTinyboard,
-  BOARD?:    Board,
-  VIEW?:     string,
+  VERSION: string
+  NAMESPACE: string
+  sites: (typeof SWTinyboard)[]
+  boardID?: string
+  boards: Board[]
+  posts?: SimpleDict<Post>
+  threads?: SimpleDict<Thread>
+  threadID?: number
+  THREADID?: number
+  SITE?: typeof SWTinyboard
+  BOARD?: Board
+  VIEW?: string
 } = {
-  VERSION:   version.version,
+  VERSION: version.version,
   NAMESPACE: meta.name,
-  sites:     Object.create(null),
-  boards:    Object.create(null)
+  sites: Object.create(null),
+  boards: Object.create(null),
 }
 
 export const E = (function () {
@@ -75,7 +75,7 @@ export const E = (function () {
     "'": '&#039;',
     '"': '&quot;',
     '<': '&lt;',
-    '>': '&gt;'
+    '>': '&gt;',
   }
   const regex = /[&"'<>]/g
   const fn = function (x: string) {

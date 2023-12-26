@@ -30,29 +30,37 @@ const Index = {
   changed: {},
   pageNum: 1,
   pagesNum: 1,
-  enabledOn({siteID, boardID}) {
-    return Conf['JSON Index'] && (g.sites[siteID].software === 'yotsuba') && (boardID !== 'f')
+  enabledOn({ siteID, boardID }) {
+    return (
+      Conf['JSON Index'] &&
+      g.sites[siteID].software === 'yotsuba' &&
+      boardID !== 'f'
+    )
   },
 
   init() {
     let input, inputs, name
-    if (g.VIEW !== 'index') { return }
+    if (g.VIEW !== 'index') {
+      return
+    }
 
     // For IndexRefresh events
     $.one(d, '4chanXInitFinished', this.cb.initFinished)
     $.on(d, 'PostsInserted', this.cb.postsInserted)
 
-    if (!this.enabledOn(g.BOARD)) { return }
+    if (!this.enabledOn(g.BOARD)) {
+      return
+    }
 
     this.enabled = true
 
     Callbacks.Post.push({
       name: 'Index Page Numbers',
-      cb:   this.node
+      cb: this.node,
     })
     Callbacks.CatalogThread.push({
       name: 'Catalog Features',
-      cb:   this.catalogNode
+      cb: this.catalogNode,
     })
 
     this.search = history.state?.searched || ''
@@ -60,15 +68,20 @@ const Index = {
       Conf['Index Mode'] = history.state?.mode
     }
     this.currentSort = history.state?.sort
-    if (!this.currentSort) { this.currentSort = typeof Conf['Index Sort'] === 'object' ? (
-        Conf['Index Sort'][g.BOARD.ID] || 'bump'
-      ) : (
-        Conf['Index Sort']
-      ) }
+    if (!this.currentSort) {
+      this.currentSort =
+        typeof Conf['Index Sort'] === 'object'
+          ? Conf['Index Sort'][g.BOARD.ID] || 'bump'
+          : Conf['Index Sort']
+    }
     this.currentPage = this.getCurrentPage()
     this.processHash()
 
-    $.addClass(doc, 'index-loading', `${Conf['Index Mode'].replace(/ /g, '-')}-mode`)
+    $.addClass(
+      doc,
+      'index-loading',
+      `${Conf['Index Mode'].replace(/ /g, '-')}-mode`
+    )
     $.on(window, 'popstate', this.cb.popstate)
     $.on(d, 'scroll', this.scroll)
     $.on(d, 'SortIndex', this.cb.resort)
@@ -77,21 +90,23 @@ const Index = {
     this.button = $.el('a', {
       title: 'Refresh',
       href: 'javascript:;',
-      textContent: '🗘'
-    }
-    )
+      textContent: '🗘',
+    })
     $.on(this.button, 'click', () => Index.update())
     Header.addShortcut('index-refresh', this.button, 590)
 
     // Header "Index Navigation" submenu
     const entries = []
-    this.inputs = (inputs = dict())
+    this.inputs = inputs = dict()
     for (name in Config.Index) {
       const arr = Config.Index[name]
       if (arr instanceof Array) {
-        const label = UI.checkbox(name, `${name[0]}${name.slice(1).toLowerCase()}`)
+        const label = UI.checkbox(
+          name,
+          `${name[0]}${name.slice(1).toLowerCase()}`
+        )
         label.title = arr[1]
-        entries.push({el: label})
+        entries.push({ el: label })
         input = label.firstChild
         $.on(input, 'change', $.cb.checked)
         inputs[name] = input
@@ -102,32 +117,43 @@ const Index = {
     $.on(inputs['Pin Watched Threads'], 'change', this.cb.resort)
     $.on(inputs['Anchor Hidden Threads'], 'change', this.cb.resort)
 
-    const watchSettings = function(e) {
-      if (input = $.getOwn(inputs, e.target.name)) {
+    const watchSettings = function (e) {
+      if ((input = $.getOwn(inputs, e.target.name))) {
         input.checked = e.target.checked
         return $.event('change', null, input)
       }
     }
-    $.on(d, 'OpenSettings', () => $.on($.id('fourchanx-settings'), 'change', watchSettings))
+    $.on(d, 'OpenSettings', () =>
+      $.on($.id('fourchanx-settings'), 'change', watchSettings)
+    )
 
-    const sortEntry = UI.checkbox('Per-Board Sort Type', 'Per-board sort type', (typeof Conf['Index Sort'] === 'object'))
+    const sortEntry = UI.checkbox(
+      'Per-Board Sort Type',
+      'Per-board sort type',
+      typeof Conf['Index Sort'] === 'object'
+    )
     sortEntry.title = 'Set the sorting order of each board independently.'
     $.on(sortEntry.firstChild, 'change', this.cb.perBoardSort)
-    entries.splice(3, 0, {el: sortEntry})
+    entries.splice(3, 0, { el: sortEntry })
 
     Header.menu.addEntry({
-      el: $.el('span',
-        {textContent: 'Index Navigation'}),
+      el: $.el('span', { textContent: 'Index Navigation' }),
       order: 100,
-      subEntries: entries
+      subEntries: entries,
     })
 
     // Navigation links at top of index
-    this.navLinks = $.el('div', {className: 'navLinks json-index'})
-    $.extend(this.navLinks, {innerHTML: NavLinksPage})
+    this.navLinks = $.el('div', { className: 'navLinks json-index' })
+    $.extend(this.navLinks, { innerHTML: NavLinksPage })
     $('.cataloglink a', this.navLinks).href = CatalogLinks.catalog()
-    if (!BoardConfig.isArchived(g.BOARD.ID)) { $('.archlistlink', this.navLinks).hidden = true }
-    $.on($('#index-last-refresh a', this.navLinks), 'click', this.cb.refreshFront)
+    if (!BoardConfig.isArchived(g.BOARD.ID)) {
+      $('.archlistlink', this.navLinks).hidden = true
+    }
+    $.on(
+      $('#index-last-refresh a', this.navLinks),
+      'click',
+      this.cb.refreshFront
+    )
 
     // Search field
     this.searchInput = $('#index-search', this.navLinks)
@@ -137,14 +163,18 @@ const Index = {
 
     // Hidden threads toggle
     this.hideLabel = $('#hidden-label', this.navLinks)
-    $.on($('#hidden-toggle a', this.navLinks), 'click', this.cb.toggleHiddenThreads)
+    $.on(
+      $('#hidden-toggle a', this.navLinks),
+      'click',
+      this.cb.toggleHiddenThreads
+    )
 
     // Drop-down menus and reverse sort toggle
-    this.selectRev   = $('#index-rev',  this.navLinks)
-    this.selectMode  = $('#index-mode', this.navLinks)
-    this.selectSort  = $('#index-sort', this.navLinks)
-    this.selectSize  = $('#index-size', this.navLinks)
-    $.on(this.selectRev,  'change', this.cb.sort)
+    this.selectRev = $('#index-rev', this.navLinks)
+    this.selectMode = $('#index-mode', this.navLinks)
+    this.selectSort = $('#index-sort', this.navLinks)
+    this.selectSize = $('#index-size', this.navLinks)
+    $.on(this.selectRev, 'change', this.cb.sort)
     $.on(this.selectMode, 'change', this.cb.mode)
     $.on(this.selectSort, 'change', this.cb.sort)
     $.on(this.selectSize, 'change', $.cb.value)
@@ -153,78 +183,95 @@ const Index = {
       select.value = Conf[select.name]
     }
     this.selectRev.checked = /-rev$/.test(Index.currentSort)
-    this.selectSort.value  = Index.currentSort.replace(/-rev$/, '')
+    this.selectSort.value = Index.currentSort.replace(/-rev$/, '')
 
     // Last Long Reply options
     this.lastLongOptions = $('#lastlong-options', this.navLinks)
     this.lastLongInputs = $$('input', this.lastLongOptions)
     this.lastLongThresholds = [0, 0]
-    this.lastLongOptions.hidden = (this.selectSort.value !== 'lastlong')
+    this.lastLongOptions.hidden = this.selectSort.value !== 'lastlong'
     for (let i = 0; i < this.lastLongInputs.length; i++) {
       input = this.lastLongInputs[i]
       $.on(input, 'change', this.cb.lastLongThresholds)
       const tRaw = Conf[`Last Long Reply Thresholds ${i}`]
-      input.value = (this.lastLongThresholds[i] =
-        typeof tRaw === 'object' ? (tRaw[g.BOARD.ID] ?? 100) : tRaw)
+      input.value = this.lastLongThresholds[i] =
+        typeof tRaw === 'object' ? tRaw[g.BOARD.ID] ?? 100 : tRaw
     }
 
     // Thread container
-    this.root = $.el('div', {className: 'board json-index'})
+    this.root = $.el('div', { className: 'board json-index' })
     $.on(this.root, 'click', this.cb.hoverToggle)
     this.cb.size()
     this.cb.hover()
 
     // Page list
-    this.pagelist = $.el('div', {className: 'pagelist json-index'})
-    $.extend(this.pagelist, {innerHTML: PageList})
+    this.pagelist = $.el('div', { className: 'pagelist json-index' })
+    $.extend(this.pagelist, { innerHTML: PageList })
     $('.cataloglink a', this.pagelist).href = CatalogLinks.catalog()
     $.on(this.pagelist, 'click', this.cb.pageNav)
 
     this.update(true)
 
-    $.onExists(doc, 'title + *', () => d.title = d.title.replace(/ - Page \d+/, ''))
+    $.onExists(
+      doc,
+      'title + *',
+      () => (d.title = d.title.replace(/ - Page \d+/, ''))
+    )
 
-    $.onExists(doc, '.board > .thread > .postContainer, .board + *', function() {
-      let el
-      g.SITE.Build.hat = $('.board > .thread > img:first-child')
-      if (g.SITE.Build.hat) {
-        g.BOARD.threads.forEach(function(thread) {
-          if (thread.nodes.root) {
-            return $.prepend(thread.nodes.root, g.SITE.Build.hat.cloneNode(false))
-          }
-        })
-        $.addClass(doc, 'hats-enabled')
-        $.addStyle(`.catalog-thread::after {background-image: url(${g.SITE.Build.hat.src});}`)
+    $.onExists(
+      doc,
+      '.board > .thread > .postContainer, .board + *',
+      function () {
+        let el
+        g.SITE.Build.hat = $('.board > .thread > img:first-child')
+        if (g.SITE.Build.hat) {
+          g.BOARD.threads.forEach(function (thread) {
+            if (thread.nodes.root) {
+              return $.prepend(
+                thread.nodes.root,
+                g.SITE.Build.hat.cloneNode(false)
+              )
+            }
+          })
+          $.addClass(doc, 'hats-enabled')
+          $.addStyle(
+            `.catalog-thread::after {background-image: url(${g.SITE.Build.hat.src});}`
+          )
+        }
+
+        const board = $('.board')
+        $.replace(board, Index.root)
+        if (Index.loaded) {
+          $.event('PostsInserted', null, Index.root)
+        }
+        // Hacks:
+        // - When removing an element from the document during page load,
+        //   its ancestors will still be correctly created inside of it.
+        // - Creating loadable elements inside of an origin-less document
+        //   will not download them.
+        // - Combine the two and you get a download canceller!
+        //   Does not work on Firefox unfortunately. bugzil.la/939713
+        try {
+          d.implementation.createDocument(null, null, null).appendChild(board)
+        } catch (error) {}
+
+        for (el of $$('.navLinks')) {
+          $.rm(el)
+        }
+        $.rm($.id('ctrl-top'))
+        const topNavPos = $.id('delform').previousElementSibling
+        $.before(topNavPos, $.el('hr'))
+        $.before(topNavPos, Index.navLinks)
+        const timeEl = $('#index-last-refresh time', Index.navLinks)
+        if (timeEl.dataset.utc) {
+          return RelativeDates.update(timeEl)
+        }
       }
+    )
 
-      const board = $('.board')
-      $.replace(board, Index.root)
-      if (Index.loaded) {
-        $.event('PostsInserted', null, Index.root)
-      }
-      // Hacks:
-      // - When removing an element from the document during page load,
-      //   its ancestors will still be correctly created inside of it.
-      // - Creating loadable elements inside of an origin-less document
-      //   will not download them.
-      // - Combine the two and you get a download canceller!
-      //   Does not work on Firefox unfortunately. bugzil.la/939713
-      try {
-        d.implementation.createDocument(null, null, null).appendChild(board)
-      } catch (error) {}
-
-      for (el of $$('.navLinks')) { $.rm(el) }
-      $.rm($.id('ctrl-top'))
-      const topNavPos = $.id('delform').previousElementSibling
-      $.before(topNavPos, $.el('hr'))
-      $.before(topNavPos, Index.navLinks)
-      const timeEl = $('#index-last-refresh time', Index.navLinks)
-      if (timeEl.dataset.utc) { return RelativeDates.update(timeEl) }
-    })
-
-    return Main.ready(function() {
+    return Main.ready(function () {
       let pagelist
-      if (pagelist = $('.pagelist')) {
+      if ((pagelist = $('.pagelist'))) {
         $.replace(pagelist, Index.pagelist)
       }
       return $.rmClass(doc, 'index-loading')
@@ -232,21 +279,34 @@ const Index = {
   },
 
   scroll() {
-    if (Index.req || !Index.liveThreadData || (Conf['Index Mode'] !== 'infinite') || (window.scrollY <= (doc.scrollHeight - (300 + window.innerHeight)))) { return }
-    if (Index.pageNum == null) { Index.pageNum = Index.currentPage } // Avoid having to pushState to keep track of the current page
+    if (
+      Index.req ||
+      !Index.liveThreadData ||
+      Conf['Index Mode'] !== 'infinite' ||
+      window.scrollY <= doc.scrollHeight - (300 + window.innerHeight)
+    ) {
+      return
+    }
+    if (Index.pageNum == null) {
+      Index.pageNum = Index.currentPage
+    } // Avoid having to pushState to keep track of the current page
 
     const pageNum = ++Index.pageNum
-    if (pageNum > Index.pagesNum) { return Index.endNotice() }
+    if (pageNum > Index.pagesNum) {
+      return Index.endNotice()
+    }
 
     const threadIDs = Index.threadsOnPage(pageNum)
     return Index.buildStructure(threadIDs)
   },
 
-  endNotice: (function() {
+  endNotice: (function () {
     let notify = false
-    const reset = () => notify = false
-    return function() {
-      if (notify) { return }
+    const reset = () => (notify = false)
+    return function () {
+      if (notify) {
+        return
+      }
       notify = true
       new Notice('info', 'Last page reached.', 2)
       return setTimeout(reset, 3 * SECOND)
@@ -255,42 +315,66 @@ const Index = {
 
   menu: {
     init() {
-      if ((g.VIEW !== 'index') || !Conf['Menu'] || !Conf['Thread Hiding Link'] || !Index.enabledOn(g.BOARD)) { return }
+      if (
+        g.VIEW !== 'index' ||
+        !Conf['Menu'] ||
+        !Conf['Thread Hiding Link'] ||
+        !Index.enabledOn(g.BOARD)
+      ) {
+        return
+      }
 
       return Menu.menu.addEntry({
-        el: $.el('a', {
-          href:      'javascript:;',
-          className: 'has-shortcut-text'
-        }
-        , {innerHTML: '<span></span><span class="shortcut-text">Shift+click</span>'}),
+        el: $.el(
+          'a',
+          {
+            href: 'javascript:;',
+            className: 'has-shortcut-text',
+          },
+          {
+            innerHTML:
+              '<span></span><span class="shortcut-text">Shift+click</span>',
+          }
+        ),
         order: 20,
-        open({thread}) {
-          if (Conf['Index Mode'] !== 'catalog') { return false }
-          this.el.firstElementChild.textContent = thread.isHidden ?
-            'Unhide'
-          :
-            'Hide'
-          if (this.cb) { $.off(this.el, 'click', this.cb) }
-          this.cb = function() {
+        open({ thread }) {
+          if (Conf['Index Mode'] !== 'catalog') {
+            return false
+          }
+          this.el.firstElementChild.textContent = thread.isHidden
+            ? 'Unhide'
+            : 'Hide'
+          if (this.cb) {
+            $.off(this.el, 'click', this.cb)
+          }
+          this.cb = function () {
             $.event('CloseMenu')
             return Index.toggleHide(thread)
           }
           $.on(this.el, 'click', this.cb)
           return true
-        }
+        },
       })
-    }
+    },
   },
 
   node() {
-    if (this.isReply || this.isClone || (Index.threadPosition[this.ID] == null)) { return }
-    return this.thread.setPage(Math.floor(Index.threadPosition[this.ID] / Index.threadsNumPerPage) + 1)
+    if (this.isReply || this.isClone || Index.threadPosition[this.ID] == null) {
+      return
+    }
+    return this.thread.setPage(
+      Math.floor(Index.threadPosition[this.ID] / Index.threadsNumPerPage) + 1
+    )
   },
 
   catalogNode() {
     return $.on(this.nodes.root, 'mousedown click', e => {
-      if ((e.button !== 0) || !e.shiftKey) { return }
-      if (e.type === 'click') { Index.toggleHide(this.thread) }
+      if (e.button !== 0 || !e.shiftKey) {
+        return
+      }
+      if (e.type === 'click') {
+        Index.toggleHide(this.thread)
+      }
       return e.preventDefault()
     })
   }, // Also on mousedown to prevent highlighting text.
@@ -298,7 +382,11 @@ const Index = {
   toggleHide(thread) {
     if (Index.showHiddenThreads) {
       ThreadHiding.show(thread)
-      if (!ThreadHiding.db.get({boardID: thread.board.ID, threadID: thread.ID})) { return }
+      if (
+        !ThreadHiding.db.get({ boardID: thread.board.ID, threadID: thread.ID })
+      ) {
+        return
+      }
       // Don't save when un-hiding filtered threads.
     } else {
       ThreadHiding.hide(thread)
@@ -311,7 +399,9 @@ const Index = {
     const types = Index.selectSort.options.filter(option => !option.disabled)
     for (i = 0; i < types.length; i++) {
       const type = types[i]
-      if (type.selected) { break }
+      if (type.selected) {
+        break
+      }
     }
     types[(i + 1) % types.length].selected = true
     return $.event('change', null, Index.selectSort)
@@ -324,40 +414,50 @@ const Index = {
     },
 
     postsInserted() {
-      if (!Index.initFinishedFired) { return }
+      if (!Index.initFinishedFired) {
+        return
+      }
       let n = 0
-      g.posts.forEach(function(post) {
-        if (!post.isFetchedQuote && !post.indexRefreshSeen && doc.contains(post.nodes.root)) {
+      g.posts.forEach(function (post) {
+        if (
+          !post.isFetchedQuote &&
+          !post.indexRefreshSeen &&
+          doc.contains(post.nodes.root)
+        ) {
           post.indexRefreshSeen = true
           return n++
         }
       })
-      if (n) { return $.event('IndexRefresh') }
+      if (n) {
+        return $.event('IndexRefresh')
+      }
     },
 
     toggleHiddenThreads() {
-      $('#hidden-toggle a', Index.navLinks).textContent = (Index.showHiddenThreads = !Index.showHiddenThreads) ?
-        'Hide'
-      :
-        'Show'
+      $('#hidden-toggle a', Index.navLinks).textContent =
+        (Index.showHiddenThreads = !Index.showHiddenThreads) ? 'Hide' : 'Show'
       Index.sort()
       return Index.buildIndex()
     },
 
     mode() {
-      Index.pushState({mode: this.value})
+      Index.pushState({ mode: this.value })
       return Index.pageLoad(false)
     },
 
     sort() {
-      const value = Index.selectRev.checked ? Index.selectSort.value + '-rev' : Index.selectSort.value
-      Index.pushState({sort: value})
+      const value = Index.selectRev.checked
+        ? Index.selectSort.value + '-rev'
+        : Index.selectSort.value
+      Index.pushState({ sort: value })
       return Index.pageLoad(false)
     },
 
     resort(e) {
       Index.changed.order = true
-      if (!e?.detail?.deferred) { return Index.pageLoad(false) }
+      if (!e?.detail?.deferred) {
+        return Index.pageLoad(false)
+      }
     },
 
     perBoardSort() {
@@ -388,12 +488,14 @@ const Index = {
         $.rmClass(Index.root, 'catalog-large')
       } else if (Conf['Index Size'] === 'small') {
         $.addClass(Index.root, 'catalog-small')
-        $.rmClass(Index.root,  'catalog-large')
+        $.rmClass(Index.root, 'catalog-large')
       } else {
         $.addClass(Index.root, 'catalog-large')
-        $.rmClass(Index.root,  'catalog-small')
+        $.rmClass(Index.root, 'catalog-small')
       }
-      if (e) { return Index.buildIndex() }
+      if (e) {
+        return Index.buildIndex()
+      }
     },
 
     replies() {
@@ -401,16 +503,24 @@ const Index = {
     },
 
     hover() {
-      return doc.classList.toggle('catalog-hover-expand', Conf['Catalog Hover Expand'])
+      return doc.classList.toggle(
+        'catalog-hover-expand',
+        Conf['Catalog Hover Expand']
+      )
     },
 
     hoverToggle(e) {
-      if (Conf['Catalog Hover Toggle'] && $.hasClass(doc, 'catalog-mode') && !$.modifiedClick(e) && !$.x('ancestor-or-self::a', e.target)) {
+      if (
+        Conf['Catalog Hover Toggle'] &&
+        $.hasClass(doc, 'catalog-mode') &&
+        !$.modifiedClick(e) &&
+        !$.x('ancestor-or-self::a', e.target)
+      ) {
         let thread
         const input = Index.inputs['Catalog Hover Expand']
         input.checked = !input.checked
         $.event('change', null, input)
-        if (thread = Get.threadFromNode(e.target)) {
+        if ((thread = Get.threadFromNode(e.target))) {
           Index.cb.catalogReplies.call(thread)
           return Index.cb.hoverAdjust.call(thread.OP.nodes)
         }
@@ -419,9 +529,9 @@ const Index = {
 
     popstate(e) {
       if (e?.state) {
-        const {searched, mode, sort} = e.state
+        const { searched, mode, sort } = e.state
         const page = Index.getCurrentPage()
-        Index.setState({search: searched, mode, sort, page})
+        Index.setState({ search: searched, mode, sort, page })
         return Index.pageLoad(false)
       } else {
         // page load or hash change
@@ -436,7 +546,9 @@ const Index = {
 
     pageNav(e) {
       let a
-      if ($.modifiedClick(e)) { return }
+      if ($.modifiedClick(e)) {
+        return
+      }
       switch (e.target.nodeName) {
         case 'BUTTON':
           e.target.blur()
@@ -448,18 +560,24 @@ const Index = {
         default:
           return
       }
-      if (a.textContent === 'Catalog') { return }
+      if (a.textContent === 'Catalog') {
+        return
+      }
       e.preventDefault()
       return Index.userPageNav(+a.pathname.split(/\/+/)[2] || 1)
     },
 
     refreshFront() {
-      Index.pushState({page: 1})
+      Index.pushState({ page: 1 })
       return Index.update()
     },
 
     catalogReplies() {
-      if (Conf['Show Replies'] && $.hasClass(doc, 'catalog-hover-expand') && !this.catalogView.nodes.replies) {
+      if (
+        Conf['Show Replies'] &&
+        $.hasClass(doc, 'catalog-hover-expand') &&
+        !this.catalogView.nodes.replies
+      ) {
         return Index.buildCatalogReplies(this)
       }
     },
@@ -467,20 +585,30 @@ const Index = {
     hoverAdjust() {
       // Prevent hovered catalog threads from going offscreen.
       let x
-      if (!$.hasClass(doc, 'catalog-hover-expand')) { return }
+      if (!$.hasClass(doc, 'catalog-hover-expand')) {
+        return
+      }
       const rect = this.post.getBoundingClientRect()
-      if (x = $.minmax(0, -rect.left, doc.clientWidth - rect.right)) {
-        const {style} = this.post
+      if ((x = $.minmax(0, -rect.left, doc.clientWidth - rect.right))) {
+        const { style } = this.post
         style.left = `${x}px`
         style.right = `${-x}px`
-        return $.one(this.root, 'mouseleave', () => style.left = (style.right = null))
+        return $.one(
+          this.root,
+          'mouseleave',
+          () => (style.left = style.right = null)
+        )
       }
-    }
+    },
   },
 
   scrollToIndex() {
     // Scroll to navlinks, or top of board if navlinks are hidden.
-    return Header.scrollToIfNeeded((Index.navLinks.getBoundingClientRect().height ? Index.navLinks : Index.root))
+    return Header.scrollToIfNeeded(
+      Index.navLinks.getBoundingClientRect().height
+        ? Index.navLinks
+        : Index.root
+    )
   },
 
   getCurrentPage() {
@@ -488,7 +616,7 @@ const Index = {
   },
 
   userPageNav(page) {
-    Index.pushState({page})
+    Index.pushState({ page })
     if (Conf['Refreshed Navigation']) {
       return Index.update()
     } else {
@@ -498,58 +626,65 @@ const Index = {
 
   hashCommands: {
     mode: {
-      'paged':         'paged',
+      'paged': 'paged',
       'infinite-scrolling': 'infinite',
-      'infinite':      'infinite',
-      'all-threads':   'all pages',
-      'all-pages':     'all pages',
-      'catalog':       'catalog'
+      'infinite': 'infinite',
+      'all-threads': 'all pages',
+      'all-pages': 'all pages',
+      'catalog': 'catalog',
     },
     sort: {
-      'bump-order':        'bump',
-      'last-reply':        'lastreply',
-      'last-long-reply':   'lastlong',
-      'creation-date':     'birth',
-      'reply-count':       'replycount',
-      'file-count':        'filecount',
-      'posts-per-minute':  'activity'
-    }
+      'bump-order': 'bump',
+      'last-reply': 'lastreply',
+      'last-long-reply': 'lastlong',
+      'creation-date': 'birth',
+      'reply-count': 'replycount',
+      'file-count': 'filecount',
+      'posts-per-minute': 'activity',
+    },
   },
 
   processHash() {
     // XXX https://bugzilla.mozilla.org/show_bug.cgi?id=483304
     let hash = location.href.match(/#.*/)?.[0] || ''
-    const state =
-      {replace: true}
+    const state = { replace: true }
     const commands = hash.slice(1).split('/')
     const leftover = []
     for (const command of commands) {
       let mode, sort
-      if (mode = $.getOwn(Index.hashCommands.mode, command)) {
+      if ((mode = $.getOwn(Index.hashCommands.mode, command))) {
         state.mode = mode
       } else if (command === 'index') {
         state.mode = Conf['Previous Index Mode']
         state.page = 1
-      } else if (sort = $.getOwn(Index.hashCommands.sort, command.replace(/-rev$/, ''))) {
+      } else if (
+        (sort = $.getOwn(Index.hashCommands.sort, command.replace(/-rev$/, '')))
+      ) {
         state.sort = sort
-        if (/-rev$/.test(command)) { state.sort += '-rev' }
+        if (/-rev$/.test(command)) {
+          state.sort += '-rev'
+        }
       } else if (/^s=/.test(command)) {
-        state.search = decodeURIComponent(command.slice(2)).replace(/\+/g, ' ').trim()
+        state.search = decodeURIComponent(command.slice(2))
+          .replace(/\+/g, ' ')
+          .trim()
       } else {
         leftover.push(command)
       }
     }
     hash = leftover.join('/')
-    if (hash) { state.hash = `#${hash}` }
+    if (hash) {
+      state.hash = `#${hash}`
+    }
     Index.pushState(state)
     return commands.length - leftover.length
   },
 
   pushState(state) {
-    let {search, hash, replace} = state
+    let { search, hash, replace } = state
     let pageBeforeSearch = history.state?.oldpage
-    if ((search != null) && (search !== Index.search)) {
-      state.page = search ? 1 : (pageBeforeSearch || 1)
+    if (search != null && search !== Index.search) {
+      state.page = search ? 1 : pageBeforeSearch || 1
       if (!search) {
         pageBeforeSearch = undefined
       } else if (!Index.search) {
@@ -557,43 +692,53 @@ const Index = {
       }
     }
     Index.setState(state)
-    const pathname = Index.currentPage === 1 ? `/${g.BOARD}/` : `/${g.BOARD}/${Index.currentPage}`
-    if (!hash) { hash = '' }
-    return history[replace ? 'replaceState' : 'pushState']({
-      mode:     Conf['Index Mode'],
-      sort:     Index.currentSort,
-      searched: Index.search,
-      oldpage:  pageBeforeSearch
+    const pathname =
+      Index.currentPage === 1
+        ? `/${g.BOARD}/`
+        : `/${g.BOARD}/${Index.currentPage}`
+    if (!hash) {
+      hash = ''
     }
-    , '', `${location.protocol}//${location.host}${pathname}${hash}`)
+    return history[replace ? 'replaceState' : 'pushState'](
+      {
+        mode: Conf['Index Mode'],
+        sort: Index.currentSort,
+        searched: Index.search,
+        oldpage: pageBeforeSearch,
+      },
+      '',
+      `${location.protocol}//${location.host}${pathname}${hash}`
+    )
   },
 
-  setState({search, mode, sort, page, hash}) {
-    if ((search != null) && (search !== Index.search)) {
+  setState({ search, mode, sort, page, hash }) {
+    if (search != null && search !== Index.search) {
       Index.changed.search = true
       Index.search = search
     }
-    if ((mode != null) && (mode !== Conf['Index Mode'])) {
+    if (mode != null && mode !== Conf['Index Mode']) {
       Index.changed.mode = true
       Conf['Index Mode'] = mode
       $.set('Index Mode', mode)
-      if ((mode !== 'catalog') && (Conf['Previous Index Mode'] !== mode)) {
+      if (mode !== 'catalog' && Conf['Previous Index Mode'] !== mode) {
         Conf['Previous Index Mode'] = mode
         $.set('Previous Index Mode', mode)
       }
     }
-    if ((sort != null) && (sort !== Index.currentSort)) {
+    if (sort != null && sort !== Index.currentSort) {
       Index.changed.sort = true
       Index.currentSort = sort
       Index.saveSort()
     }
-    if (['all pages', 'catalog'].includes(Conf['Index Mode'])) { page = 1 }
-    if ((page != null) && (page !== Index.currentPage)) {
+    if (['all pages', 'catalog'].includes(Conf['Index Mode'])) {
+      page = 1
+    }
+    if (page != null && page !== Index.currentPage) {
       Index.changed.page = true
       Index.currentPage = page
     }
     if (hash != null) {
-      return Index.changed.hash = true
+      return (Index.changed.hash = true)
     }
   },
 
@@ -611,40 +756,71 @@ const Index = {
   },
 
   saveLastLongThresholds(i) {
-    return Index.savePerBoard(`Last Long Reply Thresholds ${i}`, Index.lastLongThresholds[i])
+    return Index.savePerBoard(
+      `Last Long Reply Thresholds ${i}`,
+      Index.lastLongThresholds[i]
+    )
   },
 
-  pageLoad(scroll=true) {
-    if (!Index.liveThreadData) { return }
-    let {threads, order, search, mode, sort, page, hash} = Index.changed
-    if (!threads) { threads = search }
-    if (!order) { order = sort }
-    if (threads || order) { Index.sort() }
-    if (threads) { Index.buildPagelist() }
-    if (search) { Index.setupSearch() }
-    if (mode) { Index.setupMode() }
-    if (sort) { Index.setupSort() }
-    if (threads || mode || page || order) { Index.buildIndex() }
-    if (threads || page) { Index.setPage() }
-    if (scroll && !hash) { Index.scrollToIndex() }
-    if (hash) { Header.hashScroll() }
-    return Index.changed = {}
+  pageLoad(scroll = true) {
+    if (!Index.liveThreadData) {
+      return
+    }
+    let { threads, order, search, mode, sort, page, hash } = Index.changed
+    if (!threads) {
+      threads = search
+    }
+    if (!order) {
+      order = sort
+    }
+    if (threads || order) {
+      Index.sort()
+    }
+    if (threads) {
+      Index.buildPagelist()
+    }
+    if (search) {
+      Index.setupSearch()
+    }
+    if (mode) {
+      Index.setupMode()
+    }
+    if (sort) {
+      Index.setupSort()
+    }
+    if (threads || mode || page || order) {
+      Index.buildIndex()
+    }
+    if (threads || page) {
+      Index.setPage()
+    }
+    if (scroll && !hash) {
+      Index.scrollToIndex()
+    }
+    if (hash) {
+      Header.hashScroll()
+    }
+    return (Index.changed = {})
   },
 
   setupMode() {
     for (const mode of ['paged', 'infinite', 'all pages', 'catalog']) {
-      $[mode === Conf['Index Mode'] ? 'addClass' : 'rmClass'](doc, `${mode.replace(/ /g, '-')}-mode`)
+      $[mode === Conf['Index Mode'] ? 'addClass' : 'rmClass'](
+        doc,
+        `${mode.replace(/ /g, '-')}-mode`
+      )
     }
     Index.selectMode.value = Conf['Index Mode']
     Index.cb.size()
     Index.showHiddenThreads = false
-    return $('#hidden-toggle a', Index.navLinks).textContent = 'Show'
+    return ($('#hidden-toggle a', Index.navLinks).textContent = 'Show')
   },
 
   setupSort() {
     Index.selectRev.checked = /-rev$/.test(Index.currentSort)
-    Index.selectSort.value  = Index.currentSort.replace(/-rev$/, '')
-    return Index.lastLongOptions.hidden = (Index.selectSort.value !== 'lastlong')
+    Index.selectSort.value = Index.currentSort.replace(/-rev$/, '')
+    return (Index.lastLongOptions.hidden =
+      Index.selectSort.value !== 'lastlong')
   },
 
   getPagesNum() {
@@ -667,9 +843,8 @@ const Index = {
       for (let i = 1, end = maxPageNum; i <= end; i++) {
         const a = $.el('a', {
           textContent: i,
-          href: i === 1 ? './' : i
-        }
-        )
+          href: i === 1 ? './' : i,
+        })
         nodes.push($.tn('['), a, $.tn('] '))
       }
       $.rmAll(pagesRoot)
@@ -679,9 +854,9 @@ const Index = {
 
   setPage() {
     let a, strong
-    const pageNum    = Index.currentPage
+    const pageNum = Index.currentPage
     const maxPageNum = Index.getMaxPageNum()
-    const pagesRoot  = $('.pages', Index.pagelist)
+    const pagesRoot = $('.pages', Index.pagelist)
 
     // Previous/Next buttons
     const prev = pagesRoot.previousElementSibling.firstElementChild
@@ -694,21 +869,25 @@ const Index = {
     next.firstElementChild.disabled = href === pageNum
 
     // <strong> current page
-    if (strong = $('strong', pagesRoot)) {
-      if (+strong.textContent === pageNum) { return }
+    if ((strong = $('strong', pagesRoot))) {
+      if (+strong.textContent === pageNum) {
+        return
+      }
       $.replace(strong, strong.firstChild)
     } else {
       strong = $.el('strong')
     }
 
-    if (a = pagesRoot.children[pageNum - 1]) {
+    if ((a = pagesRoot.children[pageNum - 1])) {
       $.before(a, strong)
       return $.add(strong, a)
     }
   },
 
   updateHideLabel() {
-    if (!Index.hideLabel) { return }
+    if (!Index.hideLabel) {
+      return
+    }
     let hiddenCount = 0
     for (const threadID of Index.liveThreadIDs) {
       if (Index.isHidden(threadID)) {
@@ -717,46 +896,59 @@ const Index = {
     }
     if (!hiddenCount) {
       Index.hideLabel.hidden = true
-      if (Index.showHiddenThreads) { Index.cb.toggleHiddenThreads() }
+      if (Index.showHiddenThreads) {
+        Index.cb.toggleHiddenThreads()
+      }
       return
     }
     Index.hideLabel.hidden = false
-    return $('#hidden-count', Index.navLinks).textContent = hiddenCount === 1 ?
-      '1 hidden thread'
-    :
-      `${hiddenCount} hidden threads`
+    return ($('#hidden-count', Index.navLinks).textContent =
+      hiddenCount === 1 ? '1 hidden thread' : `${hiddenCount} hidden threads`)
   },
 
   update(firstTime) {
     let oldReq
-    if (oldReq = Index.req) {
+    if ((oldReq = Index.req)) {
       delete Index.req
       oldReq.abort()
     }
 
     if (Conf['Index Refresh Notifications']) {
       // Optional notification for manual refreshes
-      if (!Index.notice) { Index.notice = new Notice('info', 'Refreshing index...') }
-      if (!Index.nTimeout) { Index.nTimeout = setTimeout(() => {
+      if (!Index.notice) {
+        Index.notice = new Notice('info', 'Refreshing index...')
+      }
+      if (!Index.nTimeout) {
+        Index.nTimeout = setTimeout(() => {
           if (Index.notice) {
-            Index.notice.el.lastElementChild.textContent += ' (disable JSON Index if this takes too long)'
+            Index.notice.el.lastElementChild.textContent +=
+              ' (disable JSON Index if this takes too long)'
           }
-        }
-        , 3 * SECOND) }
+        }, 3 * SECOND)
+      }
     } else {
       // Also display notice if Index Refresh is taking too long
-      if (!Index.nTimeout) { Index.nTimeout = setTimeout(() => Index.notice || (Index.notice = new Notice('info', 'Refreshing index... (disable JSON Index if this takes too long)'))
-      , 3 * SECOND) }
+      if (!Index.nTimeout) {
+        Index.nTimeout = setTimeout(
+          () =>
+            Index.notice ||
+            (Index.notice = new Notice(
+              'info',
+              'Refreshing index... (disable JSON Index if this takes too long)'
+            )),
+          3 * SECOND
+        )
+      }
     }
 
     // Hard refresh in case of incomplete page load.
-    if (!firstTime && (d.readyState !== 'loading') && !$('.board + *')) {
+    if (!firstTime && d.readyState !== 'loading' && !$('.board + *')) {
       location.reload()
       return
     }
 
     Index.req = $.whenModified(
-      g.SITE.urls.catalogJSON({boardID: g.BOARD.ID}),
+      g.SITE.urls.catalogJSON({ boardID: g.BOARD.ID }),
       'Index',
       Index.load
     )
@@ -765,17 +957,25 @@ const Index = {
 
   load() {
     let err
-    if (this !== Index.req) { return } // aborted
+    if (this !== Index.req) {
+      return
+    } // aborted
 
     $.rmClass(Index.button, 'spin')
-    const {notice, nTimeout} = Index
-    if (nTimeout) { clearTimeout(nTimeout) }
+    const { notice, nTimeout } = Index
+    if (nTimeout) {
+      clearTimeout(nTimeout)
+    }
     delete Index.nTimeout
     delete Index.req
     delete Index.notice
 
     if (![200, 304].includes(this.status)) {
-      err = `Index refresh failed. ${this.status ? `Error ${this.statusText} (${this.status})` : 'Connection Error'}`
+      err = `Index refresh failed. ${
+        this.status
+          ? `Error ${this.statusText} (${this.status})`
+          : 'Connection Error'
+      }`
       if (notice) {
         notice.setType('warning')
         notice.el.lastElementChild.textContent = err
@@ -835,23 +1035,27 @@ const Index = {
   threadsNumPerPage: null,
 
   parseThreadList(pages) {
-    Index.pagesNum          = pages.length
+    Index.pagesNum = pages.length
     Index.threadsNumPerPage = pages[0]?.threads.length || 1
-    Index.liveThreadData    = pages.reduce(((arr, next) => arr.concat(next.threads)), [])
-    Index.liveThreadIDs     = Index.liveThreadData.map(data => data.no)
-    Index.liveThreadDict    = dict()
-    Index.threadPosition    = dict()
-    Index.parsedThreads     = dict()
-    Index.replyData         = dict()
+    Index.liveThreadData = pages.reduce(
+      (arr, next) => arr.concat(next.threads),
+      []
+    )
+    Index.liveThreadIDs = Index.liveThreadData.map(data => data.no)
+    Index.liveThreadDict = dict()
+    Index.threadPosition = dict()
+    Index.parsedThreads = dict()
+    Index.replyData = dict()
     for (let i = 0; i < Index.liveThreadData.length; i++) {
       let obj, results
       const data = Index.liveThreadData[i]
       Index.liveThreadDict[data.no] = data
       Index.threadPosition[data.no] = i
-      Index.parsedThreads[data.no] = (obj = g.SITE.Build.parseJSON(data, g.BOARD))
-      obj.filterResults = (results = Filter.test(obj))
-      obj.isOnTop  = results.top
-      obj.isHidden = results.hide || ThreadHiding.isHidden(obj.boardID, obj.threadID)
+      Index.parsedThreads[data.no] = obj = g.SITE.Build.parseJSON(data, g.BOARD)
+      obj.filterResults = results = Filter.test(obj)
+      obj.isOnTop = results.top
+      obj.isHidden =
+        results.hide || ThreadHiding.isHidden(obj.boardID, obj.threadID)
       if (data.last_replies) {
         for (const reply of data.last_replies) {
           Index.replyData[`${g.BOARD}.${reply.no}`] = reply
@@ -859,18 +1063,26 @@ const Index = {
       }
     }
     if (Index.liveThreadData[0]) {
-      g.SITE.Build.spoilerRange[g.BOARD.ID] = Index.liveThreadData[0].custom_spoiler
+      g.SITE.Build.spoilerRange[g.BOARD.ID] =
+        Index.liveThreadData[0].custom_spoiler
     }
-    g.BOARD.threads.forEach(function(thread) {
-      if (!Index.liveThreadIDs.includes(thread.ID)) { return thread.collect() }
+    g.BOARD.threads.forEach(function (thread) {
+      if (!Index.liveThreadIDs.includes(thread.ID)) {
+        return thread.collect()
+      }
     })
-    $.event('IndexUpdate',
-      {threads: ((Index.liveThreadIDs.map((ID) => `${g.BOARD}.${ID}`)))})
+    $.event('IndexUpdate', {
+      threads: Index.liveThreadIDs.map(ID => `${g.BOARD}.${ID}`),
+    })
   },
 
   isHidden(threadID) {
     let thread
-    if ((thread = g.BOARD.threads.get(threadID)) && thread.OP && !thread.OP.isFetchedQuote) {
+    if (
+      (thread = g.BOARD.threads.get(threadID)) &&
+      thread.OP &&
+      !thread.OP.isFetchedQuote
+    ) {
       return thread.isHidden
     } else {
       return Index.parsedThreads[threadID].isHidden
@@ -878,25 +1090,38 @@ const Index = {
   },
 
   isHiddenReply(threadID, replyData) {
-    return PostHiding.isHidden(g.BOARD.ID, threadID, replyData.no) || Filter.isHidden(g.SITE.Build.parseJSON(replyData, g.BOARD))
+    return (
+      PostHiding.isHidden(g.BOARD.ID, threadID, replyData.no) ||
+      Filter.isHidden(g.SITE.Build.parseJSON(replyData, g.BOARD))
+    )
   },
 
   buildThreads(threadIDs, isCatalog, withReplies) {
     let errors
-    const threads    = []
+    const threads = []
     const newThreads = []
-    let newPosts   = []
+    let newPosts = []
     for (const ID of threadIDs) {
       let opRoot, thread
       try {
         let OP
         const threadData = Index.liveThreadDict[ID]
 
-        if (thread = g.BOARD.threads.get(ID)) {
-          const isStale = (thread.json !== threadData) && (JSON.stringify(thread.json) !== JSON.stringify(threadData))
+        if ((thread = g.BOARD.threads.get(ID))) {
+          const isStale =
+            thread.json !== threadData &&
+            JSON.stringify(thread.json) !== JSON.stringify(threadData)
           if (isStale) {
-            thread.setCount('post', threadData.replies + 1,                threadData.bumplimit)
-            thread.setCount('file', threadData.images  + !!threadData.ext, threadData.imagelimit)
+            thread.setCount(
+              'post',
+              threadData.replies + 1,
+              threadData.bumplimit
+            )
+            thread.setCount(
+              'file',
+              threadData.images + !!threadData.ext,
+              threadData.imagelimit
+            )
             thread.setStatus('Sticky', !!threadData.sticky)
             thread.setStatus('Closed', !!threadData.closed)
           }
@@ -908,14 +1133,21 @@ const Index = {
           thread = new Thread(ID, g.BOARD)
           newThreads.push(thread)
         }
-        const lastPost = threadData.last_replies && threadData.last_replies.length ? threadData.last_replies[threadData.last_replies.length - 1].no : ID
-        if (lastPost > thread.lastPost) { thread.lastPost = lastPost }
+        const lastPost =
+          threadData.last_replies && threadData.last_replies.length
+            ? threadData.last_replies[threadData.last_replies.length - 1].no
+            : ID
+        if (lastPost > thread.lastPost) {
+          thread.lastPost = lastPost
+        }
         thread.json = threadData
         threads.push(thread)
 
         if ((OP = thread.OP) && !OP.isFetchedQuote) {
           OP.setCatalogOP(isCatalog)
-          thread.setPage(Math.floor(Index.threadPosition[ID] / Index.threadsNumPerPage) + 1)
+          thread.setPage(
+            Math.floor(Index.threadPosition[ID] / Index.threadsNumPerPage) + 1
+          )
         } else {
           const obj = Index.parsedThreads[ID]
           opRoot = g.SITE.Build.post(obj)
@@ -929,24 +1161,31 @@ const Index = {
         }
       } catch (err) {
         // Skip posts that we failed to parse.
-        if (!errors) { errors = [] }
+        if (!errors) {
+          errors = []
+        }
         errors.push({
           message: `Parsing of Thread No.${thread} failed. Thread will be skipped.`,
           error: err,
-          html: opRoot?.outerHTML
+          html: opRoot?.outerHTML,
         })
       }
     }
-    if (errors) { Main.handleErrors(errors) }
+    if (errors) {
+      Main.handleErrors(errors)
+    }
 
     if (withReplies) {
       newPosts = newPosts.concat(Index.buildReplies(threads))
     }
 
     Main.callbackNodes('Thread', newThreads)
-    Main.callbackNodes('Post',   newPosts)
+    Main.callbackNodes('Post', newPosts)
     Index.updateHideLabel()
-    $.event('IndexRefreshInternal', {threadIDs: (threads.map((t) => t.fullID)), isCatalog})
+    $.event('IndexRefreshInternal', {
+      threadIDs: threads.map(t => t.fullID),
+      isCatalog,
+    })
 
     return threads
   },
@@ -956,7 +1195,9 @@ const Index = {
     const posts = []
     for (const thread of threads) {
       let lastReplies
-      if (!(lastReplies = Index.liveThreadDict[thread.ID].last_replies)) { continue }
+      if (!(lastReplies = Index.liveThreadDict[thread.ID].last_replies)) {
+        continue
+      }
       const nodes = []
       for (const data of lastReplies) {
         let node, post
@@ -964,23 +1205,27 @@ const Index = {
           nodes.push(post.nodes.root)
           continue
         }
-        nodes.push(node = g.SITE.Build.postFromObject(data, thread.board.ID))
+        nodes.push((node = g.SITE.Build.postFromObject(data, thread.board.ID)))
         try {
           posts.push(new Post(node, thread, thread.board))
         } catch (err) {
           // Skip posts that we failed to parse.
-          if (!errors) { errors = [] }
+          if (!errors) {
+            errors = []
+          }
           errors.push({
             message: `Parsing of Post No.${data.no} failed. Post will be skipped.`,
             error: err,
-            html: node?.outerHTML
+            html: node?.outerHTML,
           })
         }
       }
       $.add(thread.nodes.root, nodes)
     }
 
-    if (errors) { Main.handleErrors(errors) }
+    if (errors) {
+      Main.handleErrors(errors)
+    }
     return posts
   },
 
@@ -988,9 +1233,14 @@ const Index = {
     const catalogThreads = []
     for (const thread of threads) {
       if (!thread.catalogView) {
-        const {ID} = thread
-        const page = Math.floor(Index.threadPosition[ID] / Index.threadsNumPerPage) + 1
-        const root = g.SITE.Build.catalogThread(thread, Index.liveThreadDict[ID], page)
+        const { ID } = thread
+        const page =
+          Math.floor(Index.threadPosition[ID] / Index.threadsNumPerPage) + 1
+        const root = g.SITE.Build.catalogThread(
+          thread,
+          Index.liveThreadDict[ID],
+          page
+        )
         catalogThreads.push(new CatalogThread(root, thread))
       }
     }
@@ -1001,73 +1251,117 @@ const Index = {
     // XXX When browsers support CSS3 attr(), use it instead.
     const size = Conf['Index Size'] === 'small' ? 150 : 250
     for (const thread of threads) {
-      const {thumb} = thread.catalogView.nodes
-      const {width, height} = thumb.dataset
-      if (!width) { continue }
+      const { thumb } = thread.catalogView.nodes
+      const { width, height } = thumb.dataset
+      if (!width) {
+        continue
+      }
       const ratio = size / Math.max(width, height)
-      thumb.style.width  = (width  * ratio) + 'px'
-      thumb.style.height = (height * ratio) + 'px'
+      thumb.style.width = width * ratio + 'px'
+      thumb.style.height = height * ratio + 'px'
     }
   },
 
   buildCatalogReplies(thread) {
     let lastReplies
-    const {nodes} = thread.catalogView
-    if (!(lastReplies = Index.liveThreadDict[thread.ID].last_replies)) { return }
+    const { nodes } = thread.catalogView
+    if (!(lastReplies = Index.liveThreadDict[thread.ID].last_replies)) {
+      return
+    }
 
     const replies = []
     for (const data of lastReplies) {
-      if (Index.isHiddenReply(thread.ID, data)) { continue }
+      if (Index.isHiddenReply(thread.ID, data)) {
+        continue
+      }
       const reply = g.SITE.Build.catalogReply(thread, data)
       RelativeDates.update($('time', reply))
-      $.on($('.catalog-reply-preview', reply), 'mouseover', QuotePreview.mouseover)
+      $.on(
+        $('.catalog-reply-preview', reply),
+        'mouseover',
+        QuotePreview.mouseover
+      )
       replies.push(reply)
     }
 
-    nodes.replies = $.el('div', {className: 'catalog-replies'})
+    nodes.replies = $.el('div', { className: 'catalog-replies' })
     $.add(nodes.replies, replies)
     $.add(thread.OP.nodes.post, nodes.replies)
   },
 
   sort() {
     let threadIDs
-    const {liveThreadIDs, liveThreadData} = Index
-    if (!liveThreadData) { return }
-    const tmp_time = new Date().getTime()/1000
+    const { liveThreadIDs, liveThreadData } = Index
+    if (!liveThreadData) {
+      return
+    }
+    const tmp_time = new Date().getTime() / 1000
     const sortType = Index.currentSort.replace(/-rev$/, '')
-    Index.sortedThreadIDs = (() => { switch (sortType) {
-      case 'lastreply': case 'lastlong':
-        const repliesAvailable = liveThreadData.some(thread => thread.last_replies?.length)
-        const lastlong = function(thread) {
-          if (!repliesAvailable) {
-            return thread.last_modified
-          }
-          const iterable = thread.last_replies || []
-          for (let i = iterable.length - 1; i >= 0; i--) {
-            const r = iterable[i]
-            if (Index.isHiddenReply(thread.no, r)) { continue }
-            if (sortType === 'lastreply') {
-              return r
+    Index.sortedThreadIDs = (() => {
+      switch (sortType) {
+        case 'lastreply':
+        case 'lastlong':
+          const repliesAvailable = liveThreadData.some(
+            thread => thread.last_replies?.length
+          )
+          const lastlong = function (thread) {
+            if (!repliesAvailable) {
+              return thread.last_modified
             }
-            const len = r.com ? g.SITE.Build.parseComment(r.com).replace(/[^a-z]/ig, '').length : 0
-            if (len >= Index.lastLongThresholds[+!!r.ext]) {
-              return r
+            const iterable = thread.last_replies || []
+            for (let i = iterable.length - 1; i >= 0; i--) {
+              const r = iterable[i]
+              if (Index.isHiddenReply(thread.no, r)) {
+                continue
+              }
+              if (sortType === 'lastreply') {
+                return r
+              }
+              const len = r.com
+                ? g.SITE.Build.parseComment(r.com).replace(/[^a-z]/gi, '')
+                    .length
+                : 0
+              if (len >= Index.lastLongThresholds[+!!r.ext]) {
+                return r
+              }
+            }
+            if (thread.omitted_posts && thread.last_replies?.length) {
+              return thread.last_replies[0]
+            } else {
+              return thread
             }
           }
-          if (thread.omitted_posts && thread.last_replies?.length) { return thread.last_replies[0] } else { return thread }
-        }
-        const lastlongD = dict()
-        for (const thread of liveThreadData) {
-          lastlongD[thread.no] = lastlong(thread).no
-        }
-        return [...liveThreadData].sort((a, b) => lastlongD[b.no] - lastlongD[a.no]).map(post => post.no)
-      case 'bump':       return liveThreadIDs
-      case 'birth':      return [...liveThreadIDs ].sort((a, b) => b - a)
-      case 'replycount': return [...liveThreadData].sort((a, b) => b.replies - a.replies).map(post => post.no)
-      case 'filecount':  return [...liveThreadData].sort((a, b) => b.images  - a.images).map(post => post.no)
-      case 'activity':   return [...liveThreadData].sort((a, b) => ((tmp_time-a.time)/(a.replies+1)) - ((tmp_time-b.time)/(b.replies+1))).map(post => post.no)
-      default: return liveThreadIDs
-    } })()
+          const lastlongD = dict()
+          for (const thread of liveThreadData) {
+            lastlongD[thread.no] = lastlong(thread).no
+          }
+          return [...liveThreadData]
+            .sort((a, b) => lastlongD[b.no] - lastlongD[a.no])
+            .map(post => post.no)
+        case 'bump':
+          return liveThreadIDs
+        case 'birth':
+          return [...liveThreadIDs].sort((a, b) => b - a)
+        case 'replycount':
+          return [...liveThreadData]
+            .sort((a, b) => b.replies - a.replies)
+            .map(post => post.no)
+        case 'filecount':
+          return [...liveThreadData]
+            .sort((a, b) => b.images - a.images)
+            .map(post => post.no)
+        case 'activity':
+          return [...liveThreadData]
+            .sort(
+              (a, b) =>
+                (tmp_time - a.time) / (a.replies + 1) -
+                (tmp_time - b.time) / (b.replies + 1)
+            )
+            .map(post => post.no)
+        default:
+          return liveThreadIDs
+      }
+    })()
     if (/-rev$/.test(Index.currentSort)) {
       Index.sortedThreadIDs.reverse()
     }
@@ -1077,29 +1371,40 @@ const Index = {
     // Sticky threads
     Index.sortOnTop(obj => obj.isSticky)
     // Highlighted threads
-    Index.sortOnTop(obj => obj.isOnTop || (Conf['Pin Watched Threads'] && ThreadWatcher.isWatchedRaw(obj.boardID, obj.threadID)))
+    Index.sortOnTop(
+      obj =>
+        obj.isOnTop ||
+        (Conf['Pin Watched Threads'] &&
+          ThreadWatcher.isWatchedRaw(obj.boardID, obj.threadID))
+    )
     // Non-hidden threads
-    if (Conf['Anchor Hidden Threads']) { return Index.sortOnTop(obj => !Index.isHidden(obj.threadID)) }
+    if (Conf['Anchor Hidden Threads']) {
+      return Index.sortOnTop(obj => !Index.isHidden(obj.threadID))
+    }
   },
 
   sortOnTop(match) {
-    const topThreads    = []
+    const topThreads = []
     const bottomThreads = []
     for (const ID of Index.sortedThreadIDs) {
-      (match(Index.parsedThreads[ID]) ? topThreads : bottomThreads).push(ID)
+      ;(match(Index.parsedThreads[ID]) ? topThreads : bottomThreads).push(ID)
     }
-    return Index.sortedThreadIDs = topThreads.concat(bottomThreads)
+    return (Index.sortedThreadIDs = topThreads.concat(bottomThreads))
   },
 
   buildIndex() {
     let threadIDs
-    if (!Index.liveThreadData) { return }
+    if (!Index.liveThreadData) {
+      return
+    }
     switch (Conf['Index Mode']) {
       case 'all pages':
         threadIDs = Index.sortedThreadIDs
         break
       case 'catalog':
-        threadIDs = Index.sortedThreadIDs.filter(ID => !Index.isHidden(ID) !== Index.showHiddenThreads)
+        threadIDs = Index.sortedThreadIDs.filter(
+          ID => !Index.isHidden(ID) !== Index.showHiddenThreads
+        )
         break
       default:
         threadIDs = Index.threadsOnPage(Index.currentPage)
@@ -1120,7 +1425,7 @@ const Index = {
   threadsOnPage(pageNum) {
     const nodesPerPage = Index.threadsNumPerPage
     const offset = nodesPerPage * (pageNum - 1)
-    return Index.sortedThreadIDs.slice(offset ,  offset + nodesPerPage)
+    return Index.sortedThreadIDs.slice(offset, offset + nodesPerPage)
   },
 
   buildStructure(threadIDs) {
@@ -1140,9 +1445,11 @@ const Index = {
     let i = 0
     const n = threadIDs.length
     let node0 = null
-    const fn = function() {
-      if (node0 && !node0.parentNode) { return } // Index.root cleared
-      const j = (i > 0) && Index.root.parentNode ? n : i + 30
+    const fn = function () {
+      if (node0 && !node0.parentNode) {
+        return
+      } // Index.root cleared
+      const j = i > 0 && Index.root.parentNode ? n : i + 30
       node0 = Index.buildCatalogPart(threadIDs.slice(i, j))[0]
       i = j
       if (i < n) {
@@ -1151,7 +1458,7 @@ const Index = {
         if (Index.root.parentNode) {
           $.event('PostsInserted', null, Index.root)
         }
-        return Index.loaded = true
+        return (Index.loaded = true)
       }
     }
     fn()
@@ -1166,8 +1473,16 @@ const Index = {
       thread.OP.setCatalogOP(true)
       $.add(thread.catalogView.nodes.root, thread.OP.nodes.root)
       nodes.push(thread.catalogView.nodes.root)
-      $.on(thread.catalogView.nodes.root, 'mouseenter', Index.cb.catalogReplies.bind(thread))
-      $.on(thread.OP.nodes.root, 'mouseenter', Index.cb.hoverAdjust.bind(thread.OP.nodes))
+      $.on(
+        thread.catalogView.nodes.root,
+        'mouseenter',
+        Index.cb.catalogReplies.bind(thread)
+      )
+      $.on(
+        thread.OP.nodes.root,
+        'mouseenter',
+        Index.cb.hoverAdjust.bind(thread.OP.nodes)
+      )
     }
     $.add(Index.root, nodes)
     return nodes
@@ -1182,7 +1497,7 @@ const Index = {
   setupSearch() {
     Index.searchInput.value = Index.search
     if (Index.search) {
-      return Index.searchInput.dataset.searching = 1
+      return (Index.searchInput.dataset.searching = 1)
     } else {
       // XXX https://bugzilla.mozilla.org/show_bug.cgi?id=1021289
       return Index.searchInput.removeAttribute('data-searching')
@@ -1191,42 +1506,58 @@ const Index = {
 
   onSearchInput() {
     const search = Index.searchInput.value.trim()
-    if (search === Index.search) { return }
+    if (search === Index.search) {
+      return
+    }
     Index.pushState({
       search,
-      replace: !!search === !!Index.search
+      replace: !!search === !!Index.search,
     })
     return Index.pageLoad(false)
   },
 
   querySearch(query) {
     let keywords, match
-    if (match = query.match(/^([\w+]+):\/(.*)\/(\w*)$/)) {
+    if ((match = query.match(/^([\w+]+):\/(.*)\/(\w*)$/))) {
       let regexp
       try {
         regexp = RegExp(match[2], match[3])
       } catch (error) {
         return []
       }
-      return Index.sortedThreadIDs.filter(ID => regexp.test(Filter.values(match[1], Index.parsedThreads[ID]).join('\n')))
+      return Index.sortedThreadIDs.filter(ID =>
+        regexp.test(Filter.values(match[1], Index.parsedThreads[ID]).join('\n'))
+      )
     }
-    if (!(keywords = query.toLowerCase().match(/\S+/g))) { return }
-    return Index.sortedThreadIDs.filter(ID => Index.searchMatch(Index.parsedThreads[ID], keywords))
+    if (!(keywords = query.toLowerCase().match(/\S+/g))) {
+      return
+    }
+    return Index.sortedThreadIDs.filter(ID =>
+      Index.searchMatch(Index.parsedThreads[ID], keywords)
+    )
   },
 
   searchMatch(obj, keywords) {
-    const {info, file} = obj
-    if (info.comment == null) { info.comment = g.SITE.Build.parseComment(info.commentHTML.innerHTML) }
+    const { info, file } = obj
+    if (info.comment == null) {
+      info.comment = g.SITE.Build.parseComment(info.commentHTML.innerHTML)
+    }
     let text = []
     for (const key of ['comment', 'subject', 'name', 'tripcode']) {
-      if (key in info) { text.push(info[key]) }
+      if (key in info) {
+        text.push(info[key])
+      }
     }
-    if (file) { text.push(file.name) }
+    if (file) {
+      text.push(file.name)
+    }
     text = text.join(' ').toLowerCase()
     for (const keyword of keywords) {
-      if (-1 === text.indexOf(keyword)) { return false }
+      if (-1 === text.indexOf(keyword)) {
+        return false
+      }
     }
     return true
-  }
+  },
 }
 export default Index

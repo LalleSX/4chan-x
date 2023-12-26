@@ -20,33 +20,41 @@ const QuoteBacklink = {
   // and that as much backlinks are appended in the background as possible.
   containers: dict(),
   init() {
-    if (!['index', 'thread'].includes(g.VIEW) || !Conf['Quote Backlinks']) { return }
+    if (!['index', 'thread'].includes(g.VIEW) || !Conf['Quote Backlinks']) {
+      return
+    }
 
     // Add a class to differentiate when backlinks are at
     // the top (default) or bottom of a post
-    if (this.bottomBacklinks = Conf['Bottom Backlinks']) {
+    if ((this.bottomBacklinks = Conf['Bottom Backlinks'])) {
       $.addClass(doc, 'bottom-backlinks')
     }
 
     Callbacks.Post.push({
       name: 'Quote Backlinking Part 1',
-      cb:   this.firstNode
+      cb: this.firstNode,
     })
     return Callbacks.Post.push({
       name: 'Quote Backlinking Part 2',
-      cb:   this.secondNode
+      cb: this.secondNode,
     })
   },
   firstNode() {
-    if (this.isClone || !this.quotes.length || this.isRebuilt) { return }
+    if (this.isClone || !this.quotes.length || this.isRebuilt) {
+      return
+    }
     const markYours = Conf['Mark Quotes of You'] && QuoteYou.isYou(this)
     const a = $.el('a', {
       href: g.SITE.Build.postURL(this.board.ID, this.thread.ID, this.ID),
       className: this.isHidden ? 'filtered backlink' : 'backlink',
-      textContent: Conf['backlink'].replace(/%(?:id|%)/g, x => ({'%id': this.ID, '%%': '%'})[x])
+      textContent: Conf['backlink'].replace(
+        /%(?:id|%)/g,
+        x => ({ '%id': this.ID, '%%': '%' })[x]
+      ),
+    })
+    if (markYours) {
+      $.add(a, QuoteYou.mark.cloneNode(true))
     }
-    )
-    if (markYours) { $.add(a, QuoteYou.mark.cloneNode(true)) }
     for (const quote of this.quotes) {
       let post
       const containers = [QuoteBacklink.getContainer(quote)]
@@ -80,7 +88,9 @@ const QuoteBacklink = {
       return
     }
     // Don't backlink the OP.
-    if (!this.isReply && !Conf['OP Backlinks']) { return }
+    if (!this.isReply && !Conf['OP Backlinks']) {
+      return
+    }
     const container = QuoteBacklink.getContainer(this.fullID)
     this.nodes.backlinkContainer = container
     if (QuoteBacklink.bottomBacklinks) {
@@ -90,8 +100,10 @@ const QuoteBacklink = {
     }
   },
   getContainer(id) {
-    return this.containers[id] ||
-      (this.containers[id] = $.el('span', {className: 'container'}))
-  }
+    return (
+      this.containers[id] ||
+      (this.containers[id] = $.el('span', { className: 'container' }))
+    )
+  },
 }
 export default QuoteBacklink

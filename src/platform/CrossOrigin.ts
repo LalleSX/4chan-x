@@ -6,36 +6,52 @@ let eventPageRequest
 if (platform === 'crx') {
   eventPageRequest = (function () {
     const callbacks = []
-    chrome.runtime.onMessage.addListener(function(response) {
+    chrome.runtime.onMessage.addListener(function (response) {
       callbacks[response.id](response.data)
-      return delete callbacks[response.id]})
-    return (params, cb) => chrome.runtime.sendMessage(params, id => callbacks[id] = cb)
+      return delete callbacks[response.id]
+    })
+    return (params, cb) =>
+      chrome.runtime.sendMessage(params, id => (callbacks[id] = cb))
   })()
 }
 const CrossOrigin = {
   binary(url, cb, headers = dict()) {
     // XXX https://forums.lanik.us/viewtopic.php?f=64&t=24173&p=78310
-    url = url.replace(/^((?:https?:)?\/\/(?:\w+\.)?(?:4chan|4channel|4cdn)\.org)\/adv\//, '$1//adv/')
+    url = url.replace(
+      /^((?:https?:)?\/\/(?:\w+\.)?(?:4chan|4channel|4cdn)\.org)\/adv\//,
+      '$1//adv/'
+    )
     if (platform === 'crx') {
-    eventPageRequest({type: 'ajax', url, headers, responseType: 'arraybuffer'}, function({response, responseHeaderString}) {
-      if (response) { response = new Uint8Array(response) }
-      return cb(response, responseHeaderString)
-    })
+      eventPageRequest(
+        { type: 'ajax', url, headers, responseType: 'arraybuffer' },
+        function ({ response, responseHeaderString }) {
+          if (response) {
+            response = new Uint8Array(response)
+          }
+          return cb(response, responseHeaderString)
+        }
+      )
     } else {
-      const fallback = function() {
+      const fallback = function () {
         return $.ajax(url, {
           headers,
           responseType: 'arraybuffer',
           onloadend() {
             if (this.status && this.response) {
-              return cb(new Uint8Array(this.response), this.getAllResponseHeaders())
+              return cb(
+                new Uint8Array(this.response),
+                this.getAllResponseHeaders()
+              )
             } else {
               return cb(null)
             }
-          }
+          },
         })
       }
-      if ((typeof window.GM_xmlhttpRequest === 'undefined' || window.GM_xmlhttpRequest === null)) {
+      if (
+        typeof window.GM_xmlhttpRequest === 'undefined' ||
+        window.GM_xmlhttpRequest === null
+      ) {
         fallback()
         return
       }
@@ -65,7 +81,7 @@ const CrossOrigin = {
         },
         onabort() {
           return cb(null)
-        }
+        },
       }
       try {
         return (GM?.xmlHttpRequest || GM_xmlhttpRequest)(gmOptions)
@@ -76,11 +92,15 @@ const CrossOrigin = {
   },
 
   file(url, cb) {
-    return CrossOrigin.binary(url, function(data, headers) {
-      if (data == null) { return cb(null) }
+    return CrossOrigin.binary(url, function (data, headers) {
+      if (data == null) {
+        return cb(null)
+      }
       let name = url.match(/([^/?#]+)\/*(?:$|[?#])/)?.[1]
-      const contentType        = headers.match(/Content-Type:\s*(.*)/i)?.[1]
-      const contentDisposition = headers.match(/Content-Disposition:\s*(.*)/i)?.[1]
+      const contentType = headers.match(/Content-Type:\s*(.*)/i)?.[1]
+      const contentDisposition = headers.match(
+        /Content-Disposition:\s*(.*)/i
+      )?.[1]
       let mime = contentType?.match(/[^;]*/)[0] || 'application/octet-stream'
       const match =
         contentDisposition?.match(/\bfilename\s*=\s*"((\\"|[^"])+)"/i)?.[1] ||
@@ -90,15 +110,19 @@ const CrossOrigin = {
       }
       if (/^text\/plain;\s*charset=x-user-defined$/i.test(mime)) {
         // In JS Blocker (Safari) content type comes back as 'text/plain; charset=x-user-defined'; guess from filename instead.
-        mime = $.getOwn(QR.typeFromExtension, name.match(/[^.]*$/)[0].toLowerCase()) || 'application/octet-stream'
+        mime =
+          $.getOwn(
+            QR.typeFromExtension,
+            name.match(/[^.]*$/)[0].toLowerCase()
+          ) || 'application/octet-stream'
       }
-      const blob = new Blob([data], {type: mime})
+      const blob = new Blob([data], { type: mime })
       blob.name = name
       return cb(blob)
     })
   },
 
-  Request: (function() {
+  Request: (function () {
     const Request = class Request {
       static initClass() {
         this.prototype.status = 0
@@ -107,13 +131,13 @@ const CrossOrigin = {
         this.prototype.responseHeaderString = null
       }
       getResponseHeader(headerName) {
-        if ((this.responseHeaders == null) && (this.responseHeaderString != null)) {
+        if (this.responseHeaders == null && this.responseHeaderString != null) {
           this.responseHeaders = dict()
           for (const header of this.responseHeaderString.split('\r\n')) {
             let i
             if ((i = header.indexOf(':')) >= 0) {
               const key = header.slice(0, i).trim().toLowerCase()
-              const val = header.slice(i+1).trim()
+              const val = header.slice(i + 1).trim()
               this.responseHeaders[key] = val
             }
           }
@@ -140,12 +164,18 @@ const CrossOrigin = {
   //   `response` - decoded response body
   //   `abort` - function for aborting the request (silently fails on some platforms)
   //   `getResponseHeader` - function for reading response headers
-  ajax(url, options={}) {
+  ajax(url, options = {}) {
     let gmReq
-    let {onloadend, timeout, responseType, headers} = options
-    if (responseType == null) { responseType = 'json' }
+    let { onloadend, timeout, responseType, headers } = options
+    if (responseType == null) {
+      responseType = 'json'
+    }
 
-    if ((window.GM?.xmlHttpRequest == null) && (typeof window.GM_xmlhttpRequest === 'undefined' || window.GM_xmlhttpRequest === null)) {
+    if (
+      window.GM?.xmlHttpRequest == null &&
+      (typeof window.GM_xmlhttpRequest === 'undefined' ||
+        window.GM_xmlhttpRequest === null)
+    ) {
       return $.ajax(url, options)
     }
 
@@ -160,24 +190,36 @@ const CrossOrigin = {
         timeout,
         onload(xhr) {
           try {
-            const response = (() => { switch (responseType) {
-              case 'json':
-                if (xhr.responseText) { return JSON.parse(xhr.responseText) } else { return null }
-              default:
-                return xhr.responseText
-            } })()
+            const response = (() => {
+              switch (responseType) {
+                case 'json':
+                  if (xhr.responseText) {
+                    return JSON.parse(xhr.responseText)
+                  } else {
+                    return null
+                  }
+                default:
+                  return xhr.responseText
+              }
+            })()
             $.extend(req, {
               response,
               status: xhr.status,
               statusText: xhr.statusText,
-              responseHeaderString: xhr.responseHeaders
+              responseHeaderString: xhr.responseHeaders,
             })
           } catch (error) {}
           return req.onloadend()
         },
-        onerror() { return req.onloadend() },
-        onabort() { return req.onloadend() },
-        ontimeout() { return req.onloadend() }
+        onerror() {
+          return req.onloadend()
+        },
+        onabort() {
+          return req.onloadend()
+        },
+        ontimeout() {
+          return req.onloadend()
+        },
       }
       try {
         gmReq = (GM?.xmlHttpRequest || GM_xmlhttpRequest)(gmOptions)
@@ -185,39 +227,44 @@ const CrossOrigin = {
         return $.ajax(url, options)
       }
 
-      if (gmReq && (typeof gmReq.abort === 'function')) {
-        req.abort = function() {
+      if (gmReq && typeof gmReq.abort === 'function') {
+        req.abort = function () {
           try {
             return gmReq.abort()
           } catch (error1) {}
         }
       }
     } else {
-      eventPageRequest({type: 'ajax', url, responseType, headers, timeout}, function(result) {
-        if (result.status) {
-          $.extend(req, result)
+      eventPageRequest(
+        { type: 'ajax', url, responseType, headers, timeout },
+        function (result) {
+          if (result.status) {
+            $.extend(req, result)
+          }
+          return req.onloadend()
         }
-        return req.onloadend()
-      })
+      )
     }
 
     return req
   },
 
   cache(url, cb) {
-    return $.cache(url, cb,
-      {ajax: CrossOrigin.ajax})
+    return $.cache(url, cb, { ajax: CrossOrigin.ajax })
   },
 
   permission(cb, cbFail, origins) {
     if (platform === 'crx') {
-      return eventPageRequest({type: 'permission', origins}, function(result) {
-        if (result) {
-          return cb()
-        } else {
-          return cbFail()
+      return eventPageRequest(
+        { type: 'permission', origins },
+        function (result) {
+          if (result) {
+            return cb()
+          } else {
+            return cbFail()
+          }
         }
-      })
+      )
     }
     return cb()
   },

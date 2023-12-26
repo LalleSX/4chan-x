@@ -39,10 +39,12 @@ import empty from './Favicon/empty.gif'
 import $ from '../platform/$'
 import { Conf, d } from '../globals/globals'
 
-
 const Favicon = {
   init() {
-    return $.asap((() => d.head && (Favicon.el = $('link[rel="shortcut icon"]', d.head))), Favicon.initAsap)
+    return $.asap(
+      () => d.head && (Favicon.el = $('link[rel="shortcut icon"]', d.head)),
+      Favicon.initAsap
+    )
   },
 
   set(status) {
@@ -56,8 +58,8 @@ const Favicon = {
 
   initAsap() {
     Favicon.el.type = 'image/x-icon'
-    const {href}          = Favicon.el
-    Favicon.isSFW   = /ws\.ico$/.test(href)
+    const { href } = Favicon.el
+    Favicon.isSFW = /ws\.ico$/.test(href)
     Favicon.default = href
     Favicon.switch()
     if (Favicon.status) {
@@ -67,7 +69,7 @@ const Favicon = {
 
   switch() {
     let items = {
-      ferongr: [
+      'ferongr': [
         ferongr_unreadDead,
         ferongr_unreadDeadY,
         ferongr_unreadSFW,
@@ -83,7 +85,7 @@ const Favicon = {
         xat_unreadNSFW,
         xat_unreadNSFWY,
       ],
-      Mayhem: [
+      'Mayhem': [
         Mayhem_unreadDead,
         Mayhem_unreadDeadY,
         Mayhem_unreadSFW,
@@ -99,7 +101,7 @@ const Favicon = {
         fourChanJS_unreadNSFW,
         fourChanJS_unreadNSFWY,
       ],
-      Original: [
+      'Original': [
         Original_unreadDead,
         Original_unreadDeadY,
         Original_unreadSFW,
@@ -114,7 +116,7 @@ const Favicon = {
         Metro_unreadSFWY,
         Metro_unreadNSFW,
         Metro_unreadNSFWY,
-      ]
+      ],
     }
     items = $.getOwn(items, Conf['favicon'])
 
@@ -125,28 +127,35 @@ const Favicon = {
       items[i] = t + items[i++]
     }
 
-    [f.unreadDead, f.unreadDeadY, f.unreadSFW, f.unreadSFWY, f.unreadNSFW, f.unreadNSFWY] = items
+    ;[
+      f.unreadDead,
+      f.unreadDeadY,
+      f.unreadSFW,
+      f.unreadSFWY,
+      f.unreadNSFW,
+      f.unreadNSFWY,
+    ] = items
     return f.update()
   },
 
   update() {
     if (this.isSFW) {
-      this.unread  = this.unreadSFW
-      return this.unreadY = this.unreadSFWY
+      this.unread = this.unreadSFW
+      return (this.unreadY = this.unreadSFWY)
     } else {
-      this.unread  = this.unreadNSFW
-      return this.unreadY = this.unreadNSFWY
+      this.unread = this.unreadNSFW
+      return (this.unreadY = this.unreadNSFWY)
     }
   },
-  
-  SFW:   '//s.4cdn.org/image/favicon-ws.ico',
+
+  SFW: '//s.4cdn.org/image/favicon-ws.ico',
   unreadSFW: '//s.4cdn.org/image/favicon-ws.ico',
   unreadSFWY: '//s.4cdn.org/image/favicon-ws.ico',
   unreadNSFW: '//s.4cdn.org/image/favicon.ico',
   unreadNSFWY: '//s.4cdn.org/image/favicon.ico',
   unreadDead: '//s.4cdn.org/image/favicon.ico',
   unreadDeadY: '//s.4cdn.org/image/favicon.ico',
-  NSFW:  '//s.4cdn.org/image/favicon.ico',
+  NSFW: '//s.4cdn.org/image/favicon.ico',
   dead: `data:image/gif;base64,${dead}`,
   logo: `data:image/png;base64,${empty}`,
 }

@@ -5,24 +5,31 @@ import { dict } from '../platform/helpers'
 
 const IDColor = {
   init() {
-    if (!['index', 'thread'].includes(g.VIEW) || !Conf['Color User IDs']) { return }
+    if (!['index', 'thread'].includes(g.VIEW) || !Conf['Color User IDs']) {
+      return
+    }
     this.ids = dict()
     this.ids['Heaven'] = [0, 0, 0, '#fff']
 
     return Callbacks.Post.push({
       name: 'Color User IDs',
-      cb:   this.node
+      cb: this.node,
     })
   },
 
   node() {
     let span, uid
-    if (this.isClone || !((uid = this.info.uniqueID) && (span = this.nodes.uniqueID))) { return }
+    if (
+      this.isClone ||
+      !((uid = this.info.uniqueID) && (span = this.nodes.uniqueID))
+    ) {
+      return
+    }
 
     const rgb = IDColor.ids[uid] || IDColor.compute(uid)
 
     // Style the damn node.
-    const {style} = span
+    const { style } = span
     style.color = rgb[3]
     style.backgroundColor = `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`
     return $.addClass(span, 'painted')
@@ -34,21 +41,13 @@ const IDColor = {
     const hash = g.SITE.uidColor ? g.SITE.uidColor(uid) : parseInt(uid, 16)
 
     // Convert binary string to numerical values with bitshift and '&' truncation.
-    const rgb = [
-      (hash >> 16) & 0xFF,
-      (hash >> 8)  & 0xFF,
-      hash & 0xFF
-    ]
+    const rgb = [(hash >> 16) & 0xff, (hash >> 8) & 0xff, hash & 0xff]
 
-    // Weight color luminance values, assign a font color that should be readable. 
-    rgb.push($.luma(rgb) > 125 ?
-      '#000'
-    :
-      '#fff'
-    )
+    // Weight color luminance values, assign a font color that should be readable.
+    rgb.push($.luma(rgb) > 125 ? '#000' : '#fff')
 
     // Cache.
-    return this.ids[uid] = rgb
-  }
+    return (this.ids[uid] = rgb)
+  },
 }
 export default IDColor

@@ -13,20 +13,20 @@ export const debounce = (wait: number, fn) => {
   return function () {
     args = arguments
     that = this
-    if (lastCall < (Date.now() - wait)) {
+    if (lastCall < Date.now() - wait) {
       return exec()
     }
     // stop current reset
     clearTimeout(timeout)
     // after wait, let next invocation execute immediately
-    return timeout = setTimeout(exec, wait)
+    return (timeout = setTimeout(exec, wait))
   }
 }
 
 export const dict = () => Object.create(null)
 
 dict.clone = function (obj) {
-  if ((typeof obj !== 'object') || (obj === null)) {
+  if (typeof obj !== 'object' || obj === null) {
     return obj
   } else if (obj instanceof Array) {
     const arr = []

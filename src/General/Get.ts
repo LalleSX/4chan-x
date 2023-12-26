@@ -17,7 +17,8 @@ const Get = {
   threadExcerpt(thread: any): string {
     const { OP } = thread
     const boardPath = `/${decodeURIComponent(thread.board.ID)}/ - `
-    const excerptContent = OP.info.subject?.trim() ||
+    const excerptContent =
+      OP.info.subject?.trim() ||
       OP.commentDisplay().replace(/\n+/g, ' // ') ||
       OP.file?.name ||
       `No.${OP}`
@@ -30,7 +31,9 @@ const Get = {
    * Retrieves a thread from its root element.
    */
   threadFromRoot(root: HTMLElement | null): any {
-    if (!root) {return null}
+    if (!root) {
+      return null
+    }
     const { board } = root.dataset
     const boardID = board ? encodeURIComponent(board) : g.BOARD.ID
     const threadID = root.id.match(/\d*$/)[0]
@@ -41,14 +44,18 @@ const Get = {
    * Retrieves a thread from any node within it.
    */
   threadFromNode(node: Node): any {
-    return Get.threadFromRoot($.x(`ancestor-or-self::${g.SITE.xpath.thread}`, node))
+    return Get.threadFromRoot(
+      $.x(`ancestor-or-self::${g.SITE.xpath.thread}`, node)
+    )
   },
 
   /**
    * Retrieves a post from its root element.
    */
   postFromRoot(root: HTMLElement | null): any {
-    if (!root) {return null}
+    if (!root) {
+      return null
+    }
     const post = g.posts.get(root.dataset.fullID)
     const index = root.dataset.clone
     return index ? post.clones[+index] : post
@@ -58,7 +65,9 @@ const Get = {
    * Retrieves a post from any node within it.
    */
   postFromNode(root: Node): any {
-    return Get.postFromRoot($.x(`ancestor-or-self::${g.SITE.xpath.postContainer}[1]`, root))
+    return Get.postFromRoot(
+      $.x(`ancestor-or-self::${g.SITE.xpath.postContainer}[1]`, root)
+    )
   },
 
   /**
@@ -67,11 +76,11 @@ const Get = {
   postDataFromLink(link: HTMLAnchorElement): any {
     let boardID, postID, threadID
     if (link.dataset.postID) {
-      ({ boardID, threadID, postID } = link.dataset)
+      ;({ boardID, threadID, postID } = link.dataset)
       threadID = threadID || 0
     } else {
-      const match = link.href.match(g.SITE.regexp.quotelink);
-      [boardID, threadID, postID] = match?.slice(1) || []
+      const match = link.href.match(g.SITE.regexp.quotelink)
+      ;[boardID, threadID, postID] = match?.slice(1) || []
       postID = postID || threadID
     }
     return { boardID, threadID: +threadID, postID: +postID }
@@ -99,7 +108,9 @@ const Get = {
     if (Conf['Quote Backlinks']) {
       post.quotes.forEach((quote: any) => {
         const qPost = g.posts.get(quote)
-        if (qPost) {handleQuotes(qPost, 'backlinks')}
+        if (qPost) {
+          handleQuotes(qPost, 'backlinks')
+        }
       })
     }
 
@@ -108,7 +119,7 @@ const Get = {
       const { boardID, postID } = Get.postDataFromLink(quotelink)
       return boardID === post.board.ID && postID === post.ID
     })
-  }
+  },
 }
 
 export default Get

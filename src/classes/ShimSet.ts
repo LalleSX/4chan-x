@@ -34,5 +34,5 @@ class ShimSet<T extends string | number | symbol> {
 
 // Fallback to ShimSet if native Set is not available in the window object.
 if (!('Set' in window)) {
-  (window as any).Set = ShimSet
+  ;(window as any).Set = ShimSet
 }
