@@ -3,7 +3,7 @@ import $ from '../platform/$'
 import { dict, HOUR } from '../platform/helpers'
 
 export default class DataBoard {
-  key: any
+  key: string
   static keys: string[]
   changes: any[]
   sync: any
@@ -20,7 +20,7 @@ export default class DataBoard {
     ]
   }
 
-  constructor(key, sync, dontClean) {
+  constructor(key, sync: any, dontClean: boolean) {
     this.changes = []
     this.onSync = this.onSync.bind(this)
     this.key = key
@@ -91,8 +91,7 @@ export default class DataBoard {
       return cb?.()
     })
   }
-
-  delete({ siteID, boardID, threadID, postID }, cb) {
+  delete({ siteID, boardID, threadID, postID }, cb: Function): any {
     if (!siteID) {
       siteID = g.SITE.ID
     }
@@ -111,7 +110,7 @@ export default class DataBoard {
           return
         }
         delete this.data[siteID].boards[boardID][threadID]
-        return this.deleteIfEmpty({ siteID, boardID })
+        return this.deleteIfEmpty({ siteID, boardID, threadID })
       } else {
         return delete this.data[siteID].boards[boardID]
       }
@@ -125,7 +124,7 @@ export default class DataBoard {
     if (threadID) {
       if (!Object.keys(this.data[siteID].boards[boardID][threadID]).length) {
         delete this.data[siteID].boards[boardID][threadID]
-        return this.deleteIfEmpty({ siteID, boardID })
+        return this.deleteIfEmpty({ siteID, boardID, threadID: undefined })
       }
     } else if (!Object.keys(this.data[siteID].boards[boardID]).length) {
       return delete this.data[siteID].boards[boardID]
@@ -222,7 +221,7 @@ export default class DataBoard {
     const siteID = g.SITE.ID
     for (boardID in this.data[siteID].boards) {
       const val = this.data[siteID].boards[boardID]
-      this.deleteIfEmpty({ siteID, boardID })
+      this.deleteIfEmpty({ siteID, boardID, threadID: undefined })
     }
     const now = Date.now()
     if (
@@ -236,7 +235,7 @@ export default class DataBoard {
     }
   }
 
-  async ajaxClean(boardID) {
+  async ajaxClean(boardID: string) {
     const siteID = g.SITE.ID
     const threadsListUrl = g.SITE.urls.threadsListJSON?.({ siteID, boardID })
     if (!threadsListUrl) {
@@ -294,7 +293,7 @@ export default class DataBoard {
     this.processResponse(boardData, threads, archiveResponse)
 
     this.data[siteID].boards[boardID] = Object.fromEntries(threads)
-    this.deleteIfEmpty({ siteID, boardID })
+    this.deleteIfEmpty({ siteID, boardID, threadID: undefined })
     return $.set(this.key, this.data, this.sync)
   }
 

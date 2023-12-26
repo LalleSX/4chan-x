@@ -155,6 +155,6 @@
     "build": "node ./tools/rollup",
     "build:min": "node ./tools/rollup -min",
     "lint": "eslint --fix --ext .ts,.tsx src/",
-    "prettier": "prettier --write --ignore-path .gitignore \"**/*.{js,ts,tsx,json,md,yml}\""
+    "prettier": "prettier --write --ignore-path .gitignore,builds/**/*.{js,ts,tsx,json,md,yml} \"**/*.{js,ts,tsx,json,md,yml}\""
   }
 }

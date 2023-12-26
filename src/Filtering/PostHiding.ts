@@ -21,7 +21,20 @@ const PostHiding = {
       $.addClass(doc, 'reply-hide')
     }
 
-    this.db = new DataBoard('hiddenPosts')
+    this.db = new DataBoard(
+      'hiddenPosts',
+      {
+        boardID: 'string',
+        threadID: 'string',
+        postID: 'string',
+        val: {
+          thisPost: 'boolean',
+          makeStub: 'boolean',
+          hideRecursively: 'boolean',
+        },
+      },
+      true
+    )
     return Callbacks.Post.push({
       name: 'Reply Hiding',
       cb: this.node,
@@ -200,7 +213,7 @@ const PostHiding = {
         return
       }
       PostHiding.saveHiddenState(post, true, thisPost, makeStub, replies)
-      return $.event('CloseMenu')
+      return $.event('CloseMenu', { post })
     },
 
     show() {
@@ -213,7 +226,7 @@ const PostHiding = {
         PostHiding.show(post, replies)
       } else if (replies) {
         Recursive.apply(PostHiding.show, post, true)
-        Recursive.rm(PostHiding.hide, post, true)
+        Recursive.rm(PostHiding.hide, post)
       } else {
         return
       }
@@ -232,7 +245,7 @@ const PostHiding = {
           !replies
         )
       }
-      return $.event('CloseMenu')
+      return $.event('CloseMenu', { post })
     },
     hideStub() {
       let data
@@ -254,7 +267,7 @@ const PostHiding = {
           data.hideRecursively
         )
       }
-      $.event('CloseMenu')
+      $.event('CloseMenu', { post })
     },
   },
 
@@ -292,7 +305,7 @@ const PostHiding = {
   toggle() {
     const post = Get.postFromNode(this)
     PostHiding[post.isHidden ? 'show' : 'hide'](post)
-    return PostHiding.saveHiddenState(post, post.isHidden)
+    return PostHiding.saveHiddenState(post, post.isHidden, true, false, false)
   },
 
   hide(
@@ -324,7 +337,7 @@ const PostHiding = {
     post.nodes.stub = $.el('div', { className: 'stub' })
     $.add(post.nodes.stub, a)
     if (Conf['Menu']) {
-      $.add(post.nodes.stub, Menu.makeButton(post))
+      $.add(post.nodes.stub, Menu.makeButton(post, 'hide'))
     }
     return $.prepend(post.nodes.root, post.nodes.stub)
   },

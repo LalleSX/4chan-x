@@ -604,39 +604,14 @@ const Filter = {
     },
   },
 
-  escape(value) {
-    return value.replace(
-      new RegExp(
-        '\
-/\
-|\\\\\
-|\\^\
-|\\$\
-|\\n\
-|\\.\
-|\\(\
-|\\)\
-|\\{\
-|\\}\
-|\\[\
-|\\]\
-|\\?\
-|\\*\
-|\\+\
-|\\|\
-',
-        'g'
-      ),
-      function (c) {
-        if (c === '\n') {
-          return '\\n'
-        } else if (c === '\\') {
-          return '\\\\'
-        } else {
-          return `\\${c}`
-        }
-      }
-    )
+  escape(value: string) {
+    const specialChars: { [key: string]: string } = {
+      '\n': '\\n',
+      '\\': '\\\\',
+    }
+    return value.replace(/[/\\^$.\n(){}[\]?*+|]/g, (c: string): string => {
+      return specialChars[c] || `\\${c}`
+    })
   },
 
   menu: {

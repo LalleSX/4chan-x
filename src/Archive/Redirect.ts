@@ -163,7 +163,7 @@ const Redirect = {
       }
     }
     const items = { archives, lastarchivecheck: Date.now() }
-    $.set(items)
+    $.set(items, Conf, 'lastarchivecheck')
     $.extend(Conf, items)
     Redirect.selectArchives()
     return cb?.()

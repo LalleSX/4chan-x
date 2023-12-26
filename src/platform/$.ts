@@ -391,7 +391,6 @@ $.whenModified = function (
   })
   return r
 }
-
 ;(function () {
   const reqs = dict()
   $.cache = function (url, cb, options = { ajax: null }) {
@@ -746,20 +745,18 @@ $.unescape = function (text) {
   if (text == null) {
     return text
   }
-  return text
-    .replace(/<[^>]*>/g, '')
-    .replace(
-      /&(amp|#039|quot|lt|gt|#44);/g,
-      c =>
-        ({
-          '&amp;': '&',
-          '&#039;': "'",
-          '&quot;': '"',
-          '&lt;': '<',
-          '&gt;': '>',
-          '&#44;': ',',
-        })[c]
-    )
+  return text.replace(/<[^>]*>/g, '').replace(
+    /&(amp|#039|quot|lt|gt|#44);/g,
+    c =>
+      ({
+        '&amp;': '&',
+        '&#039;': "'",
+        '&quot;': '"',
+        '&lt;': '<',
+        '&gt;': '>',
+        '&#44;': ',',
+      })[c]
+  )
 }
 
 $.isImage = url => /\.(jpe?g|jfif|png|gif|bmp|webp|avif|jxl)$/i.test(url)
@@ -890,7 +887,6 @@ if (platform === 'crx') {
     get('local')
     get('sync')
   })
-
   ;(function () {
     const items = {
       local: dict(),
@@ -1195,7 +1191,6 @@ if (platform === 'crx') {
         $.syncing[key] = cb
         return ($.oldValue[key] = $.getValue(key))
       }
-
       ;(function () {
         const onChange = function ({ key, newValue }) {
           let cb

@@ -16125,20 +16125,18 @@
     (Ve.unescape = function (e) {
       return null == e
         ? e
-        : e
-            .replace(/<[^>]*>/g, '')
-            .replace(
-              /&(amp|#039|quot|lt|gt|#44);/g,
-              e =>
-                ({
-                  '&amp;': '&',
-                  '&#039;': "'",
-                  '&quot;': '"',
-                  '&lt;': '<',
-                  '&gt;': '>',
-                  '&#44;': ',',
-                })[e]
-            )
+        : e.replace(/<[^>]*>/g, '').replace(
+            /&(amp|#039|quot|lt|gt|#44);/g,
+            e =>
+              ({
+                '&amp;': '&',
+                '&#039;': "'",
+                '&quot;': '"',
+                '&lt;': '<',
+                '&gt;': '>',
+                '&#44;': ',',
+              })[e]
+          )
     }),
     (Ve.isImage = e => /\.(jpe?g|jfif|png|gif|bmp|webp|avif|jxl)$/i.test(e)),
     (Ve.isVideo = e => /\.(webm|mp4|ogv)$/i.test(e)),

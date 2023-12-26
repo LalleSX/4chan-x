@@ -33,7 +33,7 @@ const QuoteInline = {
     }
   },
 
-  process(link, clone) {
+  process(link, clone: boolean) {
     if (Conf['Quote Hash Navigation']) {
       if (!clone) {
         $.after(link, QuoteInline.qiQuote(link, $.hasClass(link, 'filtered')))

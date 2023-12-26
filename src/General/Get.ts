@@ -1,5 +1,6 @@
 import { Conf, g } from '../globals/globals'
 import $ from '../platform/$'
+import Thread from '../classes/Thread'
 
 const Get = {
   /**
@@ -14,7 +15,7 @@ const Get = {
   /**
    * Creates an excerpt from a thread.
    */
-  threadExcerpt(thread: any): string {
+  threadExcerpt(thread: Thread): string {
     const { OP } = thread
     const boardPath = `/${decodeURIComponent(thread.board.ID)}/ - `
     const excerptContent =

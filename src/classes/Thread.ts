@@ -6,7 +6,7 @@ import type Post from './Post'
 
 export default class Thread {
   declare board: Board
-  declare ID: number
+  declare ID: string | number
   declare threadID: threadID
   declare boardID: boardID
   declare siteID: string

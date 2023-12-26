@@ -94,10 +94,13 @@ export default class Fetcher {
     if (this.threadID) {
       const that = this
       $.cache(
-        g.SITE.urls.threadJSON({
-          boardID: this.boardID,
-          threadID: this.threadID,
-        }),
+        g.SITE.urls.threadJSON(
+          {
+            boardID: this.boardID,
+            threadID: this.threadID,
+          },
+          true
+        ),
         function ({ isCached }) {
           return that.fetchedPost(this, isCached)
         }
@@ -196,10 +199,13 @@ export default class Fetcher {
     if (post.no !== this.postID) {
       // Cached requests can be stale and must be rechecked.
       if (isCached) {
-        const api = g.SITE.urls.threadJSON({
-          boardID: this.boardID,
-          threadID: this.threadID,
-        })
+        const api = g.SITE.urls.threadJSON(
+          {
+            boardID: this.boardID,
+            threadID: this.threadID,
+          },
+          true
+        )
         $.cleanCache(url => url === api)
         const that = this
         $.cache(api, function () {

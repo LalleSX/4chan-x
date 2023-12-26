@@ -38,11 +38,11 @@ export default class Post {
   declare root: HTMLElement
   declare thread: Thread
   declare board: Board
-  declare ID: number
-  declare postID: number
-  declare threadID: number
-  declare boardID: number | string
-  declare siteID: number | string
+  declare ID: string | number
+  declare postID: string | number
+  declare threadID: string | number
+  declare boardID: string
+  declare siteID: string
   declare fullID: string
   declare context: Post
   declare isReply: boolean

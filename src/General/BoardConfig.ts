@@ -18,6 +18,22 @@ const BoardConfig = {
     ) {
       return $.ajax(`${location.protocol}//a.4cdn.org/boards.json`, {
         onloadend: this.load,
+        /*timeout: 5000,
+        responseType: 'json',
+        withCredentials: false,
+        type: 'GET',
+        onprogress: () => {
+          return (Conf['boardConfig'].lastChecked = Date.now())
+        },
+        form: {
+          _: Date.now(),
+        },
+        headers: {
+          'If-Modified-Since': new Date(middle).toUTCString(),
+        },
+        dataType: 'json',
+        testCORB: true,
+        */
       })
     } else {
       const { boards } = Conf['boardConfig']
@@ -32,7 +48,7 @@ const BoardConfig = {
       for (const board of this.response.boards) {
         boards[board.board] = board
       }
-      $.set('boardConfig', { boards, lastChecked: Date.now() })
+      $.set('boardConfig', { boards, lastChecked: Date.now() }, Conf)
     } else {
       ;({ boards } = Conf['boardConfig'])
       const err = (() => {

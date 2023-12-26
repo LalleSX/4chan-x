@@ -151,7 +151,7 @@ const Header = {
         $('#navtopright', footer).id = 'navbotright'
         $('#settingsWindowLink', footer).id = 'settingsWindowLinkBot'
         $.before(absbot, footer)
-        $.global(() => (window.cloneTopNav = function () {}))
+        $.global(() => (window.cloneTopNav = function () {}), 'cloneTopNav')
       }
       if ((Header.bottomBoardList = $(g.SITE.selectors.boardListBottom))) {
         for (const a of $$('a', Header.bottomBoardList)) {
@@ -426,10 +426,10 @@ const Header = {
   },
 
   toggleLinkJustify() {
-    $.event('CloseMenu')
+    $.event('CloseMenu', this)
     const centered = this.nodeName === 'INPUT' ? this.checked : undefined
     Header.setLinkJustify(centered)
-    return $.set('Centered links', centered)
+    return $.set('Centered links', centered, true)
   },
 
   setBarFixed(fixed) {
@@ -444,12 +444,12 @@ const Header = {
   },
 
   toggleBarFixed() {
-    $.event('CloseMenu')
+    $.event('CloseMenu', this)
 
     Header.setBarFixed(this.checked)
 
     Conf['Fixed Header'] = this.checked
-    return $.set('Fixed Header', this.checked)
+    return $.set('Fixed Header', this.checked, true)
   },
 
   setShortcutIcons(show) {
@@ -462,17 +462,17 @@ const Header = {
   },
 
   toggleShortcutIcons() {
-    $.event('CloseMenu')
+    $.event('CloseMenu', this)
 
     Header.setShortcutIcons(this.checked)
 
     Conf['Shortcut Icons'] = this.checked
-    return $.set('Shortcut Icons', this.checked)
+    return $.set('Shortcut Icons', this.checked, true)
   },
 
   setBarVisibility(hide) {
     Header.headerToggler.checked = hide
-    $.event('CloseMenu')
+    $.event('CloseMenu', this)
     ;(hide ? $.addClass : $.rmClass)(Header.bar, 'autohide')
     return (hide ? $.addClass : $.rmClass)(doc, 'autohide')
   },
@@ -484,7 +484,7 @@ const Header = {
         : !$.hasClass(Header.bar, 'autohide')
 
     Conf['Header auto-hide'] = hide
-    $.set('Header auto-hide', hide)
+    $.set('Header auto-hide', hide, true)
     Header.setBarVisibility(hide)
     const message = `The header bar will ${
       hide ? 'automatically hide itself.' : 'remain visible.'
@@ -523,7 +523,7 @@ const Header = {
     if (Header.barPositionToggler) {
       Header.barPositionToggler.checked = bottom
     }
-    $.event('CloseMenu')
+    $.event('CloseMenu', this)
     const args = bottom
       ? ['bottom-header', 'top-header', 'after']
       : ['top-header', 'bottom-header', 'add']
@@ -544,13 +544,13 @@ const Header = {
   },
 
   toggleFooterVisibility() {
-    $.event('CloseMenu')
+    $.event('CloseMenu', this)
     const hide =
       this.nodeName === 'INPUT'
         ? this.checked
         : $.hasClass(doc, 'hide-bottom-board-list')
     Header.setFooterVisibility(hide)
-    $.set('Bottom Board List', hide)
+    $.set('Bottom Board List', hide, true)
     const message = hide
       ? 'The bottom navigation will now be hidden.'
       : 'The bottom navigation will remain visible.'
@@ -594,7 +594,7 @@ const Header = {
       let el
       ReplyPruning.showIfHidden(hash)
       if ((el = $.id(hash))) {
-        return $.queueTask(() => Header.scrollTo(el))
+        return $.queueTask(() => Header.scrollTo(el, false, false))
       }
     }
   },
@@ -757,7 +757,7 @@ const Header = {
       })
     )
     $.on(disable, 'click', function () {
-      $.set('Desktop Notifications', false)
+      $.set('Desktop Notifications', false, true)
       return notice.close()
     })
     return (notice = new Notice('info', el))
