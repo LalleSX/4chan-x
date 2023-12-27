@@ -51,7 +51,9 @@ const Settings = {
       const { title, open } = e.detail
       return this.addSection(title, open)
     })
-    $.on(d, 'OpenSettings', (e: CustomEvent) => { Settings.open(e.detail) })
+    $.on(d, 'OpenSettings', (e: CustomEvent) => {
+      Settings.open(e.detail)
+    })
 
     if (g.SITE.software === 'yotsuba' && Conf['Disable Native Extension']) {
       if ($.hasStorage) {
@@ -157,7 +159,10 @@ const Settings = {
 
   sections: [],
 
-  addSection(title: string | { detail: { title: string; open: boolean } }, open: boolean): number {
+  addSection(
+    title: string | { detail: { title: string; open: boolean } },
+    open: boolean
+  ): number {
     if (typeof title !== 'string') {
       ;({ title, open } = title.detail)
     }
@@ -400,10 +405,10 @@ Enable it on boards.${
     const updatedConfig = { ...Conf } // Use object spread for cloning
     return $.get(
       updatedConfig,
-      (config) => {
+      config => {
         // Remove the 'boardConfig' property to avoid exporting cached JSON data.
         delete config['boardConfig']
-  
+
         return Settings.downloadExport({
           version: g.VERSION,
           date: Date.now(),
@@ -419,21 +424,21 @@ Enable it on boards.${
     const blob = new Blob([JSON.stringify(data, null, 2)], {
       type: 'application/json',
     })
-  
+
     // Create a download URL for the blob
     const url = URL.createObjectURL(blob)
-  
+
     // Create a download link element
     const downloadLink = $.el('a', {
       download: `${meta.name} v${data.version}-${data.date}.json`,
       href: url,
     })
-  
+
     // Append the download link to the dialog and trigger download
     const exportResultContainer = $('.imp-exp-result', Settings.dialog)
     $.rmAll(exportResultContainer) // Clear previous results
     $.add(exportResultContainer, downloadLink)
-  
+
     return downloadLink.click() // Trigger download
   },
 
@@ -481,7 +486,10 @@ Enable it on boards.${
 
   convertFrom: {
     loadletter(data) {
-      const convertSettings = function (data: any, map: { [key: string]: string }) {
+      const convertSettings = function (
+        data: any,
+        map: { [key: string]: string }
+      ) {
         for (const prevKey in map) {
           const newKey = map[prevKey]
           if (newKey) {
@@ -733,12 +741,7 @@ Enable it on boards.${
     }
     if (compareString < '00001.00011.00019.00003' && !Settings.dialog) {
       $.queueTask(() =>
-        Settings.warnings.ads(
-          item =>
-            new Notice(
-              'Warning',
-              item)
-          )
+        Settings.warnings.ads(item => new Notice('Warning', item))
       )
     }
     if (compareString < '00001.00011.00020.00003') {
@@ -1115,17 +1118,25 @@ vp-replace
       if (err) {
         return cb(err)
       }
-      return $.set(data.Conf, function (err) {
-        if (err) {
-          return cb(err)
-        }
-        return $.set(data, function (err) {
+      return $.set(
+        data.Conf,
+        function (err) {
           if (err) {
             return cb(err)
           }
-          return cb(null)
-        }, true)
-      }, true)
+          return $.set(
+            data,
+            function (err) {
+              if (err) {
+                return cb(err)
+              }
+              return cb(null)
+            },
+            true
+          )
+        },
+        true
+      )
     })
   },
 
@@ -1509,10 +1520,12 @@ vp-replace
 
   togglecss() {
     if (
-      ($(
-        'textarea[name=usercss]',
-        $.x('ancestor::fieldset[1]', this)
-      ) as HTMLTextAreaElement).disabled
+      (
+        $(
+          'textarea[name=usercss]',
+          $.x('ancestor::fieldset[1]', this)
+        ) as HTMLTextAreaElement
+      ).disabled
     ) {
       CustomCSS.rmStyle()
     } else {

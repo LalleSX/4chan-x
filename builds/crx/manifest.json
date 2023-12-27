@@ -10,9 +10,7 @@
   },
   "content_scripts": [
     {
-      "js": [
-        "script.js"
-      ],
+      "js": ["script.js"],
       "matches": [
         "*://*.4chan.org/*",
         "*://*.4channel.org/*",
@@ -59,9 +57,7 @@
     }
   ],
   "background": {
-    "scripts": [
-      "eventPage.js"
-    ],
+    "scripts": ["eventPage.js"],
     "persistent": false
   },
   "homepage_url": "https://github.com/TuxedoTako/4chan-xt",
@@ -98,9 +94,7 @@
     "https://tvch.moe/*",
     "storage"
   ],
-  "optional_permissions": [
-    "*://*/"
-  ],
+  "optional_permissions": ["*://*/"],
   "applications": {
     "gecko": {
       "id": "4chan-x@4chan-x.net"
