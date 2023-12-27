@@ -665,7 +665,7 @@ if (!globalThis.chrome?.extension) {
   $.open = url => window.open(url, '_blank')
 }
 
-$.debounce = function (wait, fn) {
+$.debounce = function (wait: number, fn) {
   let lastCall = 0
   let timeout = null
   let that = null
@@ -715,7 +715,7 @@ $.global = function (fn, data) {
   }
 }
 
-$.bytesToString = function (size) {
+$.bytesToString = function (size: number) {
   let unit = 0 // Bytes
   while (size >= 1024) {
     size /= 1024

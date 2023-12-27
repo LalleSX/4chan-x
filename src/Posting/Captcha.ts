@@ -364,7 +364,7 @@ const Captcha = {
             return document.head.appendChild(script)
           }
         }
-      })
+      }, true)
     },
 
     afterSetup(mutations) {

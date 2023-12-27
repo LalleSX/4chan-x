@@ -1,48 +1,52 @@
 /* General */
 :root.tomorrow .dialog {
-  background-color: #282A2E;
+  background-color: #282a2e;
   border-color: #111;
 }
 
 /* 4chan style fixes */
 :root.tomorrow #arc-list span.quote {
-  color: #B5BD68;
+  color: #b5bd68;
 }
 :root.tomorrow.highlight-you .quotesYou$site$highlightable$reply {
-  border-left: 3px solid rgba(145, 182, 214, .8) !important;
+  border-left: 3px solid rgba(145, 182, 214, 0.8) !important;
 }
 :root.tomorrow.highlight-own .yourPost$site$highlightable$reply {
-  border-left: 3px dashed rgba(145, 182, 214, .8) !important;
+  border-left: 3px dashed rgba(145, 182, 214, 0.8) !important;
 }
 
 /* Header */
 :root.tomorrow #header-bar.dialog {
-  background-color: rgba(40,42,46,0.9);
+  background-color: rgba(40, 42, 46, 0.9);
 }
-:root.tomorrow:not(.fixed) #header-bar, :root.tomorrow #notifications {
+:root.tomorrow:not(.fixed) #header-bar,
+:root.tomorrow #notifications {
   font-size: 9pt;
 }
-:root.tomorrow #header-bar, :root.tomorrow #notifications {
-  color: #C5C8C6;
+:root.tomorrow #header-bar,
+:root.tomorrow #notifications {
+  color: #c5c8c6;
 }
-:root.tomorrow #header-bar a, :root.tomorrow #notifications a {
-  color: #81A2BE;
+:root.tomorrow #header-bar a,
+:root.tomorrow #notifications a {
+  color: #81a2be;
 }
 :root.tomorrow.shortcut-icons .native-settings {
   background-image: url('//s.4cdn.org/image/favicon-ws.ico');
 }
 
 /* Settings */
-:root.tomorrow #fourchanx-settings fieldset, :root.tomorrow .section-main div::before {
+:root.tomorrow #fourchanx-settings fieldset,
+:root.tomorrow .section-main div::before {
   border-color: #111;
 }
 :root.tomorrow .suboption-list > div:last-of-type {
-  background-color: #282A2E;
+  background-color: #282a2e;
 }
 
 /* Catalog */
 :root.tomorrow.catalog-hover-expand .catalog-container:hover > .post {
-  background-color: #282A2E;
+  background-color: #282a2e;
 }
 :root.tomorrow.werkTyme .catalog-thread:not(:hover),
 :root.tomorrow.werkTyme:not(.catalog-hover-expand) .catalog-thread,
@@ -53,33 +57,33 @@
 
 /* Quote */
 :root.tomorrow .backlink.deadlink {
-  color: #81A2BE !important;
+  color: #81a2be !important;
 }
 :root.tomorrow .inline {
   border-color: #111;
-  background-color: rgba(0, 0, 0, .14);
+  background-color: rgba(0, 0, 0, 0.14);
 }
 
 /* Fappe and Werk Tyme */
 :root.tomorrow .indicator {
-  color: #282A2E;
+  color: #282a2e;
 }
 
 /* Highlighting */
 :root.tomorrow .qphl {
-  outline: 2px solid rgba(145, 182, 214, .8);
+  outline: 2px solid rgba(145, 182, 214, 0.8);
 }
 :root.tomorrow.highlight-you .quotesYou$site$highlightable$op,
 :root.tomorrow.highlight-you .quotesYou$site$highlightable$reply {
-  border-left: 3px solid rgba(145, 182, 214, .8);
+  border-left: 3px solid rgba(145, 182, 214, 0.8);
 }
 :root.tomorrow.highlight-own .yourPost$site$highlightable$op,
 :root.tomorrow.highlight-own .yourPost$site$highlightable$reply {
-  border-left: 3px dashed rgba(145, 182, 214, .8);
+  border-left: 3px dashed rgba(145, 182, 214, 0.8);
 }
 :root.tomorrow .filter-highlight$site$highlightable$op,
 :root.tomorrow .filter-highlight$site$highlightable$reply {
-  box-shadow: inset 5px 0 rgba(145, 182, 214, .5);
+  box-shadow: inset 5px 0 rgba(145, 182, 214, 0.5);
 }
 :root.tomorrow.highlight-own .yourPost > $site$sideArrows,
 :root.tomorrow.highlight-you .quotesYou > $site$sideArrows,
@@ -88,39 +92,45 @@
 }
 :root.tomorrow .catalog-thread.filter-highlight .catalog-thumb,
 :root.tomorrow.werkTyme .catalog-thread.filter-highlight:not(:hover),
-:root.tomorrow.werkTyme:not(.catalog-hover-expand) .catalog-thread.filter-highlight,
-:root.tomorrow.werkTyme.catalog-hover-expand .catalog-thread.filter-highlight > .catalog-container:hover > .catalog-post {
-  box-shadow: 0 0 3px 3px rgba(64, 192, 255, .7);
+:root.tomorrow.werkTyme:not(.catalog-hover-expand)
+  .catalog-thread.filter-highlight,
+:root.tomorrow.werkTyme.catalog-hover-expand
+  .catalog-thread.filter-highlight
+  > .catalog-container:hover
+  > .catalog-post {
+  box-shadow: 0 0 3px 3px rgba(64, 192, 255, 0.7);
 }
 :root.tomorrow .catalog-thread.watched .catalog-thumb,
 :root.tomorrow.werkTyme .catalog-thread.watched:not(:hover),
 :root.tomorrow.werkTyme:not(.catalog-hover-expand) .catalog-thread.watched,
-:root.tomorrow.werkTyme.catalog-hover-expand .catalog-thread.watched > .catalog-container:hover > .catalog-post {
+:root.tomorrow.werkTyme.catalog-hover-expand
+  .catalog-thread.watched
+  > .catalog-container:hover
+  > .catalog-post {
   border: 2px solid rgb(64, 192, 255);
 }
 
-
 /* QR */
 .tomorrow #dump-list::-webkit-scrollbar-thumb {
-  background-color: #282A2E;
+  background-color: #282a2e;
   border-color: #111;
 }
 :root.tomorrow .qr-preview {
-  background-color: rgba(255, 255, 255, .15);
+  background-color: rgba(255, 255, 255, 0.15);
 }
 :root.tomorrow #qr .field {
   background-color: rgb(26, 27, 29);
-  color: rgb(197,200,198);
+  color: rgb(197, 200, 198);
   border-color: rgb(40, 41, 42);
 }
 :root.tomorrow #qr .field:focus,
 :root.tomorrow #qr .field.focus {
   border-color: rgb(129, 162, 190) !important;
-  background-color: rgb(30,32,36);
+  background-color: rgb(30, 32, 36);
 }
 :root.tomorrow .persona button {
-  background: linear-gradient(to bottom, #2E3035, #222427) no-repeat;
-  color: rgb(197,200,198);
+  background: linear-gradient(to bottom, #2e3035, #222427) no-repeat;
+  color: rgb(197, 200, 198);
   border-color: rgb(40, 41, 42);
   outline: none;
 }
@@ -140,25 +150,25 @@
   border-color: rgb(40, 41, 42);
 }
 :root.tomorrow #qr-filename {
-  color: rgb(197,200,198);
+  color: rgb(197, 200, 198);
 }
 :root.tomorrow .qr-link {
   border-color: rgb(25, 27, 31) rgb(25, 27, 31) rgb(10, 12, 16);
-  background: linear-gradient(#37393D, #282A2E) repeat scroll 0% 0% transparent;
+  background: linear-gradient(#37393d, #282a2e) repeat scroll 0% 0% transparent;
 }
 :root.tomorrow .qr-link:hover {
-  background: #282A2E;
+  background: #282a2e;
 }
 
 /* Menu */
 :root.tomorrow #menu {
-  color: #C5C8C6;
+  color: #c5c8c6;
 }
 :root.tomorrow .entry {
   font-size: 10pt;
 }
 :root.tomorrow .focused.entry {
-  background: rgba(0, 0, 0, .33);
+  background: rgba(0, 0, 0, 0.33);
 }
 
 /* Unread */
@@ -166,16 +176,17 @@
   border-color: rgb(197, 200, 198);
 }
 :root.tomorrow .unread-mark-read {
-  background-color: rgba(40,42,46,0.5);
+  background-color: rgba(40, 42, 46, 0.5);
 }
 
 /* Thread Watcher */
-:root.tomorrow .replies-quoting-you > a, :root.tomorrow #watcher-link.replies-quoting-you, :root.tomorrow .last-page > a > .watcher-page {
-  color: #F00 !important;
+:root.tomorrow .replies-quoting-you > a,
+:root.tomorrow #watcher-link.replies-quoting-you,
+:root.tomorrow .last-page > a > .watcher-page {
+  color: #f00 !important;
 }
 
 /* Watcher Favicon */
-:root.tomorrow .watch-thread-link
-{
+:root.tomorrow .watch-thread-link {
   background-image: url("data:image/svg+xml,<svg viewBox='0 0 26 26' preserveAspectRatio='true' xmlns='http://www.w3.org/2000/svg'><path fill='rgb(197,200,198)' d='M24.132,7.971c-2.203-2.205-5.916-2.098-8.25,0.235L15.5,8.588l-0.382-0.382c-2.334-2.333-6.047-2.44-8.25-0.235c-2.204,2.203-2.098,5.916,0.235,8.249l8.396,8.396l8.396-8.396C26.229,13.887,26.336,10.174,24.132,7.971z'/></svg>");
 }

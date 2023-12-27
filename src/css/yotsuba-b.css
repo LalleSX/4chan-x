@@ -1,84 +1,87 @@
 /* General */
 :root.yotsuba-b .dialog {
-  background-color: #D6DAF0;
-  border-color: #B7C5D9;
+  background-color: #d6daf0;
+  border-color: #b7c5d9;
 }
 :root.yotsuba-b .field:focus,
 :root.yotsuba-b .field.focus {
-  border-color: #98E;
+  border-color: #98e;
 }
 
 /* 4chan style fixes */
 :root.yotsuba-b.highlight-you .quotesYou$site$highlightable$reply {
-  border-left: 3px solid rgba(221, 0, 0, .8) !important;
+  border-left: 3px solid rgba(221, 0, 0, 0.8) !important;
 }
 :root.yotsuba-b.highlight-own .yourPost$site$highlightable$reply {
-  border-left: 3px dashed rgba(221, 0, 0, .8) !important;
+  border-left: 3px dashed rgba(221, 0, 0, 0.8) !important;
 }
 
 /* Header */
 :root.yotsuba-b #header-bar.dialog {
-  background-color: rgba(214,218,240,0.98);
+  background-color: rgba(214, 218, 240, 0.98);
 }
-:root.yotsuba-b:not(.fixed) #header-bar, :root.yotsuba-b #notifications {
+:root.yotsuba-b:not(.fixed) #header-bar,
+:root.yotsuba-b #notifications {
   font-size: 9pt;
 }
-:root.yotsuba-b #header-bar, :root.yotsuba-b #notifications {
-  color: #89A;
+:root.yotsuba-b #header-bar,
+:root.yotsuba-b #notifications {
+  color: #89a;
 }
-:root.yotsuba-b #board-list a, :root.yotsuba-b #shortcuts a {
-  color: #34345C;
+:root.yotsuba-b #board-list a,
+:root.yotsuba-b #shortcuts a {
+  color: #34345c;
 }
 
 /* Settings */
-:root.yotsuba-b #fourchanx-settings fieldset, :root.yotsuba-b .section-main div::before {
-  border-color: #B7C5D9;
+:root.yotsuba-b #fourchanx-settings fieldset,
+:root.yotsuba-b .section-main div::before {
+  border-color: #b7c5d9;
 }
 :root.yotsuba-b .suboption-list > div:last-of-type {
-  background-color: #D6DAF0;
+  background-color: #d6daf0;
 }
 
 /* Catalog */
 :root.yotsuba-b.catalog-hover-expand .catalog-container:hover > .post {
-  background-color: #D6DAF0;
+  background-color: #d6daf0;
 }
 :root.yotsuba-b.werkTyme .catalog-thread:not(:hover),
 :root.yotsuba-b.werkTyme:not(.catalog-hover-expand) .catalog-thread,
 :root.yotsuba-b.catalog-hover-expand .catalog-container:hover > .post,
 :root.yotsuba-b.catalog-hover-expand .catalog-container:hover .catalog-reply {
-  border-color: #B7C5D9;
+  border-color: #b7c5d9;
 }
 
 /* Quote */
 :root.yotsuba-b .backlink.deadlink {
-  color: #34345C !important;
+  color: #34345c !important;
 }
 :root.yotsuba-b .inline {
-  border-color: #B7C5D9;
-  background-color: rgba(255, 255, 255, .14);
+  border-color: #b7c5d9;
+  background-color: rgba(255, 255, 255, 0.14);
 }
 
 /* Fappe and Werk Tyme */
 :root.yotsuba-b .indicator {
-  color: #D6DAF0;
+  color: #d6daf0;
 }
 
 /* QR */
 .yotsuba-b #dump-list::-webkit-scrollbar-thumb {
-  background-color: #D6DAF0;
-  border-color: #B7C5D9;
+  background-color: #d6daf0;
+  border-color: #b7c5d9;
 }
 :root.yotsuba-b .qr-preview {
-  background-color: rgba(0, 0, 0, .15);
+  background-color: rgba(0, 0, 0, 0.15);
 }
 :root.yotsuba-b .qr-link {
   border-color: rgb(199, 203, 225) rgb(199, 203, 225) rgb(184, 188, 210);
-  background: linear-gradient(#E5E9FF, #D6DAF0) repeat scroll 0% 0% transparent;
+  background: linear-gradient(#e5e9ff, #d6daf0) repeat scroll 0% 0% transparent;
 }
 :root.yotsuba-b .qr-link:hover {
-  background: #D9DDF3;
+  background: #d9ddf3;
 }
-
 
 /* Menu */
 :root.yotsuba-b #menu {
@@ -88,21 +91,21 @@
   font-size: 10pt;
 }
 :root.yotsuba-b .focused.entry {
-  background: rgba(255, 255, 255, .33);
+  background: rgba(255, 255, 255, 0.33);
 }
 
 /* Unread */
 :root.yotsuba-b .unread-mark-read {
-  background-color: rgba(214,218,240,0.5);
+  background-color: rgba(214, 218, 240, 0.5);
 }
 
 /* Thread Watcher */
-:root.yotsuba-b .replies-quoting-you > a, :root.yotsuba-b #watcher-link.replies-quoting-you {
-  color: #F00;
+:root.yotsuba-b .replies-quoting-you > a,
+:root.yotsuba-b #watcher-link.replies-quoting-you {
+  color: #f00;
 }
 
 /* Watcher Favicon */
-:root.yotsuba-b .watch-thread-link
-{
+:root.yotsuba-b .watch-thread-link {
   background-image: url("data:image/svg+xml,<svg viewBox='0 0 26 26' preserveAspectRatio='true' xmlns='http://www.w3.org/2000/svg'><path fill='rgb(0,0,0)' d='M24.132,7.971c-2.203-2.205-5.916-2.098-8.25,0.235L15.5,8.588l-0.382-0.382c-2.334-2.333-6.047-2.44-8.25-0.235c-2.204,2.203-2.098,5.916,0.235,8.249l8.396,8.396l8.396-8.396C26.229,13.887,26.336,10.174,24.132,7.971z'/></svg>");
 }

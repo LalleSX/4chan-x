@@ -16,7 +16,15 @@ const QuoteYou = {
       return
     }
 
-    this.db = new DataBoard('yourPosts')
+    this.db = new DataBoard(
+      'yourPosts',
+      {
+        boardID: { type: 'string' },
+        threadID: { type: 'string' },
+        postID: { type: 'string' },
+      },
+      true
+    )
     $.sync(
       'Remember Your Posts',
       enabled => (Conf['Remember Your Posts'] = enabled)
