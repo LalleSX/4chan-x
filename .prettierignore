@@ -4,6 +4,7 @@ src/meta/*
 **/*.js
 node_modules/
 builds/**/*
+builds
 tsconfig.json
 */tsconfig.json
 tools/**/*
