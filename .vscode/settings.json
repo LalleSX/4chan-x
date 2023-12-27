@@ -14,21 +14,21 @@
     "package-lock.json": true
   },
   "files.exclude": {
-    "**/.git": true,
-    "**/.svn": true,
-    "**/.hg": true,
-    "**/CVS": true,
     "**/.DS_Store": true,
-    "**/node_modules": true,
-    "**/bower_components": true,
-    "**/*.code-search": true,
+    "**/.git": false,
+    "**/.hg": true,
     "**/.ruby-lsp": true,
+    "**/.svn": true,
+    "**/*.code-search": true,
+    "**/bower_components": true,
+    "**/CVS": true,
+    "**/node_modules": true,
     "CHANGELOG.md": true,
-    "README.md": true,
     "LICENSE": true,
+    "package-lock.json": true,
     "pnpm-lock.yaml": true,
-    "yarn.lock": true,
-    "package-lock.json": true
+    "README.md": true,
+    "yarn.lock": true
   },
   "editor.formatOnSave": true
 }

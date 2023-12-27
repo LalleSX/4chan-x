@@ -19,7 +19,13 @@ export default class DataBoard {
       'customTitles',
     ]
   }
-
+  /**
+   *
+   * @param key is one of the keys in DataBoard.keys
+   * @param sync is a function that syncs the data to the server
+   * @param dontClean is a boolean that prevents the data from being cleaned
+   * @returns the DataBoard object
+   */
   constructor(key, sync: any, dontClean: boolean) {
     this.changes = []
     this.onSync = this.onSync.bind(this)
