@@ -3,3 +3,9 @@ src/meta/*
 **/*.d.ts.map
 **/*.js
 node_modules/
+builds/**/*
+tsconfig.json
+*/tsconfig.json
+tools/**/*
+package-lock.json
+package.json
