@@ -1,6 +1,6 @@
 // cSpell:ignore installGentoo, webfont
 
-import $ from '../platform/$'
+import $ from '../platform/$.js'
 
 // import boardCss from './board.css';
 
@@ -38,8 +38,8 @@ import tomorrow from './tomorrow.css'
 import www from './www.css'
 import yotsubaB from './yotsuba-b.css'
 import yotsuba from './yotsuba.css'
-import { icons } from './style'
-import { g } from '../globals/globals'
+import { icons } from './style.js'
+import { g } from '../globals/globals.js'
 
 // <%
 // var inc       = require['style'];

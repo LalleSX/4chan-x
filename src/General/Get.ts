@@ -1,6 +1,6 @@
-import { Conf, g } from '../globals/globals'
-import $ from '../platform/$'
-import Thread from '../classes/Thread'
+import { Conf, g } from '../globals/globals.js'
+import $ from '../platform/$.js'
+import Thread from '../classes/Thread.js'
 
 const Get = {
   /**

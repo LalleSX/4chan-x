@@ -1,6 +1,6 @@
-import $ from '../platform/$'
-import CSS from '../css/CSS'
-import { Conf } from '../globals/globals'
+import $ from '../platform/$.js'
+import CSS from '../css/CSS.js'
+import { Conf } from '../globals/globals.js'
 
 const CustomCSS = {
   init() {

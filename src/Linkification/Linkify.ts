@@ -1,11 +1,11 @@
-import Callbacks from '../classes/Callbacks'
+import Callbacks from '../classes/Callbacks.js'
 // import Test from "../General/Test";
-import { g, Conf } from '../globals/globals'
-import ImageHost from '../Images/ImageHost'
-import ExpandComment from '../Miscellaneous/ExpandComment'
-import $ from '../platform/$'
-import $$ from '../platform/$$'
-import Embedding from './Embedding'
+import { g, Conf } from '../globals/globals.js'
+import ImageHost from '../Images/ImageHost.js'
+import ExpandComment from '../Miscellaneous/ExpandComment.js'
+import $ from '../platform/$.js'
+import $$ from '../platform/$$.js'
+import Embedding from './Embedding.js'
 
 const Linkify = {
   init() {

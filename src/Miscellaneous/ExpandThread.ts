@@ -1,12 +1,12 @@
-import Callbacks from '../classes/Callbacks'
-import Post from '../classes/Post'
-import Get from '../General/Get'
-import Index from '../General/Index'
-import { g, Conf, d } from '../globals/globals'
-import Main from '../main/Main'
-import $ from '../platform/$'
-import $$ from '../platform/$$'
-import { dict } from '../platform/helpers'
+import Callbacks from '../classes/Callbacks.js'
+import Post from '../classes/Post.js'
+import Get from '../General/Get.js'
+import Index from '../General/Index.js'
+import { g, Conf, d } from '../globals/globals.js'
+import Main from '../main/Main.js'
+import $ from '../platform/$.js'
+import $$ from '../platform/$$.js'
+import { dict } from '../platform/helpers.js'
 
 const ExpandThread = {
   statuses: dict(),

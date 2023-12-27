@@ -1,7 +1,7 @@
-import Callbacks from '../classes/Callbacks'
-import { Conf, doc, g } from '../globals/globals'
-import $ from '../platform/$'
-import $$ from '../platform/$$'
+import Callbacks from '../classes/Callbacks.js'
+import { Conf, doc, g } from '../globals/globals.js'
+import $ from '../platform/$.js'
+import $$ from '../platform/$$.js'
 
 const RemoveSpoilers = {
   init() {

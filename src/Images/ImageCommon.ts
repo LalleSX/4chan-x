@@ -1,10 +1,10 @@
-import Redirect from '../Archive/Redirect'
-import Notice from '../classes/Notice'
-import { g, Conf, d } from '../globals/globals'
-import $ from '../platform/$'
-import CrossOrigin from '../platform/CrossOrigin'
-import ImageHost from './ImageHost'
-import Volume from './Volume'
+import Redirect from '../Archive/Redirect.js'
+import Notice from '../classes/Notice.js'
+import { g, Conf, d } from '../globals/globals.js'
+import $ from '../platform/$.js'
+import CrossOrigin from '../platform/CrossOrigin.js'
+import ImageHost from './ImageHost.js'
+import Volume from './Volume.js'
 
 const ImageCommon = {
   // Pause and mute video in preparation for removing the element from the document.

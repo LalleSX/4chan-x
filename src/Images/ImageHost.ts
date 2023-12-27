@@ -1,6 +1,6 @@
-import Callbacks from '../classes/Callbacks'
-import { Conf, g } from '../globals/globals'
-import $$ from '../platform/$$'
+import Callbacks from '../classes/Callbacks.js'
+import { Conf, g } from '../globals/globals.js'
+import $$ from '../platform/$$.js'
 
 const ImageHost = {
   // Initialize the ImageHost

@@ -8,10 +8,10 @@
 // loosely follows the jquery api:
 // http://api.jquery.com/
 
-import Notice from '../classes/Notice'
-import { c, Conf, d, doc, g } from '../globals/globals'
-import CrossOrigin from './CrossOrigin'
-import { debounce, dict, MINUTE, platform, SECOND } from './helpers'
+import Notice from '../classes/Notice.js'
+import { c, Conf, d, doc, g } from '../globals/globals.js'
+import CrossOrigin from './CrossOrigin.js'
+import { debounce, dict, MINUTE, platform, SECOND } from './helpers.js'
 
 // not chainable
 const $ = (selector: string, root: HTMLElement = document.body) =>
@@ -112,14 +112,14 @@ $.ajax = (function () {
       }
     }
     const {
-      onloadend,
-      timeout,
-      responseType,
-      withCredentials,
-      type,
-      onprogress,
-      form,
-      headers,
+      onloadend = null,
+      timeout = 10000,
+      responseType = 'json',
+      withCredentials = false,
+      type = 'get',
+      onprogress = null,
+      form = null,
+      headers = null,
     } = options
     const r = new pageXHR()
     try {
@@ -185,15 +185,15 @@ $.ajax = (function () {
             function (e) {
               let fd, r
               const {
-                url,
-                timeout,
-                responseType,
-                withCredentials,
-                type,
-                onprogress,
-                form,
-                headers,
-                id,
+                url = null,
+                timeout = 10000,
+                responseType = 'json',
+                withCredentials = false,
+                type = 'get',
+                onprogress = null,
+                form = null,
+                headers = null,
+                id = null,
               } = e.detail
               window.FCX.requests[id] = r = new XMLHttpRequest()
               r.open(type, url, true)
@@ -320,13 +320,13 @@ $.ajax = (function () {
       let req
       let { form } = options
       const {
-        onloadend,
-        timeout,
-        responseType,
-        withCredentials,
-        type,
-        onprogress,
-        headers,
+        onloadend = null,
+        timeout = 10000,
+        responseType = 'json',
+        withCredentials = false,
+        type = 'get',
+        onprogress = null,
+        headers = null,
       } = options
       const id = requestID++
       requests[id] = req = new CrossOrigin.Request()
@@ -559,7 +559,7 @@ $.el = function (
   tag: string,
   properties?: Record<string, any>,
   properties2?: Record<string, any>
-) {
+): HTMLElement {
   const el = d.createElement(tag)
   if (properties) {
     $.extend(el, properties)
@@ -601,7 +601,7 @@ $.event = function (
   event: string,
   detail: Record<string, any>,
   root = d as any
-) {
+): boolean {
   return root.dispatchEvent(new CustomEvent(event, { detail }))
 }
 
@@ -967,7 +967,7 @@ if (platform === 'crx') {
 
     const setSync = debounce(SECOND, () => setArea('sync', () => {}))
 
-    $.set = $.oneItemSugar(function (data, cb) {
+    $.set = $.oneItemSugar(function (data, cb): void {
       if (!$.crxWorking()) {
         return
       }
@@ -1054,7 +1054,7 @@ if (platform === 'crx') {
       )
     })
 
-    $.set = $.oneItemSugar(function (items, cb) {
+    $.set = $.oneItemSugar(function (items, cb): void | Promise<void> {
       $.securityCheck(items)
       return Promise.all(
         (() => {
@@ -1255,7 +1255,7 @@ if (platform === 'crx') {
       return cb(items)
     }
 
-    $.set = $.oneItemSugar(function (items, cb) {
+    $.set = $.oneItemSugar(function (items, cb): void | NodeJS.Timeout {
       $.securityCheck(items)
       return $.queueTask(function () {
         for (const key in items) {

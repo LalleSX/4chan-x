@@ -1,7 +1,7 @@
-import { g, Conf } from '../globals/globals'
-import ImageCommon from '../Images/ImageCommon'
-import $ from '../platform/$'
-import Menu from './Menu'
+import { g, Conf } from '../globals/globals.js'
+import ImageCommon from '../Images/ImageCommon.js'
+import $ from '../platform/$.js'
+import Menu from './Menu.js'
 
 const DownloadLink = {
   init() {

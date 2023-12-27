@@ -1,4 +1,4 @@
-import $ from '../platform/$'
+import $ from '../platform/$.js'
 
 interface Thread {
   ID: string // Assuming ID is a string

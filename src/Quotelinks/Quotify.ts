@@ -1,10 +1,10 @@
-import Redirect from '../Archive/Redirect'
-import Callbacks from '../classes/Callbacks'
-import Post from '../classes/Post'
-import { g, Conf, doc } from '../globals/globals'
-import ExpandComment from '../Miscellaneous/ExpandComment'
-import $ from '../platform/$'
-import $$ from '../platform/$$'
+import Redirect from '../Archive/Redirect.js'
+import Callbacks from '../classes/Callbacks.js'
+import Post from '../classes/Post.js'
+import { g, Conf, doc } from '../globals/globals.js'
+import ExpandComment from '../Miscellaneous/ExpandComment.js'
+import $ from '../platform/$.js'
+import $$ from '../platform/$$.js'
 
 const Quotify = {
   init() {

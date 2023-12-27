@@ -1,6 +1,6 @@
-import QR from '../Posting/QR'
-import $ from './$'
-import { dict, platform } from './helpers'
+import QR from '../Posting/QR.js'
+import $ from './$.js'
+import { dict, platform } from './helpers.js'
 
 let eventPageRequest
 if (platform === 'crx') {

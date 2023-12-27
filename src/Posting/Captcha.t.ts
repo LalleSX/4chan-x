@@ -1,6 +1,6 @@
-import { d, g } from '../globals/globals'
-import $ from '../platform/$'
-import QR from './QR'
+import { d, g } from '../globals/globals.js'
+import $ from '../platform/$.js'
+import QR from './QR.js'
 
 const CaptchaT = {
   init() {
@@ -31,7 +31,7 @@ const CaptchaT = {
     return { boardID, threadID }
   },
 
-  setup(focus) {
+  setup(focus: boolean = false) {
     if (!this.isEnabled) {
       return
     }

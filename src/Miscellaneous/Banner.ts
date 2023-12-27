@@ -1,10 +1,10 @@
-import DataBoard from '../classes/DataBoard'
-import { Conf, d, g } from '../globals/globals'
-import Main from '../main/Main'
-import Unread from '../Monitoring/Unread'
-import $ from '../platform/$'
-import $$ from '../platform/$$'
-import { dict } from '../platform/helpers'
+import DataBoard from '../classes/DataBoard.js'
+import { Conf, d, g } from '../globals/globals.js'
+import Main from '../main/Main.js'
+import Unread from '../Monitoring/Unread.js'
+import $ from '../platform/$.js'
+import $$ from '../platform/$$.js'
+import { dict } from '../platform/helpers.js'
 
 const Banner = {
   init() {

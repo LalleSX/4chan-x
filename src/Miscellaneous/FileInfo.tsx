@@ -1,11 +1,11 @@
-import Callbacks from '../classes/Callbacks'
-import Filter from '../Filtering/Filter'
-import { g, Conf, E } from '../globals/globals'
-import h, { isEscaped } from '../globals/jsx'
-import ImageCommon from '../Images/ImageCommon'
-import $ from '../platform/$'
-import $$ from '../platform/$$'
-import SW from '../site/SW'
+import Callbacks from '../classes/Callbacks.js'
+import Filter from '../Filtering/Filter.js'
+import { g, Conf, E } from '../globals/globals.js'
+import h, { isEscaped } from '../globals/jsx.js'
+import ImageCommon from '../Images/ImageCommon.js'
+import $ from '../platform/$.js'
+import $$ from '../platform/$$.js'
+import SW from '../site/SW.js'
 
 const FileInfo = {
   init() {

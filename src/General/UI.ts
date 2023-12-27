@@ -1,9 +1,9 @@
 /* eslint-disable no-var */
-import { Conf, d, doc } from '../globals/globals'
-import Main from '../main/Main'
-import $ from '../platform/$'
-import $$ from '../platform/$$'
-import Header from './Header'
+import { Conf, d, doc } from '../globals/globals.js'
+import Main from '../main/Main.js'
+import $ from '../platform/$.js'
+import $$ from '../platform/$$.js'
+import Header from './Header.js'
 
 /*
  * decaffeinate suggestions:

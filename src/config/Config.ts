@@ -1,6 +1,8 @@
 import userCss from './user.css'
-import banners from './banners.json'
-import meta from '../../package.json'
+import { meta } from '../globals/globals.js'
+
+// I need meta to be defined here
+// It is package.json and it needs to be parsed
 
 const Config = {
   'main': {
@@ -867,8 +869,6 @@ https://*.hcaptcha.com
   'fourchanImageHost': 'i.4cdn.org',
 
   'hiddenPSAList': [{}],
-
-  'knownBanners': banners.join(','),
 
   'passMessageClosed': false,
 

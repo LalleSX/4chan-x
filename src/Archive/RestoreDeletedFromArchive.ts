@@ -1,11 +1,11 @@
-import Redirect from './Redirect'
-import Notice from '../classes/Notice'
-import { Conf, g } from '../globals/globals'
-import CrossOrigin from '../platform/CrossOrigin'
-import $ from '../platform/$'
-import Header from '../General/Header'
-import { type RawArchivePost, parseArchivePost } from './Parse'
-import QuoteThreading from '../Quotelinks/QuoteThreading'
+import Redirect from './Redirect.js'
+import Notice from '../classes/Notice.js'
+import { Conf, g } from '../globals/globals.js'
+import CrossOrigin from '../platform/CrossOrigin.js'
+import $ from '../platform/$.js'
+import Header from '../General/Header.js'
+import { type RawArchivePost, parseArchivePost } from './Parse.js'
+import QuoteThreading from '../Quotelinks/QuoteThreading.js'
 
 const RestoreDeletedFromArchive = {
   restore() {

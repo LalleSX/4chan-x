@@ -1,5 +1,5 @@
-import h from '../../globals/jsx'
-import meta from '../../../package.json'
+import h from '../../globals/jsx.js'
+import { meta } from '../../globals/globals.js'
 
 const passMessagePage = (
   <div class="box-inner">

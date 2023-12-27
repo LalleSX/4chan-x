@@ -1,6 +1,6 @@
-import { g, Conf, d } from '../globals/globals'
-import $ from '../platform/$'
-import Menu from './Menu'
+import { g, Conf, d } from '../globals/globals.js'
+import $ from '../platform/$.js'
+import Menu from './Menu.js'
 
 const CopyTextLink = {
   init() {

@@ -1,10 +1,10 @@
-import Callbacks from '../classes/Callbacks'
-import Fetcher from '../classes/Fetcher'
-import Get from '../General/Get'
-import { g, Conf, doc } from '../globals/globals'
-import ExpandComment from '../Miscellaneous/ExpandComment'
-import Unread from '../Monitoring/Unread'
-import $ from '../platform/$'
+import Callbacks from '../classes/Callbacks.js'
+import Fetcher from '../classes/Fetcher.js'
+import Get from '../General/Get.js'
+import { g, Conf, doc } from '../globals/globals.js'
+import ExpandComment from '../Miscellaneous/ExpandComment.js'
+import Unread from '../Monitoring/Unread.js'
+import $ from '../platform/$.js'
 
 const QuoteInline = {
   init() {

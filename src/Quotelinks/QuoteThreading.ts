@@ -1,11 +1,11 @@
-import Callbacks from '../classes/Callbacks'
-import RandomAccessList from '../classes/RandomAccessList'
-import Header from '../General/Header'
-import { Conf, d, g } from '../globals/globals'
-import ReplyPruning from '../Monitoring/ReplyPruning'
-import Unread from '../Monitoring/Unread'
-import $ from '../platform/$'
-import { dict } from '../platform/helpers'
+import Callbacks from '../classes/Callbacks.js'
+import RandomAccessList from '../classes/RandomAccessList.js'
+import Header from '../General/Header.js'
+import { Conf, d, g } from '../globals/globals.js'
+import ReplyPruning from '../Monitoring/ReplyPruning.js'
+import Unread from '../Monitoring/Unread.js'
+import $ from '../platform/$.js'
+import { dict } from '../platform/helpers.js'
 
 const QuoteThreading = {
   init() {

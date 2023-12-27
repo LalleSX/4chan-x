@@ -1,8 +1,8 @@
-import { Conf, d } from '../globals/globals'
-import Main from '../main/Main'
-import $ from '../platform/$'
-import $$ from '../platform/$$'
-import { dict } from '../platform/helpers'
+import { Conf, d } from '../globals/globals.js'
+import Main from '../main/Main.js'
+import $ from '../platform/$.js'
+import $$ from '../platform/$$.js'
+import { dict } from '../platform/helpers.js'
 
 const SWTinyboard = {
   software: 'Tinyboard',

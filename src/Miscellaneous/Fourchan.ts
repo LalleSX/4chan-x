@@ -1,10 +1,10 @@
-import Callbacks from '../classes/Callbacks'
-import BoardConfig from '../General/BoardConfig'
-import { d, doc, g } from '../globals/globals'
-import Main from '../main/Main'
-import $ from '../platform/$'
-import $$ from '../platform/$$'
-import ExpandComment from './ExpandComment'
+import Callbacks from '../classes/Callbacks.js'
+import BoardConfig from '../General/BoardConfig.js'
+import { d, doc, g } from '../globals/globals.js'
+import Main from '../main/Main.js'
+import $ from '../platform/$.js'
+import $$ from '../platform/$$.js'
+import ExpandComment from './ExpandComment.js'
 
 const Fourchan = {
   init() {

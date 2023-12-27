@@ -1,9 +1,9 @@
-import Callbacks from '../classes/Callbacks'
-import Notice from '../classes/Notice'
-import Filter from '../Filtering/Filter'
-import { g, Conf, doc } from '../globals/globals'
-import $ from '../platform/$'
-import { dict } from '../platform/helpers'
+import Callbacks from '../classes/Callbacks.js'
+import Notice from '../classes/Notice.js'
+import Filter from '../Filtering/Filter.js'
+import { g, Conf, doc } from '../globals/globals.js'
+import $ from '../platform/$.js'
+import { dict } from '../platform/helpers.js'
 
 const Sauce = {
   init() {

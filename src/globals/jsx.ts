@@ -11,7 +11,7 @@
  * Note that you need to import hFragment, which for some reason isn't auto imported on "add all missing imports"
  */
 
-import { E } from './globals'
+import { E } from './globals.js'
 
 /**
  * The symbol indicating that a string is safely escaped.

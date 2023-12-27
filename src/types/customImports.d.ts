@@ -70,7 +70,7 @@ declare module '*/version.json' {
   }
   export default versionInfo
 }
-declare module '*/archives.json' {
+declare module '*/archives.js' {
   const archives: {
     uid: number
     name: string

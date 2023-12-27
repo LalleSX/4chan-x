@@ -1,6 +1,6 @@
-import Header from '../General/Header'
-import { Conf, doc, g } from '../globals/globals'
-import $ from '../platform/$'
+import Header from '../General/Header.js'
+import { Conf, doc, g } from '../globals/globals.js'
+import $ from '../platform/$.js'
 
 const PSAHiding = {
   init() {

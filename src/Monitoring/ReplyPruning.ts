@@ -1,9 +1,9 @@
-import Callbacks from '../classes/Callbacks'
-import Header from '../General/Header'
-import UI from '../General/UI'
-import { g, Conf, E, d } from '../globals/globals'
-import $ from '../platform/$'
-import QuoteThreading from '../Quotelinks/QuoteThreading'
+import Callbacks from '../classes/Callbacks.js'
+import Header from '../General/Header.js'
+import UI from '../General/UI.js'
+import { g, Conf, E, d } from '../globals/globals.js'
+import $ from '../platform/$.js'
+import QuoteThreading from '../Quotelinks/QuoteThreading.js'
 
 const ReplyPruning = {
   init() {

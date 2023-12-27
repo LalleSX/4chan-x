@@ -1,4 +1,4 @@
-import h, { EscapedHtml, isEscaped } from '../../globals/jsx'
+import h, { EscapedHtml, isEscaped } from '../../globals/jsx.js'
 
 export default function generateFileHtml(
   file: {

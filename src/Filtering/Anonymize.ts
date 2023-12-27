@@ -1,5 +1,5 @@
-import { Conf, doc } from '../globals/globals'
-import $ from '../platform/$'
+import { Conf, doc } from '../globals/globals.js'
+import $ from '../platform/$.js'
 
 const Anonymize = {
   init() {

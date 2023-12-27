@@ -1,8 +1,8 @@
-import Get from '../General/Get'
-import Header from '../General/Header'
-import { g, Conf, d, doc } from '../globals/globals'
-import $ from '../platform/$'
-import $$ from '../platform/$$'
+import Get from '../General/Get.js'
+import Header from '../General/Header.js'
+import { g, Conf, d, doc } from '../globals/globals.js'
+import $ from '../platform/$.js'
+import $$ from '../platform/$$.js'
 
 const Nav = {
   init() {

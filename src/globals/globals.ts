@@ -1,9 +1,23 @@
-import version from '../../version.json'
-import meta from '../../package.json'
-import type SimpleDict from '../classes/SimpleDict'
-import type Post from '../classes/Post'
-import type Thread from '../classes/Thread'
-import type SWTinyboard from '../site/SW.tinyboard'
+import type SimpleDict from '../classes/SimpleDict.js'
+import type Post from '../classes/Post.js'
+import type Thread from '../classes/Thread.js'
+import type SWTinyboard from '../site/SW.tinyboard.js'
+
+export const version = {
+  version: '4.20.0',
+  commit: '8d2c9f2',
+  date: '2021-02-15',
+}
+
+export const meta = {
+  name: '4chan X',
+  version: '4.20.0',
+  description: 'Adds various features to 4chan.',
+  captchaFAQ: 'https://www.4chan-x.net/#faq',
+  page: 'https://www.4chan-x.net/',
+  changelog: 'https://www.4chan-x.net/CHANGELOG.txt',
+  issues: 'google.com',
+}
 
 // interfaces might be incomplete
 export interface BoardConfig {

@@ -1,5 +1,5 @@
-import { g } from '../../globals/globals'
-import h, { EscapedHtml } from '../../globals/jsx'
+import { g } from '../../globals/globals.js'
+import h, { EscapedHtml } from '../../globals/jsx.js'
 
 export default function generatePostInfoHtml(
   ID,

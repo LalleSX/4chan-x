@@ -1,4 +1,4 @@
-import { Conf, g } from '../globals/globals'
+import { Conf, g } from '../globals/globals.js'
 
 const NormalizeURL = {
   init() {

@@ -1,9 +1,9 @@
-import Notice from '../classes/Notice'
-import { g, Conf } from '../globals/globals'
-import $ from '../platform/$'
-import { dict } from '../platform/helpers'
-import QR from '../Posting/QR'
-import Menu from './Menu'
+import Notice from '../classes/Notice.js'
+import { g, Conf } from '../globals/globals.js'
+import $ from '../platform/$.js'
+import { dict } from '../platform/helpers.js'
+import QR from '../Posting/QR.js'
+import Menu from './Menu.js'
 
 const DeleteLink = {
   auto: [dict(), dict()],

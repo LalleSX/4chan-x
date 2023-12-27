@@ -1,9 +1,9 @@
 // Import necessary components and types
-import BoardConfig from '../General/BoardConfig'
-import { d, g } from '../globals/globals'
-import SimpleDict from './SimpleDict'
-import type Post from './Post'
-import type Thread from './Thread'
+import BoardConfig from '../General/BoardConfig.js'
+import { d, g } from '../globals/globals.js'
+import SimpleDict from './SimpleDict.js'
+import Post from './Post.js'
+import Thread from './Thread.js'
 
 // Define the Board class
 export default class Board {

@@ -1,7 +1,7 @@
-import Notice from '../classes/Notice'
-import { g, Conf, doc } from '../globals/globals'
-import Main from '../main/Main'
-import $ from '../platform/$'
+import Notice from '../classes/Notice.js'
+import { g, Conf, doc } from '../globals/globals.js'
+import Main from '../main/Main.js'
+import $ from '../platform/$.js'
 
 const PSA = {
   init() {

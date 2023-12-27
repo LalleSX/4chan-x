@@ -1,9 +1,9 @@
-import Callbacks from '../classes/Callbacks'
-import Config from '../config/Config'
-import Header from '../General/Header'
-import UI from '../General/UI'
-import { g, Conf, E } from '../globals/globals'
-import $ from '../platform/$'
+import Callbacks from '../classes/Callbacks.js'
+import Config from '../config/Config.js'
+import Header from '../General/Header.js'
+import UI from '../General/UI.js'
+import { g, Conf, E } from '../globals/globals.js'
+import $ from '../platform/$.js'
 
 const Volume = {
   init() {

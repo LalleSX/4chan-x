@@ -36,8 +36,8 @@ import Metro_unreadNSFW from './Favicon/Metro.unreadNSFW.png'
 import Metro_unreadNSFWY from './Favicon/Metro.unreadNSFWY.png'
 import dead from './Favicon/dead.gif'
 import empty from './Favicon/empty.gif'
-import $ from '../platform/$'
-import { Conf, d } from '../globals/globals'
+import $ from '../platform/$.js'
+import { Conf, d } from '../globals/globals.js'
 
 const Favicon = {
   init() {

@@ -1,5 +1,5 @@
-import Callbacks from '../classes/Callbacks'
-import { g, Conf } from '../globals/globals'
+import Callbacks from '../classes/Callbacks.js'
+import { g, Conf } from '../globals/globals.js'
 
 const RevealSpoilers = {
   init() {

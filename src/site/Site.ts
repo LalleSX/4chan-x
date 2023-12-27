@@ -1,8 +1,8 @@
-import { Conf, doc, g } from '../globals/globals'
-import Main from '../main/Main'
-import $ from '../platform/$'
-import { dict } from '../platform/helpers'
-import SW from './SW'
+import { Conf, doc, g } from '../globals/globals.js'
+import Main from '../main/Main.js'
+import $ from '../platform/$.js'
+import { dict } from '../platform/helpers.js'
+import SW from './SW.js'
 
 const Site = {
   defaultProperties: {

@@ -1,7 +1,7 @@
-import { g } from '../globals/globals'
-import $ from '../platform/$'
-import Board from './Board'
-import Thread from './Thread'
+import { g } from '../globals/globals.js'
+import $ from '../platform/$.js'
+import Board from './Board.js'
+import Thread from './Thread.js'
 
 // Defines a class representing a thread in a catalog, specifically for the native site format
 export default class CatalogThreadNative {

@@ -1,6 +1,6 @@
-import $ from '../platform/$'
-import Callbacks from '../classes/Callbacks'
-import { g } from '../globals/globals'
+import $ from '../platform/$.js'
+import Callbacks from '../classes/Callbacks.js'
+import { g } from '../globals/globals.js'
 
 const ModContact = {
   init() {

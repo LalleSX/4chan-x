@@ -1,13 +1,13 @@
-import $ from '../platform/$'
-import CaptchaReplace from './Captcha.replace'
-import CaptchaT from './Captcha.t'
-import meta from '../../package.json'
-import Main from '../main/Main'
-import Keybinds from '../Miscellaneous/Keybinds'
-import $$ from '../platform/$$'
-import QR from './QR'
-import { Conf, d } from '../globals/globals'
-import { MINUTE, SECOND } from '../platform/helpers'
+import $ from '../platform/$.js'
+import CaptchaReplace from './Captcha.replace.js'
+import CaptchaT from './Captcha.t.js'
+import { meta } from '../globals/globals.js'
+import Main from '../main/Main.js'
+import Keybinds from '../Miscellaneous/Keybinds.js'
+import $$ from '../platform/$$.js'
+import QR from './QR.js'
+import { Conf, d } from '../globals/globals.js'
+import { MINUTE, SECOND } from '../platform/helpers.js'
 
 const Captcha = {
   Cache: {
@@ -258,7 +258,7 @@ const Captcha = {
       }
     },
 
-    setup(focus, force) {
+    setup(focus: boolean, force: boolean) {
       if (!this.isEnabled || (!Captcha.cache.needed() && !force)) {
         return
       }

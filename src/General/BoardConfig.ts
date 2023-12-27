@@ -1,7 +1,7 @@
-import Notice from '../classes/Notice'
-import { g, Conf } from '../globals/globals'
-import $ from '../platform/$'
-import { dict, HOUR } from '../platform/helpers'
+import Notice from '../classes/Notice.js'
+import { g, Conf } from '../globals/globals.js'
+import $ from '../platform/$.js'
+import { dict, HOUR } from '../platform/helpers.js'
 
 const BoardConfig = {
   cbs: [],

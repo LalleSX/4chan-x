@@ -1,14 +1,14 @@
-import SimpleDict from './SimpleDict'
-import $ from '../platform/$'
-import { g } from '../globals/globals'
-import type Board from './Board'
-import type Post from './Post'
+import SimpleDict from './SimpleDict.js'
+import $ from '../platform/$.js'
+import { g } from '../globals/globals.js'
+import type Board from './Board.js'
+import type Post from './Post.js'
 
 export default class Thread {
   declare board: Board
   declare ID: string | number
-  declare threadID: threadID
-  declare boardID: boardID
+  declare threadID: string | number
+  declare boardID: string
   declare siteID: string
   declare fullID: string
   declare posts: SimpleDict<Post>

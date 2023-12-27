@@ -1,9 +1,9 @@
-import Redirect from '../Archive/Redirect'
-import $ from '../platform/$'
+import Redirect from '../Archive/Redirect.js'
+import $ from '../platform/$.js'
 import ReportPage from './Report/ArchiveReport.html'
-import CSS from '../css/CSS'
-import Captcha from '../Posting/Captcha'
-import { Conf, d, g } from '../globals/globals'
+import CSS from '../css/CSS.js'
+import Captcha from '../Posting/Captcha.js'
+import { Conf, d, g } from '../globals/globals.js'
 
 const Report = {
   init() {

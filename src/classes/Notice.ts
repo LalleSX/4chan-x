@@ -1,7 +1,7 @@
-import Header from '../General/Header'
-import { d } from '../globals/globals'
-import $ from '../platform/$'
-import { SECOND } from '../platform/helpers'
+import Header from '../General/Header.js'
+import { d } from '../globals/globals.js'
+import $ from '../platform/$.js'
+import { SECOND } from '../platform/helpers.js'
 
 export default class Notice {
   timeout: number | undefined

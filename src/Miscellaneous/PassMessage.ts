@@ -1,6 +1,6 @@
-import { Conf, d } from '../globals/globals'
-import $ from '../platform/$'
-import PassMessagePage from './PassMessage/PassMessageHtml'
+import { Conf, d } from '../globals/globals.js'
+import $ from '../platform/$.js'
+import PassMessagePage from './PassMessage/PassMessageHtml.js'
 
 const PassMessage = {
   init() {

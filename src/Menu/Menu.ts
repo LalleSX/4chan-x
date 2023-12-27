@@ -1,7 +1,7 @@
-import Callbacks from '../classes/Callbacks'
-import UI from '../General/UI'
-import { g, Conf } from '../globals/globals'
-import $ from '../platform/$'
+import Callbacks from '../classes/Callbacks.js'
+import UI from '../General/UI.js'
+import { g, Conf } from '../globals/globals.js'
+import $ from '../platform/$.js'
 
 const Menu = {
   init() {

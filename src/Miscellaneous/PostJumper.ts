@@ -1,7 +1,7 @@
-import Callbacks from '../classes/Callbacks'
-import { Conf, g, E } from '../globals/globals'
-import $ from '../platform/$'
-import $$ from '../platform/$$'
+import Callbacks from '../classes/Callbacks.js'
+import { Conf, g, E } from '../globals/globals.js'
+import $ from '../platform/$.js'
+import $$ from '../platform/$$.js'
 
 const PostJumper = {
   init() {

@@ -1,9 +1,9 @@
-import Callbacks from '../classes/Callbacks'
-import Post from '../classes/Post'
-import Index from '../General/Index'
-import { g, Conf, d, doc } from '../globals/globals'
-import $ from '../platform/$'
-import { DAY, HOUR, MINUTE, SECOND } from '../platform/helpers'
+import Callbacks from '../classes/Callbacks.js'
+import Post from '../classes/Post.js'
+import Index from '../General/Index.js'
+import { g, Conf, d, doc } from '../globals/globals.js'
+import $ from '../platform/$.js'
+import { DAY, HOUR, MINUTE, SECOND } from '../platform/helpers.js'
 
 const RelativeDates = {
   INTERVAL: 30000,

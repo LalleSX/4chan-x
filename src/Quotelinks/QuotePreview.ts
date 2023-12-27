@@ -1,11 +1,11 @@
-import Callbacks from '../classes/Callbacks'
-import Fetcher from '../classes/Fetcher'
-import Get from '../General/Get'
-import Header from '../General/Header'
-import UI from '../General/UI'
-import { Conf, d, doc, g } from '../globals/globals'
-import ExpandComment from '../Miscellaneous/ExpandComment'
-import $ from '../platform/$'
+import Callbacks from '../classes/Callbacks.js'
+import Fetcher from '../classes/Fetcher.js'
+import Get from '../General/Get.js'
+import Header from '../General/Header.js'
+import UI from '../General/UI.js'
+import { Conf, d, doc, g } from '../globals/globals.js'
+import ExpandComment from '../Miscellaneous/ExpandComment.js'
+import $ from '../platform/$.js'
 
 const QuotePreview = {
   init() {

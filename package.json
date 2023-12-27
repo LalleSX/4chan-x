@@ -101,12 +101,15 @@
     }
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^11.1.5",
     "@rollup/pluginutils": "^5.1.0",
     "@types/chrome": "^0.0.217",
     "@types/firefox-webext-browser": "^120.0.0",
     "@types/greasemonkey": "^4.0.7",
+    "@types/jquery": "^3.5.29",
     "@types/node": "^18.19.3",
     "@types/tampermonkey": "^5.0.2",
     "@typescript-eslint/eslint-plugin": "^6.16.0",
@@ -128,8 +131,10 @@
     "pnpm": "^8.13.1",
     "request": "^2.88.2",
     "rollup": "^4.9.1",
+    "rollup-plugin-typescript2": "^0.36.0",
     "tslib": "^2.6.2",
-    "typescript": "^4.9.5"
+    "typescript": "^5.3.3",
+    "vite": "^5.0.10"
   },
   "repository": {
     "type": "git",
@@ -156,5 +161,9 @@
     "build:min": "node ./tools/rollup -min",
     "lint": "eslint --fix --ext .ts,.tsx src/",
     "prettier": "prettier --write --ignore-path .gitignore,builds/**/*.{js,ts,tsx,json,md,yml} \"**/*.{js,ts,tsx,json,md,yml}\""
+  },
+  "dependencies": {
+    "jquery": "^3.7.1",
+    "parse-json": "^8.1.0"
   }
 }

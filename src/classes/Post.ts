@@ -1,11 +1,11 @@
-import Get from '../General/Get'
-import { g, Conf } from '../globals/globals'
-import ImageExpand from '../Images/ImageExpand'
-import $ from '../platform/$'
-import $$ from '../platform/$$'
-import type Board from './Board'
-import Callbacks from './Callbacks'
-import type Thread from './Thread'
+import Get from '../General/Get.js'
+import { g, Conf } from '../globals/globals.js'
+import ImageExpand from '../Images/ImageExpand.js'
+import $ from '../platform/$.js'
+import $$ from '../platform/$$.js'
+import type Board from './Board.js'
+import Callbacks from './Callbacks.js'
+import type Thread from './Thread.js'
 
 export interface File {
   text: string
@@ -35,6 +35,24 @@ export interface File {
 }
 
 export default class Post {
+  delete() {
+    throw new Error('Method not implemented.')
+  }
+  forceSave() {
+    throw new Error('Method not implemented.')
+  }
+  lock() {
+    throw new Error('Method not implemented.')
+  }
+  unlock() {
+    throw new Error('Method not implemented.')
+  }
+  rm() {
+    throw new Error('Method not implemented.')
+  }
+  select() {
+    throw new Error('Method not implemented.')
+  }
   declare root: HTMLElement
   declare thread: Thread
   declare board: Board
@@ -80,6 +98,15 @@ export default class Post {
     el.className = 'qmark-dead'
     return el
   })()
+  quotedText: any
+  sub: any
+  com: any
+  name: any
+  email: any
+  spoiler: any
+  flag: any
+  errors: any
+  isLocked: any
 
   toString() {
     return this.ID

@@ -1,5 +1,5 @@
-import $ from '../platform/$'
-import { g } from '../globals/globals'
+import $ from '../platform/$.js'
+import { g } from '../globals/globals.js'
 
 // Assuming the callback type is a dictionary with string keys and function values
 interface Callbacks {

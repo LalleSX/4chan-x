@@ -1,7 +1,7 @@
-import Callbacks from '../classes/Callbacks'
-import Header from '../General/Header'
-import { g, Conf, d, doc } from '../globals/globals'
-import $ from '../platform/$'
+import Callbacks from '../classes/Callbacks.js'
+import Header from '../General/Header.js'
+import { g, Conf, d, doc } from '../globals/globals.js'
+import $ from '../platform/$.js'
 
 const ImageLoader = {
   init() {

@@ -1,7 +1,7 @@
-import Callbacks from '../classes/Callbacks'
-import { Conf, doc } from '../globals/globals'
-import $ from '../platform/$'
-import $$ from '../platform/$$'
+import Callbacks from '../classes/Callbacks.js'
+import { Conf, d, doc } from '../globals/globals.js'
+import $ from '../platform/$.js'
+import $$ from '../platform/$$.js'
 
 const AntiAutoplay = {
   init() {

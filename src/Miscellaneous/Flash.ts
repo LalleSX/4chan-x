@@ -1,5 +1,5 @@
-import { g, Conf } from '../globals/globals'
-import $ from '../platform/$'
+import { g, Conf } from '../globals/globals.js'
+import $ from '../platform/$.js'
 
 const Flash = {
   init() {

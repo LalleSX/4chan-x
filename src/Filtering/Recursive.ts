@@ -1,6 +1,6 @@
-import Callbacks from '../classes/Callbacks'
-import { g } from '../globals/globals'
-import { dict } from '../platform/helpers'
+import Callbacks from '../classes/Callbacks.js'
+import { g } from '../globals/globals.js'
+import { dict } from '../platform/helpers.js'
 
 const Recursive = {
   recursives: dict(),

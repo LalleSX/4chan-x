@@ -1,4 +1,4 @@
-[
+const archives = [
   {
     "uid": 3,
     "name": "4plebs",
@@ -442,3 +442,4 @@
     "reports": true
   }
 ]
+export default archives

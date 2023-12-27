@@ -1,10 +1,10 @@
-import Callbacks from '../classes/Callbacks'
-import { g, Conf, doc } from '../globals/globals'
-import $ from '../platform/$'
-import { dict } from '../platform/helpers'
-import QuoteInline from './QuoteInline'
-import QuotePreview from './QuotePreview'
-import QuoteYou from './QuoteYou'
+import Callbacks from '../classes/Callbacks.js'
+import { g, Conf, doc } from '../globals/globals.js'
+import $ from '../platform/$.js'
+import { dict } from '../platform/helpers.js'
+import QuoteInline from './QuoteInline.js'
+import QuotePreview from './QuotePreview.js'
+import QuoteYou from './QuoteYou.js'
 
 const QuoteBacklink = {
   // Backlinks appending need to work for:

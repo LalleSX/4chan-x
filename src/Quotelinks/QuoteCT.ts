@@ -1,8 +1,8 @@
-import $ from '../platform/$'
-import Callbacks from '../classes/Callbacks'
-import ExpandComment from '../Miscellaneous/ExpandComment'
-import { g, Conf } from '../globals/globals'
-import Get from '../General/Get'
+import $ from '../platform/$.js'
+import Callbacks from '../classes/Callbacks.js'
+import ExpandComment from '../Miscellaneous/ExpandComment.js'
+import { g, Conf } from '../globals/globals.js'
+import Get from '../General/Get.js'
 
 const QuoteCT = {
   init() {

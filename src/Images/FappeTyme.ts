@@ -1,8 +1,8 @@
-import Callbacks from '../classes/Callbacks'
-import Header from '../General/Header'
-import UI from '../General/UI'
-import { Conf, doc, g } from '../globals/globals'
-import $ from '../platform/$'
+import Callbacks from '../classes/Callbacks.js'
+import Header from '../General/Header.js'
+import UI from '../General/UI.js'
+import { Conf, doc, g } from '../globals/globals.js'
+import $ from '../platform/$.js'
 
 const FappeTyme = {
   init() {

@@ -1,11 +1,11 @@
-import Callbacks from '../classes/Callbacks'
-import DataBoard from '../classes/DataBoard'
-import Get from '../General/Get'
-import UI from '../General/UI'
-import { g, Conf, doc } from '../globals/globals'
-import Menu from '../Menu/Menu'
-import $ from '../platform/$'
-import Recursive from './Recursive'
+import Callbacks from '../classes/Callbacks.js'
+import DataBoard from '../classes/DataBoard.js'
+import Get from '../General/Get.js'
+import UI from '../General/UI.js'
+import { g, Conf, doc } from '../globals/globals.js'
+import Menu from '../Menu/Menu.js'
+import $ from '../platform/$.js'
+import Recursive from './Recursive.js'
 
 const PostHiding = {
   init() {

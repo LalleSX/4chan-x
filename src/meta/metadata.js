@@ -20,11 +20,6 @@ export default async function generateMetadata(
   const iconFile = await readFile(resolve(__dirname, './icon48.png'))
   const icon = Buffer.from(iconFile).toString('base64')
 
-  const archives = JSON.parse(
-    await readFile(resolve(__dirname, '../Archive/archives.json'), {
-      encoding: 'utf-8',
-    })
-  )
 
   let output = `// ==UserScript==
 // @name         ${meta.name}${channel === '-beta' ? ' beta' : ''}
@@ -73,12 +68,6 @@ export default async function generateMetadata(
 // @connect      4cdn.org
 // @connect      4chenz.github.io
 `
-  output += archives
-    .map(function (archive) {
-      return '// @connect      ' + archive.domain
-    })
-    .join('\n')
-
   output += `
 // @connect      api.clyp.it
 // @connect      api.dailymotion.com

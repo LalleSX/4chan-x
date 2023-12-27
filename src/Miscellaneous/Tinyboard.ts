@@ -1,6 +1,6 @@
-import { g } from '../globals/globals'
-import Main from '../main/Main'
-import $ from '../platform/$'
+import { g } from '../globals/globals.js'
+import Main from '../main/Main.js'
+import $ from '../platform/$.js'
 
 const Tinyboard = {
   init() {

@@ -1,4 +1,4 @@
-import $ from '../platform/$'
+import $ from '../platform/$.js'
 
 export default class SimpleDict<T> {
   private keys: string[]

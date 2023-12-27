@@ -1,11 +1,11 @@
-import Callbacks from '../classes/Callbacks'
-import Header from '../General/Header'
-import UI from '../General/UI'
-import { g, Conf, doc } from '../globals/globals'
-import $ from '../platform/$'
-import { SECOND } from '../platform/helpers'
-import ImageCommon from './ImageCommon'
-import Volume from './Volume'
+import Callbacks from '../classes/Callbacks.js'
+import Header from '../General/Header.js'
+import UI from '../General/UI.js'
+import { g, Conf, doc } from '../globals/globals.js'
+import $ from '../platform/$.js'
+import { SECOND } from '../platform/helpers.js'
+import ImageCommon from './ImageCommon.js'
+import Volume from './Volume.js'
 
 // ImageHover handles mouseover events for images and videos, providing hover previews.
 const ImageHover = {

@@ -1,6 +1,6 @@
-import { Conf, d, g } from '../globals/globals'
-import $ from '../platform/$'
-import { dict, HOUR } from '../platform/helpers'
+import { Conf, d, g } from '../globals/globals.js'
+import $ from '../platform/$.js'
+import { dict, HOUR } from '../platform/helpers.js'
 
 export default class DataBoard {
   key: string

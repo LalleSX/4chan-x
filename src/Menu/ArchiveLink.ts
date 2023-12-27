@@ -1,8 +1,8 @@
-import $ from '../platform/$'
-import Redirect from '../Archive/Redirect'
-import Filter from '../Filtering/Filter'
-import { g, Conf } from '../globals/globals'
-import Menu from './Menu'
+import $ from '../platform/$.js'
+import Redirect from '../Archive/Redirect.js'
+import Filter from '../Filtering/Filter.js'
+import { g, Conf } from '../globals/globals.js'
+import Menu from './Menu.js'
 
 const ArchiveLink = {
   init() {

@@ -1,4 +1,4 @@
-import $ from '../platform/$'
+import $ from '../platform/$.js'
 
 declare global {
   interface Element {

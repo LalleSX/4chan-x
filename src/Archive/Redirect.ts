@@ -3,9 +3,9 @@ import { Conf } from '../globals/globals.js'
 import $ from '../platform/$.js'
 import CrossOrigin from '../platform/CrossOrigin.js'
 import { DAY, dict } from '../platform/helpers.js'
-import archives from './archives.json'
+import archives from './archives.js'
 
-type Archive = (typeof archives)[number]
+type Archive = (typeof archives)[0]
 
 const Redirect = {
   archives,

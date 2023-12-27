@@ -1,7 +1,7 @@
-import Callbacks from '../classes/Callbacks'
-import Get from '../General/Get'
-import { g, Conf } from '../globals/globals'
-import $ from '../platform/$'
+import Callbacks from '../classes/Callbacks.js'
+import Get from '../General/Get.js'
+import { g, Conf } from '../globals/globals.js'
+import $ from '../platform/$.js'
 
 const QuoteStrikeThrough = {
   init() {

@@ -1,8 +1,8 @@
-import $ from '../platform/$'
-import Callbacks from '../classes/Callbacks'
-import CrossOrigin from '../platform/CrossOrigin'
-import { Conf, d, g } from '../globals/globals'
-import Get from '../General/Get'
+import $ from '../platform/$.js'
+import Callbacks from '../classes/Callbacks.js'
+import CrossOrigin from '../platform/CrossOrigin.js'
+import { Conf, d, g } from '../globals/globals.js'
+import Get from '../General/Get.js'
 
 const Metadata = {
   init() {

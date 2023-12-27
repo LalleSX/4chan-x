@@ -74,17 +74,7 @@
 // @connect      4channel.org
 // @connect      4cdn.org
 // @connect      4chenz.github.io
-// @connect      archive.4plebs.org
-// @connect      warosu.org
-// @connect      desuarchive.org
-// @connect      boards.fireden.net
-// @connect      arch.b4k.co
-// @connect      archived.moe
-// @connect      thebarchive.com
-// @connect      archiveofsins.com
-// @connect      www.tokyochronos.net
-// @connect      archive.palanq.win
-// @connect      eientei.xyz
+
 // @connect      api.clyp.it
 // @connect      api.dailymotion.com
 // @connect      api.github.com

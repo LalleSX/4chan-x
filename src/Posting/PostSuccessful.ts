@@ -1,13 +1,13 @@
-import DataBoard from '../classes/DataBoard'
-import { Conf, d, g } from '../globals/globals'
-import $ from '../platform/$'
+import DataBoard from '../classes/DataBoard.js'
+import { Conf, d, g } from '../globals/globals.js'
+import $ from 'jquery'
 
 const PostSuccessful = {
   init() {
     if (!Conf['Remember Your Posts']) {
       return
     }
-    return $.ready(this.ready)
+    return $('body').on('DOMNodeInserted', 'h1', this.ready)
   },
 
   ready() {
@@ -15,19 +15,22 @@ const PostSuccessful = {
       return
     }
 
-    let [_, threadID, postID] = $('h1').nextSibling.textContent.match(
-      /thread:(\d+),no:(\d+)/
-    )
+    let [_, threadID, postID] = $('a[href*="thread/"]')
+      .attr('href')
+      .match(/thread\/(\d+)#(\d+)/)
     postID = +postID
     threadID = +threadID || postID
 
-    const db = new DataBoard('yourPosts')
-    return db.set({
-      boardID: g.BOARD.ID,
-      threadID,
-      postID,
-      val: true,
-    })
+    const db = new DataBoard('yourPosts', 'threadID', true)
+    return db.set(
+      {
+        boardID: g.BOARD.ID,
+        threadID,
+        postID,
+        val: true,
+      },
+      () => {}
+    )
   },
 }
 export default PostSuccessful
