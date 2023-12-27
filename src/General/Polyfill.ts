@@ -1,11 +1,19 @@
 import $ from '../platform/$'
 
+declare global {
+  interface Element {
+    mozMatchesSelector?: (selectors: string) => boolean
+    msMatchesSelector?: (selectors: string) => boolean
+  }
+}
+
 const Polyfill = {
   init() {
     this.toBlob()
-    $.global(this.toBlob)
+    $.global(this.toBlob, 'toBlob')
     if (!Element.prototype.matches) {
       Element.prototype.matches =
+        Element.prototype.msMatchesSelector ||
         Element.prototype.mozMatchesSelector ||
         Element.prototype.webkitMatchesSelector
     }

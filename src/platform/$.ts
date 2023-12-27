@@ -491,12 +491,12 @@ $.addCSP = function (policy) {
   }
 }
 
-$.x = function (path, root) {
+$.x = function (path, root): HTMLElement {
   if (!root) {
     root = d.body
   }
   // XPathResult.ANY_UNORDERED_NODE_TYPE === 8
-  return d.evaluate(path, root, null, 8, null).singleNodeValue
+  return d.evaluate(path, root, null, 8, null).singleNodeValue as HTMLElement
 }
 
 $.X = function (path, root) {
@@ -571,7 +571,7 @@ $.el = function (
 }
 
 $.on = function (
-  el: EventTarget,
+  el,
   events: string,
   handler: EventListenerOrEventListenerObject
 ) {
@@ -579,7 +579,11 @@ $.on = function (
     el.addEventListener(event, handler, false)
   }
 }
-$.off = function (el, events, handler) {
+$.off = function (
+  el: EventTarget,
+  events: string,
+  handler: EventListenerOrEventListenerObject
+) {
   for (const event of events.split(' ')) {
     el.removeEventListener(event, handler, false)
   }
@@ -593,15 +597,12 @@ $.one = function (el, events, handler) {
   return $.on(el, events, cb)
 }
 
-$.event = function (event, detail, root = d) {
-  if (!globalThis.chrome?.extension) {
-    if (detail != null && typeof cloneInto === 'function') {
-      detail = cloneInto(detail, d.defaultView)
-    }
-  }
-  return root.dispatchEvent(
-    new CustomEvent(event, { bubbles: true, cancelable: true, detail })
-  )
+$.event = function (
+  event: string,
+  detail: Record<string, any>,
+  root = d as any
+) {
+  return root.dispatchEvent(new CustomEvent(event, { detail }))
 }
 
 if (platform === 'userscript') {

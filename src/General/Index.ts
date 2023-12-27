@@ -30,6 +30,7 @@ const Index = {
   changed: {},
   pageNum: 1,
   pagesNum: 1,
+  req: null,
   enabledOn({ siteID, boardID }) {
     return (
       Conf['JSON Index'] &&
@@ -92,7 +93,7 @@ const Index = {
       href: 'javascript:;',
       textContent: '🗘',
     })
-    $.on(this.button, 'click', () => Index.update())
+    $.on(this.button, 'click', () => Index.update(false))
     Header.addShortcut('index-refresh', this.button, 590)
 
     // Header "Index Navigation" submenu
@@ -103,7 +104,8 @@ const Index = {
       if (arr instanceof Array) {
         const label = UI.checkbox(
           name,
-          `${name[0]}${name.slice(1).toLowerCase()}`
+          `${name[0]}${name.slice(1).toLowerCase()}`,
+          arr[0]
         )
         label.title = arr[1]
         entries.push({ el: label })
@@ -235,7 +237,8 @@ const Index = {
           })
           $.addClass(doc, 'hats-enabled')
           $.addStyle(
-            `.catalog-thread::after {background-image: url(${g.SITE.Build.hat.src});}`
+            `.catalog-thread::after {background-image: url(${g.SITE.Build.hat.src});}`,
+            'hats'
           )
         }
 
@@ -429,7 +432,7 @@ const Index = {
         }
       })
       if (n) {
-        return $.event('IndexRefresh')
+        return $.event('IndexRefresh', null, n)
       }
     },
 
@@ -906,7 +909,7 @@ const Index = {
       hiddenCount === 1 ? '1 hidden thread' : `${hiddenCount} hidden threads`)
   },
 
-  update(firstTime) {
+  update(firstTime: boolean) {
     let oldReq
     if ((oldReq = Index.req)) {
       delete Index.req

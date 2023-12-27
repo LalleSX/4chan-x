@@ -25,7 +25,7 @@ import h, { hFragment } from '../globals/jsx'
 import { dict, platform } from '../platform/helpers'
 
 const Settings = {
-  dialog: undefined as HTMLDivElement | undefined,
+  dialog: null,
 
   init() {
     // 4chan X settings link
@@ -47,8 +47,11 @@ const Settings = {
     add('Advanced', this.advanced)
     add('Keybinds', this.keybinds)
 
-    $.on(d, 'AddSettingsSection', Settings.addSection)
-    $.on(d, 'OpenSettings', e => Settings.open(e.detail))
+    $.on(d, 'AddSettingsSection', (e: CustomEvent) => {
+      const { title, open } = e.detail
+      return this.addSection(title, open)
+    })
+    $.on(d, 'OpenSettings', (e: CustomEvent) => { Settings.open(e.detail) })
 
     if (g.SITE.software === 'yotsuba' && Conf['Disable Native Extension']) {
       if ($.hasStorage) {
@@ -140,15 +143,21 @@ const Settings = {
     if (!Settings.dialog) {
       return
     }
-    // Unfocus current field to trigger change event.
-    d.activeElement?.blur()
+    $.off(window, 'beforeunload', Settings.close)
+    $.off(Settings.dialog, 'click', Settings.close)
+    $.off($('.close', Settings.dialog), 'click', Settings.close)
+    $.off($('.export', Settings.dialog), 'click', Settings.export)
+    $.off($('.import', Settings.dialog), 'click', Settings.import)
+    $.off($('.reset', Settings.dialog), 'click', Settings.reset)
+    $.off($('input', Settings.dialog), 'change', Settings.onImport)
     $.rm(Settings.dialog)
-    return delete Settings.dialog
+    Settings.dialog = null
+    return $.event('CloseSettings', null)
   },
 
   sections: [],
 
-  addSection(title, open) {
+  addSection(title: string | { detail: { title: string; open: boolean } }, open: boolean): number {
     if (typeof title !== 'string') {
       ;({ title, open } = title.detail)
     }
@@ -387,37 +396,45 @@ Enable it on boards.${
   },
 
   export() {
-    // Make sure to export the most recent data, but don't overwrite existing `Conf` object.
-    const Conf2 = dict()
-    $.extend(Conf2, Conf)
+    // Export the most recent data without overwriting the existing Conf object.
+    const updatedConfig = { ...Conf } // Use object spread for cloning
     return $.get(
-      Conf2,
-      function (Conf2) {
-        // Don't export cached JSON data.
-        delete Conf2['boardConfig']
+      updatedConfig,
+      (config) => {
+        // Remove the 'boardConfig' property to avoid exporting cached JSON data.
+        delete config['boardConfig']
+  
         return Settings.downloadExport({
           version: g.VERSION,
           date: Date.now(),
-          Conf: Conf2,
+          config: config,
         })
       },
       true
     )
   },
 
-  downloadExport(data) {
+  downloadExport(data: { version: string; date: number; config: any }) {
+    // Create a blob from the JSON stringified data
     const blob = new Blob([JSON.stringify(data, null, 2)], {
       type: 'application/json',
     })
+  
+    // Create a download URL for the blob
     const url = URL.createObjectURL(blob)
-    const a = $.el('a', {
-      download: `${meta.name} v${g.VERSION}-${data.date}.json`,
+  
+    // Create a download link element
+    const downloadLink = $.el('a', {
+      download: `${meta.name} v${data.version}-${data.date}.json`,
       href: url,
     })
-    const p = $('.imp-exp-result', Settings.dialog)
-    $.rmAll(p)
-    $.add(p, a)
-    return a.click()
+  
+    // Append the download link to the dialog and trigger download
+    const exportResultContainer = $('.imp-exp-result', Settings.dialog)
+    $.rmAll(exportResultContainer) // Clear previous results
+    $.add(exportResultContainer, downloadLink)
+  
+    return downloadLink.click() // Trigger download
   },
 
   import() {
@@ -444,7 +461,7 @@ Enable it on boards.${
     reader.onload = function (e) {
       try {
         return Settings.loadSettings(
-          dict.json(e.target.result),
+          dict.json(e.target.result as string),
           function (err) {
             if (err) {
               return (output.textContent = 'Import failed due to an error.')
@@ -464,7 +481,7 @@ Enable it on boards.${
 
   convertFrom: {
     loadletter(data) {
-      const convertSettings = function (data, map) {
+      const convertSettings = function (data: any, map: { [key: string]: string }) {
         for (const prevKey in map) {
           const newKey = map[prevKey]
           if (newKey) {
@@ -559,32 +576,17 @@ Enable it on boards.${
         }
       })
       for (const key in Config.hotkeys) {
-        const val = Config.hotkeys[key]
-        if (key in data.Conf) {
-          data.Conf[key] = data.Conf[key]
-            .replace(
-              /ctrl|alt|meta/g,
-              s => `${s[0].toUpperCase()}${s.slice(1)}`
-            )
-            .replace(
-              /(^|.+\+)[A-Z]$/g,
-              s => `Shift+${s.slice(0, -1)}${s.slice(-1).toLowerCase()}`
-            )
+        const hotkey = Config.hotkeys[key]
+        if (hotkey) {
+          data.Conf[key] = hotkey
         }
       }
       if (data.WatchedThreads) {
-        data.Conf['watchedThreads'] = dict.clone({
-          '4chan.org': { boards: {} },
+        data.WatchedThreads = data.WatchedThreads.map(function (thread) {
+          thread.boardID = thread.board
+          delete thread.board
+          return thread
         })
-        for (const boardID in data.WatchedThreads) {
-          const threads = data.WatchedThreads[boardID]
-          for (const threadID in threads) {
-            const threadData = threads[threadID]
-            ;(data.Conf['watchedThreads']['4chan.org'].boards[boardID] ||
-              (data.Conf['watchedThreads']['4chan.org'].boards[boardID] =
-                dict()))[threadID] = { excerpt: threadData.textContent }
-          }
-        }
       }
       return data
     },
@@ -733,8 +735,10 @@ Enable it on boards.${
       $.queueTask(() =>
         Settings.warnings.ads(
           item =>
-            new Notice('warning', [...item.childNodes], { timeout: 0 }, true)
-        )
+            new Notice(
+              'Warning',
+              item)
+          )
       )
     }
     if (compareString < '00001.00011.00020.00003') {
@@ -1100,7 +1104,7 @@ vp-replace
     return changes
   },
 
-  loadSettings(data, cb) {
+  loadSettings(data: any, cb) {
     if (data.version.split('.')[0] === '2') {
       // https://github.com/loadletter/4chan-x
       data = Settings.convertFrom.loadletter(data)
@@ -1111,7 +1115,17 @@ vp-replace
       if (err) {
         return cb(err)
       }
-      return $.set(data.Conf, cb)
+      return $.set(data.Conf, function (err) {
+        if (err) {
+          return cb(err)
+        }
+        return $.set(data, function (err) {
+          if (err) {
+            return cb(err)
+          }
+          return cb(null)
+        }, true)
+      }, true)
     })
   },
 
@@ -1130,7 +1144,7 @@ vp-replace
     }
   },
 
-  filter(section) {
+  filter(section: HTMLElement) {
     $.extend(section, { innerHTML: FilterSelectPage })
     const select = $('select', section)
     $.on(select, 'change', Settings.selectFilter)
@@ -1149,7 +1163,7 @@ vp-replace
         name,
         className: 'field',
         spellcheck: false,
-      })
+      }) as HTMLTextAreaElement
       $.on(ta, 'change', $.cb.value)
       $.get(name, Conf[name], function (item) {
         ta.value = item[name]
@@ -1162,14 +1176,13 @@ vp-replace
       .map((x, i) => ({
         innerHTML: (i ? ',' : '') + `<wbr>${E(x)}`,
       }))
-    $.extend(div, { innerHTML: FilterGuidePage })
-    return ($('.warning', div).hidden = Conf['Filter'])
+    return $.add(div, $.el('p', { innerHTML: 'Filters: ' }, ...filterTypes))
   },
 
-  sauce(section) {
+  sauce(section: HTMLElement) {
     $.extend(section, { innerHTML: SaucePage })
     $('.warning', section).hidden = Conf['Sauce']
-    const ta = $('textarea', section)
+    const ta = $('textarea', section) as HTMLTextAreaElement
     $.get('sauces', Conf['sauces'], function (item) {
       ta.value = item['sauces']
       return (ta.hidden = false)
@@ -1177,7 +1190,7 @@ vp-replace
     return $.on(ta, 'change', $.cb.value)
   },
 
-  advanced(section) {
+  advanced(section: HTMLElement) {
     let input, name
     $.extend(section, { innerHTML: AdvancedPage })
     for (const warning of $$('.warning', section)) {
@@ -1242,7 +1255,7 @@ vp-replace
 
     const interval = inputs['Interval']
     const customCSS = inputs['Custom CSS']
-    const applyCSS = $('#apply-css', section)
+    const applyCSS = $('#apply-css', section) as HTMLButtonElement
 
     interval.value = Conf['Interval']
     customCSS.checked = Conf['Custom CSS']
@@ -1499,8 +1512,7 @@ vp-replace
       ($(
         'textarea[name=usercss]',
         $.x('ancestor::fieldset[1]', this)
-      ).disabled = $.id('apply-css').disabled =
-        !this.checked)
+      ) as HTMLTextAreaElement).disabled
     ) {
       CustomCSS.rmStyle()
     } else {

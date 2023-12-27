@@ -39,6 +39,7 @@ const Gallery = {
       cb: this.node,
     })
   },
+  nodes: null,
 
   node() {
     return (() => {
@@ -317,7 +318,7 @@ const Gallery = {
 
     // Scroll to post
     if (Conf['Scroll to Post'] && (post = g.posts.get(file.dataset.post))) {
-      Header.scrollTo(post.nodes.root)
+      Header.scrollTo(post.nodes.root, true, true)
     }
 
     // Preload next image
@@ -481,7 +482,7 @@ const Gallery = {
       }
     },
     toggle() {
-      return (Gallery.nodes ? Gallery.cb.close : Gallery.build)()
+      return (Gallery.nodes ? Gallery.cb.close : Gallery.build)(this)
     },
     blank(e) {
       if (e.target === this) {
@@ -531,16 +532,14 @@ const Gallery = {
       return Gallery.cb.rotate(90)
     },
 
-    rotate: debounce(100, function (delta) {
+    rotate(degrees) {
       const { current } = Gallery.nodes
-      if (current.nodeName === 'IFRAME') {
-        return
-      }
-      current.dataRotate = ((current.dataRotate || 0) + delta) % 360
-      current.style.transform = `rotate(${current.dataRotate}deg)`
+      const { dataRotate } = current
+      const newRotate = (dataRotate || 0) + degrees
+      current.dataRotate = newRotate
+      current.style.transform = `rotate(${newRotate}deg)`
       return Gallery.cb.setHeight()
-    }),
-
+    },
     close() {
       $.off(Gallery.nodes.current, 'error', Gallery.error)
       ImageCommon.pause(Gallery.nodes.current)
@@ -633,7 +632,7 @@ const Gallery = {
     },
 
     createSubEntry(name) {
-      const label = UI.checkbox(name, name)
+      const label = UI.checkbox(name, name, Conf[name])
       const input = label.firstElementChild
       if (['Hide Thumbnails', 'Fit Width', 'Fit Height'].includes(name)) {
         $.on(input, 'change', Gallery.cb.setFitness)

@@ -249,6 +249,7 @@ $\
     },
     staticPath: '/static/',
     gifIcon: '.gif',
+    hat: '.hat',
   },
 
   areMD5sDeferred(board) {
