@@ -31,8 +31,6 @@ const Index = {
   pageNum: 1,
   pagesNum: 1,
   req: null,
-  enabled: false,
-  pagelist: PageList as HTMLDivElement,
   enabledOn({ siteID, boardID }) {
     return (
       Conf['JSON Index'] &&
@@ -911,9 +909,7 @@ const Index = {
       hiddenCount === 1 ? '1 hidden thread' : `${hiddenCount} hidden threads`)
   },
 
-  update(firstTime = false) {
-    // Should I set FirstTime to be true or false?
-    //
+  update(firstTime: boolean) {
     let oldReq
     if ((oldReq = Index.req)) {
       delete Index.req

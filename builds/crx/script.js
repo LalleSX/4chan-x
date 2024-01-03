@@ -2366,8 +2366,8 @@ https://*.hcaptcha.com
             noRemove,
             clientX: (rect.left + rect.right) / 2,
             clientY: (rect.top + rect.bottom) / 2,
-            hover: hover.bind(this),
-            hoverend: hoverend.bind(this),
+            hover: null,
+            hoverend: null,
             workaround: null,
         };
         o.hover = hover.bind(o);
@@ -7260,7 +7260,7 @@ https://*.hcaptcha.com
                 height: 400,
                 width: 400,
                 cb: QuotePreview.mouseout,
-                noRemove: false,
+                noRemove: true,
             });
             if (Conf['Quote Highlighting'] &&
                 (origin = g.posts.get(`${boardID}.${postID}`))) {
@@ -7352,8 +7352,6 @@ https://*.hcaptcha.com
         pageNum: 1,
         pagesNum: 1,
         req: null,
-        enabled: false,
-        pagelist: PageList,
         enabledOn({ siteID, boardID }) {
             return (Conf['JSON Index'] &&
                 g.sites[siteID].software === 'yotsuba' &&
@@ -8094,9 +8092,7 @@ https://*.hcaptcha.com
             return ($$1('#hidden-count', Index.navLinks).textContent =
                 hiddenCount === 1 ? '1 hidden thread' : `${hiddenCount} hidden threads`);
         },
-        update(firstTime = false) {
-            // Should I set FirstTime to be true or false?
-            //
+        update(firstTime) {
             let oldReq;
             if ((oldReq = Index.req)) {
                 delete Index.req;
