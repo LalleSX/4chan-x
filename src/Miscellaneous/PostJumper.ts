@@ -2,6 +2,7 @@ import Callbacks from '../classes/Callbacks.js'
 import { Conf, g, E } from '../globals/globals.js'
 import $ from '../platform/$.js'
 import $$ from '../platform/$$.js'
+import Post from '../classes/Post.js'
 
 const PostJumper = {
   init() {
@@ -37,7 +38,7 @@ const PostJumper = {
     }
   },
 
-  addButtons(post, type) {
+  addButtons(post: Post, type: 'uniqueID' | 'capcode') {
     const value = post.info[type]
     const buttons = PostJumper.buttons.cloneNode(true)
     $.extend(buttons.dataset, { type, value })
@@ -68,7 +69,7 @@ const PostJumper = {
         return jumper2
       }
     }
-    if ((jumper2 = $.x(`(//${xpath})[${dir < 0 ? 'last()' : '1'}]`))) {
+    if ((jumper2 = $.x(`(//${xpath})[${dir < 0 ? 'last()' : '1'}]`, jumper))) {
       if (jumper2.getBoundingClientRect().height) {
         return jumper2
       }
@@ -84,7 +85,7 @@ const PostJumper = {
     return null
   },
 
-  makeButtons() {
+  makeButtons(): HTMLSpanElement {
     const charPrev = '\u23EB'
     const charNext = '\u23EC'
     const classPrev = 'prev'
@@ -104,6 +105,7 @@ const PostJumper = {
     })
     return span
   },
+  buttons: null,
 
   scroll(fromJumper, toJumper) {
     const prevPos = fromJumper.getBoundingClientRect().top

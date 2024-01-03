@@ -16,6 +16,8 @@ const MarkNewIPs = {
       cb: this.node,
     })
   },
+  ipCount: 0,
+  postCount: 0,
 
   node() {
     MarkNewIPs.ipCount = this.ipCount
@@ -32,7 +34,7 @@ const MarkNewIPs = {
 
     switch (ipCount - MarkNewIPs.ipCount) {
       case postCount - MarkNewIPs.postCount + deletedPosts.length:
-        const i = MarkNewIPs.ipCount
+        let i = MarkNewIPs.ipCount
         for (fullID of newPosts) {
           MarkNewIPs.markNew(g.posts.get(fullID), ++i)
         }

@@ -88,7 +88,7 @@ const Settings = {
     }
   },
 
-  open(openSection) {
+  open(openSection = 'none') {
     let dialog, sectionToOpen
     if (Settings.dialog) {
       return

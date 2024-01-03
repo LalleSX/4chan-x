@@ -1,13 +1,13 @@
 import DataBoard from '../classes/DataBoard.js'
 import { Conf, d, g } from '../globals/globals.js'
-import $ from 'jquery'
+import $ from '../platform/$.js'
 
 const PostSuccessful = {
   init() {
     if (!Conf['Remember Your Posts']) {
       return
     }
-    return $('body').on('DOMNodeInserted', 'h1', this.ready)
+    return $.on(d, 'DOMContentLoaded', this.ready)
   },
 
   ready() {
@@ -15,9 +15,9 @@ const PostSuccessful = {
       return
     }
 
-    let [_, threadID, postID] = $('a[href*="thread/"]')
-      .attr('href')
-      .match(/thread\/(\d+)#(\d+)/)
+    let [_, threadID, postID] = /#(\d+)$/.exec(
+      g.REPLYBOX.getAttribute('action')
+    )
     postID = +postID
     threadID = +threadID || postID
 

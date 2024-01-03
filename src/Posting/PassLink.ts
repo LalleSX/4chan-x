@@ -23,7 +23,7 @@ const PassLink = {
     $.on(passLink.firstElementChild, 'click', () =>
       window.open(
         `//sys.${location.hostname.split('.')[1]}.org/auth`,
-        Date.now(),
+        Date.now().toString(),
         'width=500,height=280,toolbar=0'
       )
     )

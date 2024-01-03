@@ -9,7 +9,7 @@ import importBase64 from './rollup-plugin-base64.js'
 import generateManifestJson from '../src/meta/manifestJson.js'
 import terser from '@rollup/plugin-terser'
 import resolve from '@rollup/plugin-node-resolve'
-import commonjs from '@rollup/plugin-commonjs';
+import commonjs from '@rollup/plugin-commonjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const buildDir = pathResolve(__dirname, '../builds')
@@ -30,7 +30,7 @@ function getChannelFromArgs(args) {
   return ''
 }
 
-; (async () => {
+;(async () => {
   try {
     const packageJson = await readJsonFile(
       pathResolve(__dirname, '../package.json')
@@ -127,14 +127,14 @@ function getChannelFromArgs(args) {
       file: pathResolve(buildDir, fileName),
       plugins: minify
         ? [
-          terser({
-            format: {
-              max_line_len: 1000,
-              comments:
-                /^(?: ==\/?UserScript==| @|!)|license|\bcc\b|copyright/i,
-            },
-          }),
-        ]
+            terser({
+              format: {
+                max_line_len: 1000,
+                comments:
+                  /^(?: ==\/?UserScript==| @|!)|license|\bcc\b|copyright/i,
+              },
+            }),
+          ]
         : [],
       sourcemap: minify,
     })

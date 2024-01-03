@@ -13,6 +13,7 @@ import UI from './UI.js'
 import { meta } from '../globals/globals.js'
 
 const Header = {
+  menu: new UI.Menu('header'),
   init() {
     $.onExists(doc, 'body', () => {
       if (!Main.isThisPageLegit()) {

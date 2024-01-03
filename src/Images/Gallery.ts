@@ -15,6 +15,7 @@ import Get from '../General/Get.js'
 import { debounce, dict, SECOND } from '../platform/helpers.js'
 
 const Gallery = {
+  enabled: false,
   init() {
     if (
       !(this.enabled = Conf['Gallery'] && ['index', 'thread'].includes(g.VIEW))

@@ -1,14 +1,6 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS205: Consider reworking code to avoid use of IIFEs
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
- */
 // loosely follows the jquery api:
 // http://api.jquery.com/
 
-import Notice from '../classes/Notice.js'
 import { c, Conf, d, doc, g } from '../globals/globals.js'
 import CrossOrigin from './CrossOrigin.js'
 import { debounce, dict, MINUTE, platform, SECOND } from './helpers.js'
@@ -31,7 +23,7 @@ $.ready = function (fc) {
   return $.on(document, 'DOMContentLoaded', cb)
 }
 
-$.formData = function (form) {
+$.formData = function (form: Record<string, any> | HTMLFormElement) {
   if (form instanceof HTMLFormElement) {
     return new FormData(form)
   }
@@ -182,7 +174,7 @@ $.ajax = (function () {
 
           document.addEventListener(
             '4chanXAjax',
-            function (e) {
+            function (e: CustomEvent) {
               let fd, r
               const {
                 url = null,
@@ -519,9 +511,9 @@ $.rmClass = function (el, ...classNames) {
   }
 }
 
-$.toggleClass = (el, className) => el.classList.toggle(className)
+$.toggleClass = (el, className) => el.classList.toggle(className) as boolean
 
-$.hasClass = (el, className) => el.classList.contains(className)
+$.hasClass = (el, className) => el.classList.contains(className) as boolean
 
 $.rm = el => el?.remove()
 
@@ -695,23 +687,39 @@ $.queueTask = function (fn, ...args) {
     return setTimeout(fn, 0)
   }
 }
+type DataObject = Record<string, string>
 
-$.global = function (fn, data) {
-  if (doc) {
+$.global = function (fn: Function, data?: DataObject): DataObject | void {
+  // Check if the document object exists.
+  if (document) {
+    // Create a new script element and set its text content to invoke the function 'fn'.
     const script = $.el('script', {
       textContent: `(${fn}).call(document.currentScript.dataset);`,
     })
+
+    // If data is provided, extend the script's dataset with the provided data.
     if (data) {
       $.extend(script.dataset, data)
     }
-    $.add(d.head || doc, script)
+
+    // Add the script element to the document's head or the document itself.
+    $.add(document.head || document, script)
+
+    // Remove the script element after it's added.
     $.rm(script)
+
+    // Return the script's dataset.
     return script.dataset
   } else {
-    // XXX dwb
+    // Fallback case when the document object does not exist.
     try {
+      // Try to call the function with the provided data.
       fn.call(data)
-    } catch (error) {}
+    } catch (error) {
+      // Handle any errors silently.
+    }
+
+    // Return the data.
     return data
   }
 }
@@ -1257,13 +1265,11 @@ if (platform === 'crx') {
 
     $.set = $.oneItemSugar(function (items, cb): void | NodeJS.Timeout {
       $.securityCheck(items)
-      return $.queueTask(function () {
-        for (const key in items) {
-          const value = items[key]
-          $.setValue(g.NAMESPACE + key, JSON.stringify(value))
-        }
-        return cb?.()
-      })
+      for (const key in items) {
+        const val = items[key]
+        $.setValue(g.NAMESPACE + key, JSON.stringify(val))
+      }
+      return cb?.()
     })
 
     $.clear = function (cb) {

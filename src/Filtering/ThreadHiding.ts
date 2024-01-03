@@ -20,7 +20,7 @@ const ThreadHiding = {
     ) {
       return
     }
-    this.db = new DataBoard('hiddenThreads')
+    this.db = new DataBoard('hiddenThreads', { makeStub: Conf['Stubs'] }, true)
     if (g.VIEW === 'catalog') {
       return this.catalogWatch()
     }

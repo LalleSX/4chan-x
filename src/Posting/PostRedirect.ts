@@ -3,7 +3,7 @@ import $ from '../platform/$.js'
 
 const PostRedirect = {
   init() {
-    return $.on(d, 'QRPostSuccessful', e => {
+    return $.on(d, 'QRPostSuccessful', (e: CustomEvent) => {
       if (!e.detail.redirect) {
         return
       }

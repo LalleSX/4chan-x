@@ -51,7 +51,7 @@ const ArchiveLink = {
     const el = $.el('a', {
       textContent: text,
       target: '_blank',
-    })
+    }) as HTMLAnchorElement
 
     const open =
       type === 'post'
@@ -78,9 +78,8 @@ const ArchiveLink = {
             }
             el.href = Redirect.to('search', {
               boardID: post.board.ID,
-              type: typeParam,
-              value,
-              isSearch: true,
+              threadID: post.thread.ID,
+              postID: post.ID,
             })
             return true
           }

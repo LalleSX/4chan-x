@@ -20,7 +20,6 @@ export default async function generateMetadata(
   const iconFile = await readFile(resolve(__dirname, './icon48.png'))
   const icon = Buffer.from(iconFile).toString('base64')
 
-
   let output = `// ==UserScript==
 // @name         ${meta.name}${channel === '-beta' ? ' beta' : ''}
 // @version      ${version.version}

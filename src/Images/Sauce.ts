@@ -68,18 +68,7 @@ const Sauce = {
           parts['regexp'] = RegExp(parts['regexp'])
         }
       } catch (err) {
-        new Notice(
-          'warning',
-          [
-            $.tn('Invalid regexp for Sauce link:'),
-            $.el('br'),
-            $.tn(link),
-            $.el('br'),
-            $.tn(err.message),
-          ],
-          60,
-          'sauce'
-        )
+        new Notice('warning', `Invalid regular expression: ${err.message}`, 20)
         return null
       }
     }

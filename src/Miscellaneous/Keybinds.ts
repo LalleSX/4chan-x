@@ -316,7 +316,7 @@ const Keybinds = {
         if (!searchInput) {
           return
         }
-        Header.scrollToIfNeeded(searchInput)
+        Header.scrollToIfNeeded(searchInput, true)
         searchInput.focus()
         break
       case Conf['Paged mode']:

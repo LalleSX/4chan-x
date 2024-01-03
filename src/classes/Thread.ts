@@ -150,7 +150,7 @@ export default class Thread {
     })
     if (!n) {
       g.threads.rm(this.fullID)
-      return this.board.threads.rm(this)
+      return this.board.threads.rm(this.ID)
     }
   }
 }

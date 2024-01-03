@@ -25,7 +25,7 @@ const PSA = {
       return Main.ready(function () {
         new Notice('info', el)
         Conf['PSAseen'].push('samachan')
-        return $.set('PSAseen', Conf['PSAseen'])
+        return $.set('PSAseen', Conf['PSAseen'], 'localStorage')
       })
     }
   },

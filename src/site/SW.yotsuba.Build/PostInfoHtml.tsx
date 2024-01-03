@@ -2,13 +2,13 @@ import { g } from '../../globals/globals.js'
 import h, { EscapedHtml } from '../../globals/jsx.js'
 
 export default function generatePostInfoHtml(
-  ID,
+  ID: string,
   o,
   subject,
   capcode,
-  email,
-  name,
-  tripcode,
+  email: string,
+  name: string,
+  tripcode: string,
   pass,
   capcodeLC,
   capcodePlural,
@@ -16,15 +16,15 @@ export default function generatePostInfoHtml(
   gifIcon,
   capcodeDescription,
   uniqueID,
-  flag,
-  flagCode,
-  flagCodeTroll,
-  dateUTC,
-  dateText,
-  postLink,
-  quoteLink,
-  boardID,
-  threadID
+  flag: string,
+  flagCode: string,
+  flagCodeTroll: string,
+  dateUTC: string,
+  dateText: string,
+  postLink: string,
+  quoteLink: string,
+  boardID: string,
+  threadID: string
 ): EscapedHtml {
   const nameHtml: (EscapedHtml | string)[] = [
     <span class={`name${capcode ? ' ' + capcode : ''}`}>{name}</span>,

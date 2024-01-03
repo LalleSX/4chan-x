@@ -242,7 +242,8 @@ const Main = {
               .replace(/^#.*$/gm, '')
               .replace(/[\s;]+/g, ' ')
               .trim()}`
-          )
+          ),
+        () => {}
       )
     }
 
@@ -252,66 +253,83 @@ const Main = {
       items[key] = undefined
     }
     items['previousversion'] = undefined
-    return ($.getSync || $.get)(items, function (items) {
-      if (
-        !$.perProtocolSettings &&
-        /\.4chan(?:nel)?\.org$/.test(location.hostname) &&
-        (items['Redirect to HTTPS'] ?? Conf['Redirect to HTTPS']) &&
-        location.protocol !== 'https:'
-      ) {
-        location.replace(
-          'https://' +
-            location.host +
-            location.pathname +
-            location.search +
-            location.hash
-        )
-        return
+    return ($.getSync || $.get)(
+      items,
+      function (items) {
+        if (
+          !$.perProtocolSettings &&
+          /\.4chan(?:nel)?\.org$/.test(location.hostname) &&
+          (items['Redirect to HTTPS'] ?? Conf['Redirect to HTTPS']) &&
+          location.protocol !== 'https:'
+        ) {
+          location.replace(
+            'https://' +
+              location.host +
+              location.pathname +
+              location.search +
+              location.hash
+          )
+          return
+        }
+        return $.asap(docSet, function () {
+          // Don't hide the local storage warning behind a settings panel.
+          if ($.cantSet) {
+            // pass
+            // Fresh install
+          } else if (items.previousversion == null) {
+            Main.isFirstRun = true
+            Main.ready(function () {
+              $.set('previousversion', g.VERSION, () => {})
+              return Settings.open()
+            })
+
+            // Migrate old settings
+          } else if (items.previousversion !== g.VERSION) {
+            Main.upgrade(items)
+          }
+
+          // Combine default values with saved values
+          for (key in Conf) {
+            const val = Conf[key]
+            Conf[key] = items[key] ?? val
+          }
+
+          return Site.init(Main.initFeatures)
+        })
+      },
+      function () {
+        return new Notice('error', 'Failed to load settings.', 10)
       }
-      return $.asap(docSet, function () {
-        // Don't hide the local storage warning behind a settings panel.
-        if ($.cantSet) {
-          // pass
-          // Fresh install
-        } else if (items.previousversion == null) {
-          Main.isFirstRun = true
-          Main.ready(function () {
-            $.set('previousversion', g.VERSION)
-            return Settings.open()
-          })
-
-          // Migrate old settings
-        } else if (items.previousversion !== g.VERSION) {
-          Main.upgrade(items)
-        }
-
-        // Combine default values with saved values
-        for (key in Conf) {
-          const val = Conf[key]
-          Conf[key] = items[key] ?? val
-        }
-
-        return Site.init(Main.initFeatures)
-      })
-    })
+    )
   },
 
   upgrade(items) {
     const { previousversion } = items
     const changes = Settings.upgrade(items, previousversion)
     items.previousversion = changes.previousversion = g.VERSION
-    return $.set(changes, function () {
-      if (items['Show Updated Notifications'] ?? true) {
-        const el = $.el('span', {
-          innerHTML: `${meta.name} has been updated to <a href="${meta.changelog}" target="_blank">version ${g.VERSION}</a>.`,
-        })
-        return new Notice('info', el, 15)
-      }
-    })
+    return $.set(
+      changes,
+      function () {
+        if (items['Show Updated Notifications'] ?? true) {
+          const el = $.el('span', {
+            innerHTML: `${meta.name} has been updated to <a href="${meta.changelog}" target="_blank">version ${g.VERSION}</a>.`,
+          })
+          return new Notice('info', el, 15)
+        }
+      },
+      0
+    )
   },
 
   parseURL(site = g.SITE, url = location) {
-    const r = {}
+    const r = {
+      siteID: null as string,
+      boardID: null as string,
+      threadID: null as number,
+      VIEW: null as string,
+      threadArchived: false as boolean,
+      THREADID: null as number,
+    }
 
     if (!site) {
       return r
@@ -342,13 +360,13 @@ const Main = {
     }
     return r
   },
+  jsEnabled: $.hasClass(doc, 'js-enabled'),
 
   initFeatures() {
     $.global(function () {
       document.documentElement.classList.add('js-enabled')
       return (window.FCX = {})
     })
-    Main.jsEnabled = $.hasClass(doc, 'js-enabled')
 
     // XXX https://bugs.chromium.org/p/chromium/issues/detail?id=920638
     $.ajaxPageInit?.()
@@ -374,10 +392,14 @@ const Main = {
             g.SITE.is404?.()
           ) {
             const pathname = location.pathname.split(/\/+/)
-            return Redirect.navigate('file', {
-              boardID: g.BOARD.ID,
-              filename: pathname[pathname.length - 1],
-            })
+            return Redirect.navigate(
+              'file',
+              {
+                boardID: g.BOARD.ID,
+                filename: pathname[pathname.length - 1],
+              },
+              `/${g.BOARD}/`
+            )
           } else if ((video = $('video'))) {
             if (Conf['Volume in New Tab']) {
               Volume.setup(video)
@@ -448,7 +470,9 @@ const Main = {
         (window.innerWidth === doc.clientWidth) !== Conf['Autohiding Scrollbar']
       ) {
         Conf['Autohiding Scrollbar'] = !Conf['Autohiding Scrollbar']
-        $.set('Autohiding Scrollbar', Conf['Autohiding Scrollbar'])
+        $.set('Autohiding Scrollbar', Conf['Autohiding Scrollbar'], () =>
+          location.reload()
+        )
         return $.toggleClass(doc, 'autohiding-scrollbar')
       }
     })
@@ -619,7 +643,7 @@ const Main = {
       }
     } else {
       Main.expectInitFinished = true
-      return $.event('4chanXInitFinished')
+      return $.event('4chanXInitFinished', null, doc)
     }
   },
 
@@ -658,11 +682,11 @@ const Main = {
           QuoteThreading.insert(post)
         }
         Main.expectInitFinished = true
-        return $.event('4chanXInitFinished')
+        return $.event('4chanXInitFinished', null, doc)
       })
     } else {
       Main.expectInitFinished = true
-      return $.event('4chanXInitFinished')
+      return $.event('4chanXInitFinished', null, doc)
     }
   },
 
@@ -812,7 +836,7 @@ const Main = {
     }
 
     Main.expectInitFinished = true
-    return $.event('4chanXInitFinished')
+    return $.event('4chanXInitFinished', null, doc)
   },
 
   parseCatalogThreads(threadRoots, threads, errors) {
@@ -948,7 +972,7 @@ const Main = {
 
     const logs = $.el('div', { hidden: true })
     for (error of errors) {
-      $.add(logs, Main.parseError(error))
+      $.add(logs, Main.parseError(error, Main.reportLink(errors)))
     }
 
     return new Notice('error', [div, logs], 30)

@@ -27,6 +27,7 @@ const QuoteCT = {
       cb: this.node,
     })
   },
+  mark: null as HTMLElement,
   node() {
     // Stop there if it's a clone of a post in the same thread.
     if (this.isClone && this.thread === this.context.thread) {

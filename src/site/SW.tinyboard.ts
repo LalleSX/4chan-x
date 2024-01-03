@@ -247,6 +247,9 @@ $\
       html = html.replace(/<br\b[^<]*>/gi, '\n').replace(/<[^>]*>/g, '')
       return $.unescape(html)
     },
+    postURL(boardID, threadID, postID) {
+      return `/${boardID}/res/${threadID}.html#${postID}`
+    },
     staticPath: '/static/',
     gifIcon: '.gif',
     hat: '.hat',

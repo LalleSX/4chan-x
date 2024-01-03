@@ -14,8 +14,8 @@ const QuotePreview = {
     }
 
     if (g.VIEW === 'archive') {
-      $.on(d, 'mouseover', function (e) {
-        if (e.target.nodeName === 'A' && $.hasClass(e.target, 'quotelink')) {
+      $.on(d, 'mouseover', function (e: Event) {
+        if ($.hasClass(e.target, 'quotelink')) {
           return QuotePreview.mouseover.call(e.target, e)
         }
       })
@@ -68,7 +68,10 @@ const QuotePreview = {
       el: qp,
       latestEvent: e,
       endEvents: 'mouseout click',
+      height: 400,
+      width: 400,
       cb: QuotePreview.mouseout,
+      noRemove: true,
     })
 
     if (

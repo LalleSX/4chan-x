@@ -24,6 +24,7 @@ const QuoteOP = {
       cb: this.node,
     })
   },
+  mark: null as HTMLSpanElement,
 
   node() {
     // Stop there if it's a clone of a post in the same thread.

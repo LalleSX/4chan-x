@@ -13,6 +13,7 @@ import Audio from './Audio.js'
 import type { default as Post, PostClone } from '../classes/Post.js'
 
 const ImageExpand = {
+  enabled: false,
   init() {
     if (
       !(this.enabled =

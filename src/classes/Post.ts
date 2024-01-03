@@ -100,11 +100,11 @@ export default class Post {
   })()
   quotedText: any
   sub: any
-  com: any
-  name: any
-  email: any
-  spoiler: any
-  flag: any
+  com: string
+  name: string
+  email: string
+  spoiler: boolean
+  flag: string
   errors: any
   isLocked: any
 

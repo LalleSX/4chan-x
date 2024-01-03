@@ -27,7 +27,7 @@ export default class CatalogThreadNative {
 
     // Extracts and assigns various IDs and data related to the thread
     this.siteID = g.SITE.ID
-    this.boardID = this.nodes.thumb.parentNode.pathname.split(/\/+/)[1] // Extracts the board ID from the URL
+    this.boardID = root.dataset.board || g.BOARD.ID // Extracts the board ID from the DOM node
     this.board = g.boards[this.boardID] || new Board(this.boardID) // Retrieves or creates a new Board instance
     this.ID = this.threadID = +(root.dataset.id || root.id).match(/\d*$/)[0] // Extracts the numeric ID of the thread
     this.thread =

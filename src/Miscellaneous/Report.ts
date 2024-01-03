@@ -17,7 +17,7 @@ const Report = {
   },
 
   ready() {
-    $.addStyle(CSS.report)
+    $.addStyle(CSS.report, 'report', 'report')
 
     if (Conf['Archive Report']) {
       Report.archive()

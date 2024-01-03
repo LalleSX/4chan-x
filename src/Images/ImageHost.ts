@@ -22,6 +22,7 @@ const ImageHost = {
       cb: this.node,
     })
   },
+  useFaster: false,
 
   // List of suggested image hosts
   suggestions: ['i.4cdn.org', 'is2.4chan.org'],

@@ -22,6 +22,7 @@ import Get from '../General/Get.js'
 import { dict, HOUR, MINUTE } from '../platform/helpers.js'
 
 const ThreadWatcher = {
+  enabled: false,
   init() {
     let sc
     if (!(this.enabled = Conf['Thread Watcher'])) {

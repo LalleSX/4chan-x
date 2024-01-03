@@ -27,6 +27,7 @@ const ImageCommon = {
       return $.queueTask(() => (el.src = el.src))
     }
   },
+  cache: null,
 
   pushCache(el) {
     ImageCommon.cache = el
