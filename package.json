@@ -160,7 +160,7 @@
     "build": "node ./tools/rollup",
     "build:min": "node ./tools/rollup -min",
     "lint": "eslint --fix --ext .ts,.tsx src/",
-    "prettier": "prettier --write --ignore-path .gitignore,builds/**/*.{js,ts,tsx,json,md,yml} \"**/*.{js,ts,tsx,json,md,yml}\""
+    "prettier": "prettier --write --ignore-path .prettierignore \"**/*.{js,ts,tsx,json,md,yml}\""
   },
   "dependencies": {
     "jquery": "^3.7.1",

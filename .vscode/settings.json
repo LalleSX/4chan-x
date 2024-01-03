@@ -15,7 +15,7 @@
   },
   "files.exclude": {
     "**/.DS_Store": true,
-    "**/.git": false,
+    "**/.git": true,
     "**/.hg": true,
     "**/.ruby-lsp": true,
     "**/.svn": true,
@@ -24,11 +24,12 @@
     "**/CVS": true,
     "**/node_modules": true,
     "CHANGELOG.md": true,
-    "LICENSE": true,
     "package-lock.json": true,
     "pnpm-lock.yaml": true,
-    "README.md": true,
     "yarn.lock": true
   },
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  // TypeScript settings
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "typescript.tsserver.log": "verbose"
 }
