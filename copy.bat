@@ -1,6 +1,7 @@
 @echo off
 setlocal
-
+chcp 65001 >nul
+:: Important to set the code page to UTF-8, otherwise the clipboard will be corrupted
 set "sourceFile=builds\4chan-XT.user.js"
 
 :: Check if the source file exists

@@ -71,7 +71,7 @@ const QuotePreview = {
       height: 400,
       width: 400,
       cb: QuotePreview.mouseout,
-      noRemove: true,
+      noRemove: false,
     })
 
     if (
