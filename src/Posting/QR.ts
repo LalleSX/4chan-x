@@ -14,145 +14,8 @@ import UI from '../General/UI.js'
 import BoardConfig from '../General/BoardConfig.js'
 import Get from '../General/Get.js'
 import { DAY, dict, SECOND } from '../platform/helpers.js'
-import Flash from '../Miscellaneous/Flash.js'
-import Post from '../classes/Post.js'
-import Thread from '../classes/Thread.js'
 
-interface QR {
-  mimeTypes: string[]
-  validExtension: RegExp
-  typeFromExtension: dict<string>
-  extensionFromType: dict<string>
-  initReady(): void
-  postingIsEnabled: boolean
-  nodes: {
-    charCount: HTMLSpanElement
-    fileButton: HTMLButtonElement
-    fileSubmit(fileSubmit: any, arg1: string): void
-    filename: HTMLInputElement
-    fileInput: HTMLInputElement
-    thread: HTMLSelectElement
-    flashTag: HTMLInputElement
-    status: Element
-    oekaki: Element
-    spoiler: HTMLInputElement
-    dumpList(dumpList: any, el: HTMLElement): void
-    flag: HTMLSelectElement
-    com: HTMLTextAreaElement
-    el: HTMLDivElement
-    autohide: HTMLInputElement
-    texPreview: HTMLDivElement
-    customCooldown: HTMLButtonElement
-  }
-  open(): void
-  close(): void
-  captcha: typeof Captcha.t
-  min_width: number
-  min_height: number
-  max_width: number
-  max_height: number
-  max_size: number
-  max_size_video: number
-  max_comment: number
-  max_width_video: number
-  max_height_video: number
-  max_duration_video: number
-  forcedAnon: boolean
-  spoiler: boolean
-  link: Element
-  getFile(): void
-  drawFile(e: Event): void
-  setFile(e: CustomEvent): void
-  paste(e: Event): void
-  dragOver(e: DragEvent): void
-  dropFile(e: DragEvent): void
-  drag(e: DragEvent): void
-  generatePostableThreadsList(): void
-  statusCheck(): void
-  hide(): void
-  posts: Post[]
-  abort(): void
-  status(): void
-  quote(e: Event): void
-  characterCount(): void
-  unhide(): void
-  dialog(): void
-  shortcut: HTMLAnchorElement
-  req: XMLHttpRequest
-  blur(): void
-  cleanNotifications(): void
-  cooldown: {
-    start: number
-    auto: boolean
-    seconds: number
-    customCooldown: boolean
-    setup(): void
-    clear(): void
-    addDelay(post: Post, delay: number): void
-    addMute(delay: number): void
-    add(threadID: string, postID: string): void
-    delays: HTMLInputElement
-    maxDelay: number
-    isSetup: boolean
-    data: {}
-    isCounting: boolean
-    count(): void
-    set(): void
-    save(): void
-    categorize(): void
-    mergeChange(data: any, scope: string, id: string, value: number): void
-    changes: {}
-    update(): void
-    timeout: number
-  }
-  inBubble(): boolean
-  hasFocus: boolean
-  sjisPreview(): void
-  textPreviewShow(): void
-  texPreviewHide(): void // fix spelling
-  addPost(): void
-  setCustomCooldown(enabled: boolean): void
-  notifications: Notice[]
-  selected: {
-    isLocked: boolean
-    isOnlyQuotes(): boolean
-    quotedText: string
-    save(com: HTMLTextAreaElement): void
-    preventAutoPost(): void
-    rmFile(): void
-    file: File
-    nodes: {
-      spoiler: HTMLInputElement
-      file: HTMLInputElement
-    }
-  } & Post
-  openPost(): void
-  openError(): void
-  error(err: string | Element, focusOverride: boolean): void
-  handleFiles(files: File[]): void
-  handleUrl(urlDefault: string): void
-  flagsInput(): void
-  handleFile(file: File, nfiles: number): void
-  toggleHide(): void
-  submit(e: Event): void
-  toggleSJIS(e: Event): void
-  textPreviewHide(): void
-  texPreviewShow(): void
-  oekaki: {}
-  openFileInput(): void
-  toggleCustomCooldown(): void
-  focus(): void
-  pasteFF(): void
-  persona: {}
-  flags(): HTMLSelectElement
-  response(): void
-  currentCaptcha: {}
-  connectionError(): void
-  errorCount: number
-  waitForThread(url: string, cb: () => void): void
-}
-
-const QR: QR = {
+const QR = {
   mimeTypes: [
     'image/jpeg',
     'image/png',
@@ -185,7 +48,7 @@ const QR: QR = {
     'video/webm': 'webm',
   },
 
-  init(): void {
+  init() {
     let sc
     if (!Conf['Quick Reply']) {
       return
@@ -221,21 +84,16 @@ const QR: QR = {
     return Header.addShortcut('qr', sc, 540)
   },
 
-  initReady(): void {
+  initReady() {
     let origToggle
-    /**
-     * * The current captcha version is currently always "t"
-     */
-    //
-    //  const captchaVersion = $('#g-recaptcha, #captcha-forced-noscript')
-    /*   ? 'v2' */
-    //   : 't'
-    // QR.captcha = Captcha[captchaVersion]
-
+    const captchaVersion = $('#g-recaptcha, #captcha-forced-noscript')
+      ? 'v2'
+      : 't'
+    QR.captcha = Captcha[captchaVersion]
     QR.postingIsEnabled = true
 
     const { config } = g.BOARD
-    const prop = (key: string, def: any) => +(config[key] ?? def)
+    const prop = (key, def) => +(config[key] ?? def)
 
     QR.min_width = prop('min_image_width', 1)
     QR.min_height = prop('min_image_height', 1)
@@ -310,11 +168,11 @@ const QR: QR = {
     }
   },
 
-  statusCheck(): void {
+  statusCheck() {
     if (!QR.nodes) {
       return
     }
-    const thread = QR.posts[0]
+    const { thread } = QR.posts[0]
     if (thread !== 'new' && g.threads.get(`${g.BOARD}.${thread}`).isDead) {
       return QR.abort()
     } else {
@@ -322,14 +180,14 @@ const QR: QR = {
     }
   },
 
-  node(): void {
+  node() {
     $.on(this.nodes.quote, 'click', QR.quote)
     if (this.isFetchedQuote) {
       return QR.generatePostableThreadsList()
     }
   },
 
-  open(): void {
+  open() {
     if (QR.nodes) {
       if (QR.nodes.el.hidden) {
         QR.captcha.setup()
@@ -351,7 +209,7 @@ const QR: QR = {
     return $.rmClass(QR.shortcut, 'disabled')
   },
 
-  close(): boolean {
+  close() {
     if (QR.req) {
       QR.abort()
       return
@@ -370,7 +228,7 @@ const QR: QR = {
     return QR.captcha.destroy()
   },
 
-  focus(): NodeJS.Timeout {
+  focus() {
     return $.queueTask(function () {
       if (!QR.inBubble()) {
         QR.hasFocus = d.activeElement && QR.nodes.el.contains(d.activeElement)
@@ -379,7 +237,7 @@ const QR: QR = {
     })
   },
 
-  inBubble(): boolean {
+  inBubble() {
     const bubbles = $$(
       'iframe[src^="https://www.google.com/recaptcha/api2/frame"]'
     )
@@ -425,7 +283,7 @@ const QR: QR = {
     return QR.nodes.el.classList.toggle('sjis-preview', Conf['sjisPreview'])
   },
 
-  texPreviewShow(): boolean | void {
+  texPreviewShow() {
     if ($.hasClass(QR.nodes.el, 'tex-preview')) {
       return QR.texPreviewHide()
     }
@@ -692,7 +550,7 @@ const QR: QR = {
     return QR.error(div, true)
   },
 
-  setFile(e: CustomEvent) {
+  setFile(e) {
     const { file, name, source } = e.detail
     if (name != null) {
       file.name = name
@@ -1030,13 +888,13 @@ const QR: QR = {
     return $.event('QRDialogCreation', null, dialog)
   },
 
-  flags(): HTMLSelectElement {
+  flags() {
     const select = $.el('select', {
       name: 'flag',
       className: 'flagSelector',
-    }) as HTMLSelectElement
+    })
 
-    const addFlag = (value: string, textContent: string) =>
+    const addFlag = (value, textContent) =>
       $.add(select, $.el('option', { value, textContent }))
 
     addFlag('0', g.BOARD.config.country_flags ? 'Geographic Location' : 'None')
@@ -1049,11 +907,7 @@ const QR: QR = {
   },
 
   flagsInput() {
-    const { nodes } = QR as unknown as {
-      nodes: {
-        [flag: string]: HTMLSelectElement
-      }
-    }
+    const { nodes } = QR
     if (!nodes) {
       return
     }
@@ -2087,27 +1941,6 @@ const QR: QR = {
   },
 
   post: class {
-    nodes: {
-      el: HTMLElement
-      rm: ChildNode
-      spoiler: HTMLElement
-      span: ChildNode
-    }
-    spoiler: any
-    thread: string | number
-    name: any
-    email: any
-    sub: any
-    flag: any
-    isLocked: boolean
-    file: any
-    com: any
-    quotedText: string
-    errors: any[]
-    filename: any
-    filesize: string
-    pasting: boolean
-    draggable: any
     constructor(select) {
       this.select = this.select.bind(this)
       const el = $.el('a', {
@@ -2134,7 +1967,7 @@ const QR: QR = {
       })
       $.on(this.nodes.spoiler, 'change', e => {
         this.spoiler = e.target.checked
-        if (QR.selected === this) {
+        if (this === QR.selected) {
           QR.nodes.spoiler.checked = this.spoiler
         }
         return this.preventAutoPost()
@@ -2214,9 +2047,6 @@ const QR: QR = {
       $.rm(this.nodes.el)
       URL.revokeObjectURL(this.URL)
       return this.dismissErrors()
-    }
-    URL(URL: any) {
-      throw new Error('Method not implemented.')
     }
 
     lock(lock = true) {
@@ -2714,9 +2544,6 @@ const QR: QR = {
       e.dataTransfer.setDragImage(this, e.clientX - left, e.clientY - top)
       return $.addClass(this, 'drag')
     }
-    getBoundingClientRect(): { left: any; top: any } {
-      throw new Error('Method not implemented.')
-    }
     dragEnd() {
       return $.rmClass(this, 'drag')
     }
@@ -2756,9 +2583,6 @@ const QR: QR = {
       QR.posts.splice(newIndex, 0, post)
       QR.status()
       return QR.captcha.updateThread?.()
-    }
-    parentNode(arg0: string, parentNode: any) {
-      throw new Error('Method not implemented.')
     }
   },
 }
