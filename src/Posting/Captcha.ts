@@ -178,7 +178,7 @@ const Captcha = {
       return $.event('CaptchaCount', this.captchas.length)
     },
   },
-  Replace: CaptchaReplace,
+  replace: CaptchaReplace,
   t: CaptchaT,
   v2: {
     lifetime: 2 * MINUTE,
