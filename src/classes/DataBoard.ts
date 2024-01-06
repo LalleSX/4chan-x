@@ -249,7 +249,14 @@ export default class DataBoard {
     }
 
     try {
-      const threadsListResponse = await $.cache(threadsListUrl)
+      const threadsListResponse = await $.cache(
+        threadsListUrl,
+        {
+          type: 'json',
+          dataType: 'json',
+        },
+        1
+      )
       if (threadsListResponse.status !== 200) {
         return
       }
@@ -271,7 +278,14 @@ export default class DataBoard {
     }
 
     try {
-      const archiveListResponse = await $.cache(archiveListUrl)
+      const archiveListResponse = await $.cache(
+        archiveListUrl,
+        {
+          type: 'json',
+          dataType: 'json',
+        },
+        1
+      )
       if (
         archiveListResponse.status === 200 ||
         (!g.SITE.archivedBoardsKnown && archiveListResponse.status === 404)
