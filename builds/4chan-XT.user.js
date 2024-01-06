@@ -1824,7 +1824,10 @@ https://*.hcaptcha.com
                 return;
             }
             try {
-                const threadsListResponse = await $$1.cache(threadsListUrl);
+                const threadsListResponse = await $$1.cache(threadsListUrl, {
+                    type: 'json',
+                    dataType: 'json',
+                }, 1);
                 if (threadsListResponse.status !== 200) {
                     return;
                 }
@@ -1841,7 +1844,10 @@ https://*.hcaptcha.com
                 return this.ajaxCleanParse(boardID, threadsListResponse.response, undefined);
             }
             try {
-                const archiveListResponse = await $$1.cache(archiveListUrl);
+                const archiveListResponse = await $$1.cache(archiveListUrl, {
+                    type: 'json',
+                    dataType: 'json',
+                }, 1);
                 if (archiveListResponse.status === 200 ||
                     (!g.SITE.archivedBoardsKnown && archiveListResponse.status === 404)) {
                     return this.ajaxCleanParse(boardID, threadsListResponse.response, archiveListResponse.response);
@@ -4799,12 +4805,7 @@ https://*.hcaptcha.com
                 return;
             }
             a.textContent = `Post No.${post} Loading...`;
-            return $$1.cache(g.SITE.urls.threadJSON({
-                boardID: post.boardID,
-                threadID: post.threadID,
-            }), function () {
-                return ExpandComment.parse(this, a, post);
-            });
+            return $$1.cache(`${g.BOARD}/res/${post.threadID}.json`, ExpandComment.parse, a, post);
         },
         contract(post) {
             if (!post.nodes.shortComment) {
@@ -5176,6 +5177,17 @@ https://*.hcaptcha.com
     }
 
     const Unread = {
+        thread: null,
+        title: null,
+        lastReadPost: null,
+        readCount: null,
+        hr: null,
+        posts: null,
+        postsQuotingYou: null,
+        order: null,
+        position: null,
+        linePosition: null,
+        db: null,
         init() {
             if (g.VIEW !== 'thread' ||
                 (!Conf['Unread Count'] &&
@@ -5188,7 +5200,7 @@ https://*.hcaptcha.com
             }
             if (Conf['Remember Last Read Post']) {
                 $$1.sync('Remember Last Read Post', enabled => (Conf['Remember Last Read Post'] = enabled));
-                this.db = new DataBoard('lastReadPosts', this.sync);
+                this.db = new DataBoard('lastReadPosts', this.sync, false);
             }
             this.hr = $$1.el('hr', {
                 id: 'unread-line',
@@ -5289,7 +5301,7 @@ https://*.hcaptcha.com
             Unread.lastReadPost = 0;
             Unread.readCount = 0;
             Unread.thread.posts.forEach(post => Unread.addPost.call(post));
-            $$1.forceSync('Remember Last Read Post');
+            $$1.forceSync();
             if (Conf['Remember Last Read Post'] &&
                 (!Unread.thread.isDead || Unread.thread.isArchived)) {
                 Unread.db.set({
@@ -5299,7 +5311,7 @@ https://*.hcaptcha.com
                 });
             }
             Unread.updatePosition();
-            Unread.setLine();
+            Unread.setLine(true);
             return Unread.update();
         },
         sync() {
@@ -5328,7 +5340,7 @@ https://*.hcaptcha.com
                 Unread.readCount++;
             }
             Unread.updatePosition();
-            Unread.setLine();
+            Unread.setLine(true);
             return Unread.update();
         },
         addPost() {
@@ -5373,7 +5385,7 @@ https://*.hcaptcha.com
         onUpdate() {
             return $$1.queueTask(function () {
                 // ThreadUpdater may scroll immediately after inserting posts
-                Unread.setLine();
+                Unread.setLine(false);
                 Unread.read();
                 return Unread.update();
             });
@@ -5427,7 +5439,7 @@ https://*.hcaptcha.com
         },
         saveLastReadPost: debounce(2 * SECOND, function () {
             let ID;
-            $$1.forceSync('Remember Last Read Post');
+            $$1.forceSync();
             if (!Conf['Remember Last Read Post'] || !Unread.db) {
                 return;
             }
@@ -5500,7 +5512,7 @@ https://*.hcaptcha.com
             }
         },
         saveThreadWatcherCount: debounce(2 * SECOND, function () {
-            $$1.forceSync('Remember Last Read Post');
+            $$1.forceSync();
             if (Conf['Remember Last Read Post'] &&
                 (!Unread.thread.isDead || Unread.thread.isArchived)) {
                 let posts;
@@ -5613,12 +5625,18 @@ https://*.hcaptcha.com
             let status;
             ExpandThread.statuses[thread] = status = {};
             a.textContent = g.SITE.Build.summaryText('...', ...a.textContent.match(/\d+/g));
-            status.req = $$1.cache(g.SITE.urls.threadJSON({ boardID: thread.board.ID, threadID: thread.ID }), function () {
-                if (this !== status.req) {
-                    return;
-                } // aborted
+            status.req = $$1.cache(g.SITE.urls.threadJSON?.({
+                siteID: thread.board.siteID,
+                boardID: thread.board.ID,
+                threadID: thread.ID,
+            }, true), {
+                type: 'json',
+                dataType: 'json',
+            }, 1)
+                .then(req => ExpandThread.parse(req, thread, a))
+                .catch(() => {
                 delete status.req;
-                return ExpandThread.parse(this, thread, a);
+                return (a.textContent = 'Connection Error');
             });
             return (status.numReplies = $$(g.SITE.selectors.replyOriginal, thread.nodes.root).length);
         },
@@ -7092,6 +7110,7 @@ https://*.hcaptcha.com
 
     class Fetcher {
         static flagCSS;
+        static Fetcher;
         static initClass() {
             this.flagCSS = null;
         }
@@ -7150,11 +7169,12 @@ https://*.hcaptcha.com
             if (this.threadID) {
                 const that = this;
                 $$1.cache(g.SITE.urls.threadJSON({
+                    siteID: g.SITE.id,
                     boardID: this.boardID,
                     threadID: this.threadID,
                 }, true), function ({ isCached }) {
                     return that.fetchedPost(this, isCached);
-                });
+                }, { isJSON: true });
             }
             else {
                 this.archivedPost();
@@ -7186,7 +7206,9 @@ https://*.hcaptcha.com
             if (clone.nodes.flag &&
                 !(Fetcher.flagCSS ||
                     (Fetcher.flagCSS = $$1('link[href^="//s.4cdn.org/css/flags."]')))) {
-                const cssVersion = $$1('link[href^="//s.4cdn.org/css/"]')?.href.match(/\d+(?=\.css$)|$/)[0] || Date.now();
+                const cssVersion = $$1('link[href^="//s.4cdn.org/css/"]')
+                    .getAttribute('href')
+                    .match(/\d+(?=\.css$)|$/)[0] || Date.now();
                 Fetcher.flagCSS = $$1.el('link', {
                     rel: 'stylesheet',
                     href: `//s.4cdn.org/css/flags.${cssVersion}.css`,
@@ -7231,6 +7253,7 @@ https://*.hcaptcha.com
                 // Cached requests can be stale and must be rechecked.
                 if (isCached) {
                     const api = g.SITE.urls.threadJSON({
+                        siteID: g.SITE.id,
                         boardID: this.boardID,
                         threadID: this.threadID,
                     }, true);
@@ -7238,7 +7261,7 @@ https://*.hcaptcha.com
                     const that = this;
                     $$1.cache(api, function () {
                         return that.fetchedPost(this, false);
-                    });
+                    }, { isJSON: true });
                     return;
                 }
                 // The post can be deleted by the time we check a quote.
@@ -7363,7 +7386,7 @@ https://*.hcaptcha.com
                 height: 400,
                 width: 400,
                 cb: QuotePreview.mouseout,
-                noRemove: true,
+                noRemove: false,
             });
             if (Conf['Quote Highlighting'] &&
                 (origin = g.posts.get(`${boardID}.${postID}`))) {
@@ -13022,6 +13045,7 @@ a:only-of-type > .remove {
     };
 
     const SWTinyboard = {
+        id: 'tinyboard',
         software: 'Tinyboard',
         isOPContainerThread: true,
         mayLackJSON: true,
@@ -13250,6 +13274,35 @@ $\
             },
             postURL(boardID, threadID, postID) {
                 return `/${boardID}/res/${threadID}.html#${postID}`;
+            },
+            spoilerRange: Object.create(null),
+            postFromObject(data, board) {
+                const o = this.postFromObject(data, board);
+                if (data.ext === 'deleted') {
+                    delete o.file;
+                    $$1.extend(o, {
+                        files: [],
+                        fileDeleted: true,
+                        filesDeleted: [0],
+                    });
+                }
+                if (data.extra_files) {
+                    let file;
+                    for (let i = 0; i < data.extra_files.length; i++) {
+                        const extra_file = data.extra_files[i];
+                        if (extra_file.ext === 'deleted') {
+                            o.filesDeleted.push(i);
+                        }
+                        else {
+                            file = this.parseJSONFile(data, board);
+                            o.files.push(file);
+                        }
+                    }
+                    if (o.files.length) {
+                        o.file = o.files[0];
+                    }
+                }
+                return o;
             },
             staticPath: '/static/',
             gifIcon: '.gif',
@@ -14127,6 +14180,12 @@ $\
                     // file status
                     fileDeleted: !!data.filedeleted,
                     filesDeleted: data.filedeleted ? [0] : [],
+                    // Misc
+                    info: dict(),
+                    extra: dict(),
+                    file: null,
+                    files: [],
+                    capcodeHighlight: false,
                 };
                 o.info = {
                     subject: $$1.unescape(data.sub),
@@ -14182,6 +14241,7 @@ $\
                     twidth: data.tn_w,
                     isSpoiler: !!data.spoiler,
                     tag: data.tag,
+                    dimensions: null,
                     hasDownscale: !!data.m_img,
                 };
                 if (data.h != null && !/\.pdf$/.test(o.url)) {
@@ -17575,6 +17635,10 @@ vp-replace
 `;
 
     const Embedding = {
+        dialog: null,
+        media: null,
+        types: null,
+        lastEmbed: null,
         init() {
             if (!['index', 'thread', 'archive'].includes(g.VIEW) ||
                 !Conf['Linkify'] ||
@@ -17701,7 +17765,9 @@ vp-replace
             $$1.on($$1('.move', Embedding.dialog), 'mousedown', Embedding.dragEmbed);
             $$1.on($$1('.jump', Embedding.dialog), 'click', function () {
                 if (doc$1.contains(Embedding.lastEmbed)) {
-                    return Header.scrollTo(Embedding.lastEmbed);
+                    return Header.scrollTo(Embedding.lastEmbed, {
+                        offset: -Header.height,
+                    }, true);
                 }
             });
             return $$1.add(d.body, Embedding.dialog);
@@ -17783,6 +17849,11 @@ vp-replace
                     latestEvent: e,
                     endEvents: 'mouseout click',
                     height,
+                    width: height * 1.5,
+                    cb: function () {
+                        return $$1.rm(this);
+                    },
+                    noRemove: false,
                 });
             });
         },
@@ -18338,9 +18409,9 @@ vp-replace
                 style: '',
                 el(a) {
                     const el = $$1.el('iframe');
-                    el.width = 300;
-                    el.height = 60;
-                    el.setAttribute('frameborder', 0);
+                    el.width = '300';
+                    el.height = '60';
+                    el.setAttribute('frameborder', '0');
                     el.src = `https://vocaroo.com/embed/${a.dataset.uid.replace(/^i\//, '')}?autoplay=0`;
                     return el;
                 },
@@ -19115,7 +19186,7 @@ vp-replace
                 return $$1.event('CaptchaCount', this.captchas.length);
             },
         },
-        Replace: CaptchaReplace,
+        replace: CaptchaReplace,
         t: CaptchaT,
         v2: {
             lifetime: 2 * MINUTE,
@@ -19450,14 +19521,10 @@ vp-replace
         },
         initReady() {
             let origToggle;
-            /**
-             * * The current captcha version is currently always "t"
-             */
-            //
-            //  const captchaVersion = $('#g-recaptcha, #captcha-forced-noscript')
-            /*   ? 'v2' */
-            //   : 't'
-            // QR.captcha = Captcha[captchaVersion]
+            const captchaVersion = $$1('#g-recaptcha, #captcha-forced-noscript')
+                ? 'v2'
+                : 't';
+            QR.captcha = Captcha[captchaVersion];
             QR.postingIsEnabled = true;
             const { config } = g.BOARD;
             const prop = (key, def) => +(config[key] ?? def);
@@ -19521,7 +19588,7 @@ vp-replace
             if (!QR.nodes) {
                 return;
             }
-            const thread = QR.posts[0];
+            const { thread } = QR.posts[0];
             if (thread !== 'new' && g.threads.get(`${g.BOARD}.${thread}`).isDead) {
                 return QR.abort();
             }
@@ -21043,22 +21110,6 @@ vp-replace
             },
         },
         post: class {
-            nodes;
-            spoiler;
-            thread;
-            name;
-            email;
-            sub;
-            flag;
-            isLocked;
-            file;
-            com;
-            quotedText;
-            errors;
-            filename;
-            filesize;
-            pasting;
-            draggable;
             constructor(select) {
                 this.select = this.select.bind(this);
                 const el = $$1.el('a', {
@@ -21082,7 +21133,7 @@ vp-replace
                 });
                 $$1.on(this.nodes.spoiler, 'change', e => {
                     this.spoiler = e.target.checked;
-                    if (QR.selected === this) {
+                    if (this === QR.selected) {
                         QR.nodes.spoiler.checked = this.spoiler;
                     }
                     return this.preventAutoPost();
@@ -21154,9 +21205,6 @@ vp-replace
                 $$1.rm(this.nodes.el);
                 URL.revokeObjectURL(this.URL);
                 return this.dismissErrors();
-            }
-            URL(URL) {
-                throw new Error('Method not implemented.');
             }
             lock(lock = true) {
                 this.isLocked = lock;
@@ -21590,9 +21638,6 @@ vp-replace
                 e.dataTransfer.setDragImage(this, e.clientX - left, e.clientY - top);
                 return $$1.addClass(this, 'drag');
             }
-            getBoundingClientRect() {
-                throw new Error('Method not implemented.');
-            }
             dragEnd() {
                 return $$1.rmClass(this, 'drag');
             }
@@ -21630,9 +21675,6 @@ vp-replace
                 QR.posts.splice(newIndex, 0, post);
                 QR.status();
                 return QR.captcha.updateThread?.();
-            }
-            parentNode(arg0, parentNode) {
-                throw new Error('Method not implemented.');
             }
         },
     };
@@ -21929,6 +21971,7 @@ vp-replace
             return undefined;
         }
     };
+    $.ajaxPage = undefined;
     $.ajax = (function () {
         let pageXHR;
         if (window.wrappedJSObject && window.wrappedJSObject.XMLHttpRequest) {
@@ -22182,41 +22225,41 @@ vp-replace
         });
         return r;
     };
-    (function () {
-        const reqs = dict();
-        $.cache = function (url, cb, options = { ajax: null }) {
-            let req;
-            const { ajax } = options;
-            if ((req = reqs[url])) {
-                if (req.callbacks) {
-                    req.callbacks.push(cb);
-                }
-                else {
-                    $.queueTask(() => cb.call(req, { isCached: true }));
-                }
-                return req;
-            }
-            const onloadend = function () {
-                if (!this.status) {
-                    delete reqs[url];
-                }
-                for (cb of this.callbacks) {
-                    (cb => $.queueTask(() => cb.call(this, { isCached: false })))(cb);
-                }
-                return delete this.callbacks;
-            };
-            req = (ajax || $.ajax)(url, { onloadend });
-            req.callbacks = [cb];
-            return (reqs[url] = req);
-        };
-        return ($.cleanCache = function (testf) {
-            for (const url in reqs) {
-                if (testf(url)) {
-                    delete reqs[url];
-                }
-            }
+    $.cache = function (url, bucket, cb, options = { timeout: 10000, ajax: null }) {
+        let t;
+        const { timeout, ajax } = options;
+        const params = [];
+        // XXX https://bugs.chromium.org/p/chromium/issues/detail?id=643659
+        if ($.engine === 'blink') {
+            params.push(`s=${bucket}`);
+        }
+        if (url.split('/')[2] === 'a.4cdn.org') {
+            params.push(`t=${Date.now()}`);
+        }
+        const url0 = url;
+        if (params.length) {
+            url += '?' + params.join('&');
+        }
+        const headers = dict();
+        if ((t = $.lastModified[bucket]?.[url0]) != null) {
+            headers['If-Modified-Since'] = t;
+        }
+        const r = (ajax || $.ajax)(url, {
+            onloadend() {
+                ($.lastModified[bucket] || ($.lastModified[bucket] = dict()))[url0] =
+                    this.getResponseHeader('Last-Modified');
+                return cb.call(this);
+            },
+            timeout,
+            headers,
         });
-    })();
+        return r;
+    };
+    $.cleanCache = function (bucket) {
+        if ($.lastModified[bucket]) {
+            return delete $.lastModified[bucket];
+        }
+    };
     $.cb = {
         checked() {
             if ($.hasOwn(Conf, this.name)) {
@@ -26663,6 +26706,7 @@ aero|asia|biz|cat|com|coop|dance|info|int|jobs|mobi|moe|museum|name|net|org|post
     };
 
     const IDPostCount = {
+        thread: null,
         init() {
             if (g.VIEW !== 'thread' || !Conf['Count Posts by ID']) {
                 return;

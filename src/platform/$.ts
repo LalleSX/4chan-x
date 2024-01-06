@@ -57,7 +57,7 @@ $.getOwn = function (obj, key) {
     return undefined
   }
 }
-
+$.ajaxPage = undefined
 $.ajax = (function () {
   let pageXHR
   if (window.wrappedJSObject && window.wrappedJSObject.XMLHttpRequest) {
@@ -249,7 +249,7 @@ $.ajax = (function () {
 
           return document.addEventListener(
             '4chanXAjaxAbort',
-            function (e) {
+            function (e: CustomEvent) {
               let r
               if (!(r = window.FCX.requests[e.detail.id])) {
                 return
@@ -262,7 +262,7 @@ $.ajax = (function () {
         { requests: true }
       )
 
-      $.on(d, '4chanXAjaxProgress', function (e) {
+      $.on(d, '4chanXAjaxProgress', function (e: CustomEvent) {
         let req
         if (!(req = requests[e.detail.id])) {
           return
@@ -270,7 +270,7 @@ $.ajax = (function () {
         return req.upload.onprogress.call(req.upload, e.detail)
       })
 
-      return $.on(d, '4chanXAjaxLoadend', function (e) {
+      return $.on(d, '4chanXAjaxLoadend', function (e: CustomEvent) {
         let req
         if (!(req = requests[e.detail.id])) {
           return
@@ -383,40 +383,43 @@ $.whenModified = function (
   })
   return r
 }
-;(function () {
-  const reqs = dict()
-  $.cache = function (url, cb, options = { ajax: null }) {
-    let req
-    const { ajax } = options
-    if ((req = reqs[url])) {
-      if (req.callbacks) {
-        req.callbacks.push(cb)
-      } else {
-        $.queueTask(() => cb.call(req, { isCached: true }))
-      }
-      return req
-    }
-    const onloadend = function () {
-      if (!this.status) {
-        delete reqs[url]
-      }
-      for (cb of this.callbacks) {
-        ;(cb => $.queueTask(() => cb.call(this, { isCached: false })))(cb)
-      }
-      return delete this.callbacks
-    }
-    req = (ajax || $.ajax)(url, { onloadend })
-    req.callbacks = [cb]
-    return (reqs[url] = req)
+
+$.cache = function (url, bucket, cb, options = { timeout: 10000, ajax: null }) {
+  let t
+  const { timeout, ajax } = options
+  const params = []
+  // XXX https://bugs.chromium.org/p/chromium/issues/detail?id=643659
+  if ($.engine === 'blink') {
+    params.push(`s=${bucket}`)
   }
-  return ($.cleanCache = function (testf) {
-    for (const url in reqs) {
-      if (testf(url)) {
-        delete reqs[url]
-      }
-    }
+  if (url.split('/')[2] === 'a.4cdn.org') {
+    params.push(`t=${Date.now()}`)
+  }
+  const url0 = url
+  if (params.length) {
+    url += '?' + params.join('&')
+  }
+  const headers = dict()
+  if ((t = $.lastModified[bucket]?.[url0]) != null) {
+    headers['If-Modified-Since'] = t
+  }
+  const r = (ajax || $.ajax)(url, {
+    onloadend() {
+      ;($.lastModified[bucket] || ($.lastModified[bucket] = dict()))[url0] =
+        this.getResponseHeader('Last-Modified')
+      return cb.call(this)
+    },
+    timeout,
+    headers,
   })
-})()
+  return r
+}
+
+$.cleanCache = function (bucket) {
+  if ($.lastModified[bucket]) {
+    return delete $.lastModified[bucket]
+  }
+}
 
 $.cb = {
   checked() {

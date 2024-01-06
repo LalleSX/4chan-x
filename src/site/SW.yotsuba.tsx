@@ -527,6 +527,12 @@ $\
         // file status
         fileDeleted: !!data.filedeleted,
         filesDeleted: data.filedeleted ? [0] : [],
+        // Misc
+        info: dict(),
+        extra: dict(),
+        file: null,
+        files: [],
+        capcodeHighlight: false,
       }
       o.info = {
         subject: $.unescape(data.sub),
@@ -584,6 +590,7 @@ $\
         twidth: data.tn_w,
         isSpoiler: !!data.spoiler,
         tag: data.tag,
+        dimensions: null,
         hasDownscale: !!data.m_img,
       }
       if (data.h != null && !/\.pdf$/.test(o.url)) {

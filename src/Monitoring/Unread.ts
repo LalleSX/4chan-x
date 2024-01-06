@@ -11,6 +11,17 @@ import Favicon from './Favicon.js'
 import ThreadWatcher from './ThreadWatcher.js'
 
 const Unread = {
+  thread: null,
+  title: null,
+  lastReadPost: null,
+  readCount: null,
+  hr: null,
+  posts: null,
+  postsQuotingYou: null,
+  order: null,
+  position: null,
+  linePosition: null,
+  db: null,
   init() {
     if (
       g.VIEW !== 'thread' ||
@@ -29,7 +40,7 @@ const Unread = {
         'Remember Last Read Post',
         enabled => (Conf['Remember Last Read Post'] = enabled)
       )
-      this.db = new DataBoard('lastReadPosts', this.sync)
+      this.db = new DataBoard('lastReadPosts', this.sync, false)
     }
 
     this.hr = $.el('hr', {
@@ -68,7 +79,7 @@ const Unread = {
     }
     $.one(d, '4chanXInitFinished', Unread.ready)
     $.on(d, 'PostsInserted', Unread.onUpdate)
-    $.on(d, 'ThreadUpdate', function (e) {
+    $.on(d, 'ThreadUpdate', function (e: CustomEvent) {
       if (e.detail[404]) {
         return Unread.update()
       }
@@ -139,7 +150,7 @@ const Unread = {
     Unread.readCount = 0
     Unread.thread.posts.forEach(post => Unread.addPost.call(post))
 
-    $.forceSync('Remember Last Read Post')
+    $.forceSync()
     if (
       Conf['Remember Last Read Post'] &&
       (!Unread.thread.isDead || Unread.thread.isArchived)
@@ -152,7 +163,7 @@ const Unread = {
     }
 
     Unread.updatePosition()
-    Unread.setLine()
+    Unread.setLine(true)
     return Unread.update()
   },
 
@@ -184,7 +195,7 @@ const Unread = {
     }
 
     Unread.updatePosition()
-    Unread.setLine()
+    Unread.setLine(true)
     return Unread.update()
   },
 
@@ -235,7 +246,7 @@ const Unread = {
   onUpdate() {
     return $.queueTask(function () {
       // ThreadUpdater may scroll immediately after inserting posts
-      Unread.setLine()
+      Unread.setLine(false)
       Unread.read()
       return Unread.update()
     })
@@ -300,7 +311,7 @@ const Unread = {
 
   saveLastReadPost: debounce(2 * SECOND, function () {
     let ID
-    $.forceSync('Remember Last Read Post')
+    $.forceSync()
     if (!Conf['Remember Last Read Post'] || !Unread.db) {
       return
     }
@@ -385,7 +396,7 @@ const Unread = {
   },
 
   saveThreadWatcherCount: debounce(2 * SECOND, function () {
-    $.forceSync('Remember Last Read Post')
+    $.forceSync()
     if (
       Conf['Remember Last Read Post'] &&
       (!Unread.thread.isDead || Unread.thread.isArchived)

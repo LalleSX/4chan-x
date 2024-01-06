@@ -12,6 +12,7 @@ import parseArchivePost from '../Archive/Parse.js'
 
 export default class Fetcher {
   static flagCSS: HTMLLinkElement
+  static Fetcher: HTMLElement
   static initClass() {
     this.flagCSS = null
   }
@@ -50,7 +51,7 @@ export default class Fetcher {
   }
 
   declare boardID: string
-  declare threadID: number
+  declare threadID: string | number
   declare postID: string
   declare root: HTMLElement
   declare quoter: Post
@@ -96,6 +97,7 @@ export default class Fetcher {
       $.cache(
         g.SITE.urls.threadJSON(
           {
+            siteID: g.SITE.id,
             boardID: this.boardID,
             threadID: this.threadID,
           },
@@ -103,7 +105,8 @@ export default class Fetcher {
         ),
         function ({ isCached }) {
           return that.fetchedPost(this, isCached)
-        }
+        },
+        { isJSON: true }
       )
     } else {
       this.archivedPost()
@@ -143,17 +146,19 @@ export default class Fetcher {
       clone.nodes.flag &&
       !(
         Fetcher.flagCSS ||
-        (Fetcher.flagCSS = $('link[href^="//s.4cdn.org/css/flags."]'))
+        (Fetcher.flagCSS = $(
+          'link[href^="//s.4cdn.org/css/flags."]'
+        ) as HTMLLinkElement)
       )
     ) {
       const cssVersion =
-        $('link[href^="//s.4cdn.org/css/"]')?.href.match(
-          /\d+(?=\.css$)|$/
-        )[0] || Date.now()
+        $('link[href^="//s.4cdn.org/css/"]')
+          .getAttribute('href')
+          .match(/\d+(?=\.css$)|$/)[0] || Date.now()
       Fetcher.flagCSS = $.el('link', {
         rel: 'stylesheet',
         href: `//s.4cdn.org/css/flags.${cssVersion}.css`,
-      })
+      }) as HTMLLinkElement
       $.add(d.head, Fetcher.flagCSS)
     }
 
@@ -201,6 +206,7 @@ export default class Fetcher {
       if (isCached) {
         const api = g.SITE.urls.threadJSON(
           {
+            siteID: g.SITE.id,
             boardID: this.boardID,
             threadID: this.threadID,
           },
@@ -208,9 +214,13 @@ export default class Fetcher {
         )
         $.cleanCache(url => url === api)
         const that = this
-        $.cache(api, function () {
-          return that.fetchedPost(this, false)
-        })
+        $.cache(
+          api,
+          function () {
+            return that.fetchedPost(this, false)
+          },
+          { isJSON: true }
+        )
         return
       }
 

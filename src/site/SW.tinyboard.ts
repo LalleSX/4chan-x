@@ -5,6 +5,7 @@ import $$ from '../platform/$$.js'
 import { dict } from '../platform/helpers.js'
 
 const SWTinyboard = {
+  id: 'tinyboard',
   software: 'Tinyboard',
   isOPContainerThread: true,
   mayLackJSON: true,
@@ -249,6 +250,34 @@ $\
     },
     postURL(boardID, threadID, postID) {
       return `/${boardID}/res/${threadID}.html#${postID}`
+    },
+    spoilerRange: Object.create(null),
+    postFromObject(data: any, board: any) {
+      const o = this.postFromObject(data, board)
+      if (data.ext === 'deleted') {
+        delete o.file
+        $.extend(o, {
+          files: [],
+          fileDeleted: true,
+          filesDeleted: [0],
+        })
+      }
+      if (data.extra_files) {
+        let file
+        for (let i = 0; i < data.extra_files.length; i++) {
+          const extra_file = data.extra_files[i]
+          if (extra_file.ext === 'deleted') {
+            o.filesDeleted.push(i)
+          } else {
+            file = this.parseJSONFile(data, board)
+            o.files.push(file)
+          }
+        }
+        if (o.files.length) {
+          o.file = o.files[0]
+        }
+      }
+      return o
     },
     staticPath: '/static/',
     gifIcon: '.gif',
