@@ -11,6 +11,10 @@ import { dict } from '../platform/helpers.js'
 import EmbeddingPage from './Embedding/Embed.html'
 
 const Embedding = {
+  dialog: null,
+  media: null,
+  types: null,
+  lastEmbed: null,
   init() {
     if (
       !['index', 'thread', 'archive'].includes(g.VIEW) ||
@@ -157,7 +161,13 @@ const Embedding = {
     $.on($('.move', Embedding.dialog), 'mousedown', Embedding.dragEmbed)
     $.on($('.jump', Embedding.dialog), 'click', function () {
       if (doc.contains(Embedding.lastEmbed)) {
-        return Header.scrollTo(Embedding.lastEmbed)
+        return Header.scrollTo(
+          Embedding.lastEmbed,
+          {
+            offset: -Header.height,
+          },
+          true
+        )
       }
     })
     return $.add(d.body, Embedding.dialog)
@@ -248,6 +258,11 @@ const Embedding = {
         latestEvent: e,
         endEvents: 'mouseout click',
         height,
+        width: height * 1.5,
+        cb: function () {
+          return $.rm(this)
+        },
+        noRemove: false,
       })
     })
   },
@@ -772,7 +787,7 @@ const Embedding = {
       style:
         'border: none; width: 550px; height: 250px; overflow: hidden; resize: both;',
       el(a) {
-        const el = $.el('iframe')
+        const el = $.el('iframe') as HTMLIFrameElement
         $.on(el, 'load', function () {
           return this.contentWindow.postMessage(
             { element: 't', query: 'height' },
@@ -852,10 +867,10 @@ const Embedding = {
         /^\w+:\/\/(?:(?:www\.|old\.)?vocaroo\.com|voca\.ro)\/((?:i\/)?\w+)/,
       style: '',
       el(a) {
-        const el = $.el('iframe')
-        el.width = 300
-        el.height = 60
-        el.setAttribute('frameborder', 0)
+        const el = $.el('iframe') as HTMLIFrameElement
+        el.width = '300'
+        el.height = '60'
+        el.setAttribute('frameborder', '0')
         el.src = `https://vocaroo.com/embed/${a.dataset.uid.replace(
           /^i\//,
           ''

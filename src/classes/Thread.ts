@@ -30,7 +30,7 @@ export default class Thread {
     return this.ID
   }
 
-  constructor(ID: string, board: Board) {
+  constructor(ID: string | number, board: Board) {
     this.board = board
     this.ID = +ID
     this.threadID = this.ID

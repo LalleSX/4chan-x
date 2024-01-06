@@ -106,15 +106,25 @@ const ExpandThread = {
       ...a.textContent.match(/\d+/g)
     )
     status.req = $.cache(
-      g.SITE.urls.threadJSON({ boardID: thread.board.ID, threadID: thread.ID }),
-      function () {
-        if (this !== status.req) {
-          return
-        } // aborted
-        delete status.req
-        return ExpandThread.parse(this, thread, a)
-      }
+      g.SITE.urls.threadJSON?.(
+        {
+          siteID: thread.board.siteID,
+          boardID: thread.board.ID,
+          threadID: thread.ID,
+        },
+        true
+      ),
+      {
+        type: 'json',
+        dataType: 'json',
+      },
+      1
     )
+      .then(req => ExpandThread.parse(req, thread, a))
+      .catch(() => {
+        delete status.req
+        return (a.textContent = 'Connection Error')
+      })
     return (status.numReplies = $$(
       g.SITE.selectors.replyOriginal,
       thread.nodes.root

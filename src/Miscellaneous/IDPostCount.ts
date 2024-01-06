@@ -4,6 +4,7 @@ import { g, Conf } from '../globals/globals.js'
 import $ from '../platform/$.js'
 
 const IDPostCount = {
+  thread: null,
   init() {
     if (g.VIEW !== 'thread' || !Conf['Count Posts by ID']) {
       return

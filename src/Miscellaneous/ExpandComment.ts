@@ -46,13 +46,10 @@ const ExpandComment = {
     }
     a.textContent = `Post No.${post} Loading...`
     return $.cache(
-      g.SITE.urls.threadJSON({
-        boardID: post.boardID,
-        threadID: post.threadID,
-      }),
-      function () {
-        return ExpandComment.parse(this, a, post)
-      }
+      `${g.BOARD}/res/${post.threadID}.json`,
+      ExpandComment.parse,
+      a,
+      post
     )
   },
 

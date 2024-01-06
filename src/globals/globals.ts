@@ -3,6 +3,17 @@ import type Post from '../classes/Post.js'
 import type Thread from '../classes/Thread.js'
 import type SWTinyboard from '../site/SW.tinyboard.js'
 
+declare global {
+  interface Window {
+    wrappedJSObject: any
+    FCX: any
+    SWFEmbed: any
+    Main: any
+    prettyPrint: any
+    Parser: any
+  }
+}
+
 export const version = {
   version: '4.20.0',
   commit: '8d2c9f2',
