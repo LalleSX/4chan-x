@@ -28,12 +28,13 @@ const CopyTextLink = {
       },
     })
   },
+  text: '',
 
   copy() {
     const el = $.el('textarea', {
       className: 'copy-text-element',
       value: CopyTextLink.text,
-    })
+    }) as HTMLTextAreaElement
     $.add(d.body, el)
     el.select()
     try {

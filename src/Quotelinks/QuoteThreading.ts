@@ -70,7 +70,7 @@ const QuoteThreading = {
 
   setEnabled() {
     if (this.checked) {
-      $.set('Prune All Threads', false)
+      $.set('Prune All Threads', false, true)
       const other = ReplyPruning.inputs?.enabled
       if (other?.checked) {
         other.checked = false

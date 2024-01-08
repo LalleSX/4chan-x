@@ -3,6 +3,7 @@ import Main from '../main/Main.js'
 import $ from '../platform/$.js'
 import $$ from '../platform/$$.js'
 import { dict } from '../platform/helpers.js'
+import Board from '../classes/Board.js'
 
 const SWTinyboard = {
   id: 'tinyboard',
@@ -251,7 +252,7 @@ $\
     postURL(boardID, threadID, postID) {
       return `/${boardID}/res/${threadID}.html#${postID}`
     },
-    spoilerRange: Object.create(null),
+    spoilerRange: dict(),
     postFromObject(data: any, board: any) {
       const o = this.postFromObject(data, board)
       if (data.ext === 'deleted') {

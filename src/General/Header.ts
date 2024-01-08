@@ -14,6 +14,17 @@ import { meta } from '../globals/globals.js'
 
 const Header = {
   menu: new UI.Menu('header'),
+  barFixedToggler: null,
+  bottomBoardList: null,
+  shortcutToggler: null,
+  customNavToggler: null,
+  barPositionToggler: null,
+  boardList: null,
+  headerToggler: null,
+  scrollHeaderToggler: null,
+  linkJustifyToggler: null,
+  footerToggler: null,
+  previousOffset: 0,
   init() {
     $.onExists(doc, 'body', () => {
       if (!Main.isThisPageLegit()) {
@@ -237,7 +248,7 @@ const Header = {
   },
 
   generateBoardList(boardnav) {
-    const list = $('#custom-board-list', Header.boardList)
+    const list = $('#custom-board-list', Header.boardList) as HTMLElement
     $.rmAll(list)
     if (!boardnav) {
       return

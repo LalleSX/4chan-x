@@ -41,10 +41,17 @@ const IDColor = {
     const hash = g.SITE.uidColor ? g.SITE.uidColor(uid) : parseInt(uid, 16)
 
     // Convert binary string to numerical values with bitshift and '&' truncation.
-    const rgb = [(hash >> 16) & 0xff, (hash >> 8) & 0xff, hash & 0xff]
+    const rgb: [number, number, number, string] = [
+      (hash >> 16) & 0xff,
+      (hash >> 8) & 0xff,
+      hash & 0xff,
+      '',
+    ]
 
     // Weight color luminance values, assign a font color that should be readable.
-    rgb.push($.luma(rgb) > 125 ? '#000' : '#fff')
+    rgb.push(
+      rgb[0] * 0.299 + rgb[1] * 0.587 + rgb[2] * 0.114 > 186 ? '#000' : '#fff'
+    )
 
     // Cache.
     return (this.ids[uid] = rgb)

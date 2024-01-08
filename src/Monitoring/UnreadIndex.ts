@@ -25,7 +25,7 @@ const UnreadIndex = {
     }
 
     this.enabled = true
-    this.db = new DataBoard('lastReadPosts', this.sync)
+    this.db = new DataBoard('lastReadPosts', this.sync, true)
 
     Callbacks.Thread.push({
       name: 'Unread Line in Index',

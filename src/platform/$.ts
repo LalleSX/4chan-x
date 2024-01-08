@@ -11,7 +11,7 @@ const $ = (selector: string, root: HTMLElement = document.body) =>
 
 $.id = (id: string) => document.getElementById(id)
 
-$.ready = function (fc) {
+$.ready = function (fc: () => any) {
   if (d.readyState !== 'loading') {
     $.queueTask(fc)
     return
@@ -41,16 +41,20 @@ $.formData = function (form: Record<string, any> | HTMLFormElement) {
   return fd
 }
 
-$.extend = function (object, properties) {
+$.extend = function (
+  object: { [x: string]: any },
+  properties: { [x: string]: any }
+) {
   for (const key in properties) {
     const val = properties[key]
     object[key] = val
   }
 }
 
-$.hasOwn = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key)
+$.hasOwn = (obj: any, key: any) =>
+  Object.prototype.hasOwnProperty.call(obj, key)
 
-$.getOwn = function (obj, key) {
+$.getOwn = function (obj: { [x: string]: any }, key: string | number) {
   if (Object.prototype.hasOwnProperty.call(obj, key)) {
     return obj[key]
   } else {
@@ -59,7 +63,16 @@ $.getOwn = function (obj, key) {
 }
 $.ajaxPage = undefined
 $.ajax = (function () {
-  let pageXHR
+  let pageXHR: {
+    new (): any
+    new (): XMLHttpRequest
+    prototype?: XMLHttpRequest
+    UNSENT?: 0
+    OPENED?: 1
+    HEADERS_RECEIVED?: 2
+    LOADING?: 3
+    DONE?: 4
+  }
   if (window.wrappedJSObject && window.wrappedJSObject.XMLHttpRequest) {
     pageXHR = XPCNativeWrapper(window.wrappedJSObject.XMLHttpRequest)
   } else {
@@ -67,7 +80,7 @@ $.ajax = (function () {
   }
 
   const r = function (
-    url,
+    url: string,
     options = {
       onloadend: null,
       timeout: 10000,
@@ -175,7 +188,7 @@ $.ajax = (function () {
           document.addEventListener(
             '4chanXAjax',
             function (e: CustomEvent) {
-              let fd, r
+              let fd: FormData, r: XMLHttpRequest
               const {
                 url = null,
                 timeout = 10000,
@@ -199,7 +212,10 @@ $.ajax = (function () {
               r.timeout = timeout
               r.withCredentials = withCredentials
               if (onprogress) {
-                r.upload.onprogress = function (e) {
+                r.upload.onprogress = function (e: {
+                  loaded: any
+                  total: any
+                }) {
                   const { loaded, total } = e
                   const detail = { loaded, total, id }
                   return document.dispatchEvent(
@@ -250,7 +266,7 @@ $.ajax = (function () {
           return document.addEventListener(
             '4chanXAjaxAbort',
             function (e: CustomEvent) {
-              let r
+              let r: { abort: () => void }
               if (!(r = window.FCX.requests[e.detail.id])) {
                 return
               }
@@ -263,7 +279,9 @@ $.ajax = (function () {
       )
 
       $.on(d, '4chanXAjaxProgress', function (e: CustomEvent) {
-        let req
+        let req: {
+          upload: { onprogress: { call: (arg0: any, arg1: any) => void } }
+        }
         if (!(req = requests[e.detail.id])) {
           return
         }
@@ -271,7 +289,12 @@ $.ajax = (function () {
       })
 
       return $.on(d, '4chanXAjaxLoadend', function (e: CustomEvent) {
-        let req
+        let req: {
+          [x: string]: any
+          responseType: string
+          response: Document
+          onloadend: () => void
+        }
         if (!(req = requests[e.detail.id])) {
           return
         }
@@ -349,12 +372,12 @@ $.ajax = (function () {
 // This saves a lot of bandwidth and CPU time for both the users and the servers.
 $.lastModified = dict()
 $.whenModified = function (
-  url,
-  bucket,
-  cb,
+  url: string,
+  bucket: string | number,
+  cb: { call: (arg0: any) => any },
   options = { timeout: 10000, ajax: null }
 ) {
-  let t
+  let t: any
   const { timeout, ajax } = options
   const params = []
   // XXX https://bugs.chromium.org/p/chromium/issues/detail?id=643659
@@ -384,8 +407,13 @@ $.whenModified = function (
   return r
 }
 
-$.cache = function (url, bucket, cb, options = { timeout: 10000, ajax: null }) {
-  let t
+$.cache = function (
+  url: string,
+  bucket: string | number,
+  cb: { call: (arg0: any) => any },
+  options = { timeout: 10000, ajax: null }
+) {
+  let t: any
   const { timeout, ajax } = options
   const params = []
   // XXX https://bugs.chromium.org/p/chromium/issues/detail?id=643659
@@ -415,7 +443,7 @@ $.cache = function (url, bucket, cb, options = { timeout: 10000, ajax: null }) {
   return r
 }
 
-$.cleanCache = function (bucket) {
+$.cleanCache = function (bucket: string | number) {
   if ($.lastModified[bucket]) {
     return delete $.lastModified[bucket]
   }
@@ -440,7 +468,7 @@ $.cb = {
   },
 }
 
-$.asap = function (test, cb) {
+$.asap = function (test: () => any, cb: () => any) {
   if (test()) {
     return cb()
   } else {
@@ -448,8 +476,8 @@ $.asap = function (test, cb) {
   }
 }
 
-$.onExists = function (root, selector, cb) {
-  let el
+$.onExists = function (root: Node, selector: string, cb: (arg0: any) => void) {
+  let el: HTMLElement
   if ((el = $(selector, root))) {
     return cb(el)
   }
@@ -462,7 +490,7 @@ $.onExists = function (root, selector, cb) {
   return observer.observe(root, { childList: true, subtree: true })
 }
 
-$.addStyle = function (css, id, test = 'head') {
+$.addStyle = function (css: any, id: string, test = 'head') {
   const style = $.el('style', { textContent: css })
   if (id != null) {
     style.id = id
@@ -471,7 +499,7 @@ $.addStyle = function (css, id, test = 'head') {
   return style
 }
 
-$.addCSP = function (policy) {
+$.addCSP = function (policy: any) {
   const meta = $.el('meta', {
     httpEquiv: 'Content-Security-Policy',
     content: policy,
@@ -486,7 +514,7 @@ $.addCSP = function (policy) {
   }
 }
 
-$.x = function (path, root): HTMLElement {
+$.x = function (path: string, root: Node): HTMLElement {
   if (!root) {
     root = d.body
   }
@@ -494,7 +522,7 @@ $.x = function (path, root): HTMLElement {
   return d.evaluate(path, root, null, 8, null).singleNodeValue as HTMLElement
 }
 
-$.X = function (path, root) {
+$.X = function (path: string, root: Node) {
   if (!root) {
     root = d.body
   }
@@ -502,33 +530,45 @@ $.X = function (path, root) {
   return d.evaluate(path, root, null, 7, null)
 }
 
-$.addClass = function (el, ...classNames) {
+$.addClass = function (
+  el: { classList: { add: (arg0: any) => void } },
+  ...classNames: any
+) {
   for (const className of classNames) {
     el.classList.add(className)
   }
 }
 
-$.rmClass = function (el, ...classNames) {
+$.rmClass = function (
+  el: { classList: { remove: (arg0: any) => void } },
+  ...classNames: any
+) {
   for (const className of classNames) {
     el.classList.remove(className)
   }
 }
 
-$.toggleClass = (el, className) => el.classList.toggle(className) as boolean
+$.toggleClass = (
+  el: { classList: { toggle: (arg0: any) => boolean } },
+  className: any
+) => el.classList.toggle(className) as boolean
 
-$.hasClass = (el, className) => el.classList.contains(className) as boolean
+$.hasClass = (
+  el: { classList: { contains: (arg0: any) => boolean } },
+  className: any
+) => el.classList.contains(className) as boolean
 
-$.rm = el => el?.remove()
+$.rm = (el: { remove: () => any }) => el?.remove()
 
 $.rmAll = (
   root // https://gist.github.com/MayhemYDG/8646194
 ) => (root.textContent = null)
 
-$.tn = s => d.createTextNode(s)
+$.tn = (s: string) => d.createTextNode(s)
 
 $.frag = () => d.createDocumentFragment()
 
-$.nodes = function (nodes) {
+$.nodes = function (nodes: any) {
   if (!(nodes instanceof Array)) {
     return nodes
   }
@@ -539,16 +579,31 @@ $.nodes = function (nodes) {
   return frag
 }
 
-$.add = (parent, el) => parent.appendChild($.nodes(el))
+$.add = (parent: { appendChild: (arg0: any) => any }, el: any) =>
+  parent.appendChild($.nodes(el))
 
-$.prepend = (parent, el) => parent.insertBefore($.nodes(el), parent.firstChild)
+$.prepend = (
+  parent: { insertBefore: (arg0: any, arg1: any) => any; firstChild: any },
+  el: any
+) => parent.insertBefore($.nodes(el), parent.firstChild)
 
-$.after = (root, el) =>
-  root.parentNode.insertBefore($.nodes(el), root.nextSibling)
+$.after = (
+  root: {
+    parentNode: { insertBefore: (arg0: any, arg1: any) => any }
+    nextSibling: any
+  },
+  el: any
+) => root.parentNode.insertBefore($.nodes(el), root.nextSibling)
 
-$.before = (root, el) => root.parentNode.insertBefore($.nodes(el), root)
+$.before = (
+  root: { parentNode: { insertBefore: (arg0: any, arg1: any) => any } },
+  el: any
+) => root.parentNode.insertBefore($.nodes(el), root)
 
-$.replace = (root, el) => root.parentNode.replaceChild($.nodes(el), root)
+$.replace = (
+  root: { parentNode: { replaceChild: (arg0: any, arg1: any) => any } },
+  el: any
+) => root.parentNode.replaceChild($.nodes(el), root)
 
 $.el = function (
   tag: string,
@@ -566,7 +621,13 @@ $.el = function (
 }
 
 $.on = function (
-  el,
+  el: {
+    addEventListener: (
+      arg0: string,
+      arg1: EventListenerOrEventListenerObject,
+      arg2: boolean
+    ) => void
+  },
   events: string,
   handler: EventListenerOrEventListenerObject
 ) {
@@ -584,8 +645,12 @@ $.off = function (
   }
 }
 
-$.one = function (el, events, handler) {
-  const cb = function (e) {
+$.one = function (
+  el: EventTarget,
+  events: string,
+  handler: { call: (arg0: any, arg1: any) => any }
+) {
+  const cb = function (e: any) {
     $.off(el, events, cb)
     return handler.call(this, e)
   }
@@ -618,8 +683,8 @@ if (platform === 'userscript') {
         Object: unsafeWindow.Object,
         Array: unsafeWindow.Array,
       }
-      const clone = function (obj) {
-        let constructor
+      const clone = function (obj: Record<string, any>) {
+        let constructor: new () => any
         if (
           obj != null &&
           typeof obj === 'object' &&
@@ -647,8 +712,13 @@ if (platform === 'userscript') {
   })()
 }
 
-$.modifiedClick = e =>
-  e.shiftKey || e.altKey || e.ctrlKey || e.metaKey || e.button !== 0
+$.modifiedClick = (e: {
+  shiftKey: any
+  altKey: any
+  ctrlKey: any
+  metaKey: any
+  button: number
+}) => e.shiftKey || e.altKey || e.ctrlKey || e.metaKey || e.button !== 0
 
 if (!globalThis.chrome?.extension) {
   $.open =
@@ -656,12 +726,15 @@ if (!globalThis.chrome?.extension) {
       ? GM.openInTab
       : typeof GM_openInTab !== 'undefined' && GM_openInTab !== null
         ? GM_openInTab
-        : url => window.open(url, '_blank')
+        : (url: string | URL) => window.open(url, '_blank')
 } else {
-  $.open = url => window.open(url, '_blank')
+  $.open = (url: string | URL) => window.open(url, '_blank')
 }
 
-$.debounce = function (wait: number, fn) {
+$.debounce = function (
+  wait: number,
+  fn: { apply: (arg0: any, arg1: any) => any }
+) {
   let lastCall = 0
   let timeout = null
   let that = null
@@ -683,7 +756,10 @@ $.debounce = function (wait: number, fn) {
   }
 }
 
-$.queueTask = function (fn, ...args) {
+$.queueTask = function (
+  fn: { (...args: any[]): void; (): void },
+  ...args: string | any[]
+) {
   if (args.length) {
     return setTimeout(fn, 0, ...args)
   } else {
@@ -692,7 +768,7 @@ $.queueTask = function (fn, ...args) {
 }
 type DataObject = Record<string, string>
 
-$.global = function (fn: Function, data?: DataObject): DataObject | void {
+$.global = function (fn: Function, data?): DataObject | void {
   // Check if the document object exists.
   if (document) {
     // Create a new script element and set its text content to invoke the function 'fn'.
@@ -744,22 +820,27 @@ $.bytesToString = function (size: number) {
   return `${size} ${['B', 'KB', 'MB', 'GB'][unit]}`
 }
 
-$.minmax = (value, min, max) => (value < min ? min : value > max ? max : value)
+$.minmax = (value: number, min: number, max: number) =>
+  value < min ? min : value > max ? max : value
 
-$.hasAudio = video =>
+$.hasAudio = (video: {
+  mozHasAudio: any
+  webkitAudioDecodedByteCount: any
+  nextElementSibling: { tagName: string }
+}) =>
   video.mozHasAudio ||
   !!video.webkitAudioDecodedByteCount ||
   video.nextElementSibling?.tagName === 'AUDIO' // sound posts
 
 $.luma = (rgb: number[]) => rgb[0] * 0.299 + rgb[1] * 0.587 + rgb[2] * 0.114
 
-$.unescape = function (text) {
+$.unescape = function (text: string) {
   if (text == null) {
     return text
   }
   return text.replace(/<[^>]*>/g, '').replace(
     /&(amp|#039|quot|lt|gt|#44);/g,
-    c =>
+    (c: string | number) =>
       ({
         '&amp;': '&',
         '&#039;': "'",
@@ -771,8 +852,9 @@ $.unescape = function (text) {
   )
 }
 
-$.isImage = url => /\.(jpe?g|jfif|png|gif|bmp|webp|avif|jxl)$/i.test(url)
-$.isVideo = url => /\.(webm|mp4|ogv)$/i.test(url)
+$.isImage = (url: string) =>
+  /\.(jpe?g|jfif|png|gif|bmp|webp|avif|jxl)$/i.test(url)
+$.isVideo = (url: string) => /\.(webm|mp4|ogv)$/i.test(url)
 
 $.engine = (function () {
   if (/Edge\//.test(navigator.userAgent)) {
@@ -801,14 +883,14 @@ $.hasStorage = (function () {
   }
 })()
 
-$.item = function (key, val) {
+$.item = function (key: string | number, val: any) {
   const item = dict()
   item[key] = val
   return item
 }
 
-$.oneItemSugar = fn =>
-  function (key, val, cb) {
+$.oneItemSugar = (fn: (arg0: any, arg1: any) => any) =>
+  function (key: any, val: any, cb: any) {
     if (typeof key === 'string') {
       return fn($.item(key, val), cb)
     } else {
@@ -818,7 +900,7 @@ $.oneItemSugar = fn =>
 
 $.syncing = dict()
 
-$.securityCheck = function (data) {
+$.securityCheck = function (data: { [x: string]: any }) {
   if (location.protocol !== 'https:') {
     return delete data['Redirect to HTTPS']
   }
@@ -842,7 +924,7 @@ if (platform === 'crx') {
       }
     }
   })
-  $.sync = (key, cb) => ($.syncing[key] = cb)
+  $.sync = (key: string | number, cb: any) => ($.syncing[key] = cb)
   $.forceSync = function () {}
 
   $.crxWorking = function () {
@@ -853,7 +935,7 @@ if (platform === 'crx') {
     return true
   }
 
-  $.get = $.oneItemSugar(function (data, cb) {
+  $.get = $.oneItemSugar(function (data: {}, cb: (arg0: any) => void) {
     if (!$.crxWorking()) {
       return
     }
@@ -862,7 +944,7 @@ if (platform === 'crx') {
     let keys = Object.keys(data) // Common keys extraction
     let hasError = false // Error flag
 
-    const processResult = (area, result) => {
+    const processResult = (area: string | number, result: any) => {
       result = dict.clone(result)
       if (chrome.runtime.lastError) {
         c.error(chrome.runtime.lastError.message)
@@ -876,24 +958,27 @@ if (platform === 'crx') {
       }
     }
 
-    const get = area => {
+    const get = (area: string) => {
       // Moved the keys check inside the get function
       if ($.engine === 'gecko' && area === 'sync' && keys.length > 3) {
         keys = null
       }
 
-      chrome.storage[area].get(keys, function (result) {
-        if (keys === null) {
-          result = Object.fromEntries(
-            Object.entries(result).filter(([key, _]) => $.hasOwn(data, key))
-          )
-        }
+      chrome.storage[area].get(
+        keys,
+        function (result: ArrayLike<unknown> | { [s: string]: unknown }) {
+          if (keys === null) {
+            result = Object.fromEntries(
+              Object.entries(result).filter(([key, _]) => $.hasOwn(data, key))
+            )
+          }
 
-        for (const key in data) {
-          $.oldValue[area][key] = result[key]
+          for (const key in data) {
+            $.oldValue[area][key] = result[key]
+          }
+          processResult(area, result)
         }
-        processResult(area, result)
-      })
+      )
     }
 
     get('local')
@@ -906,8 +991,8 @@ if (platform === 'crx') {
     }
 
     const exceedsQuota = (
-      key,
-      value // bytes in UTF-8
+      key: any,
+      value: any // bytes in UTF-8
     ) =>
       unescape(encodeURIComponent(JSON.stringify(key))).length +
         unescape(encodeURIComponent(JSON.stringify(value))).length >
@@ -929,15 +1014,18 @@ if (platform === 'crx') {
     }
 
     const timeout = {}
-    const setArea = function (area, cb) {
+    const setArea = function (
+      area: string,
+      cb: { (): void; (arg0: undefined): any }
+    ) {
       const data = dict()
       $.extend(data, items[area])
       if (!Object.keys(data).length || timeout[area] > Date.now()) {
         return
       }
       return chrome.storage[area].set(data, function () {
-        let err
-        let key
+        let err: chrome.runtime.LastError
+        let key: string
         if ((err = chrome.runtime.lastError)) {
           c.error(err.message)
           setTimeout(setArea, MINUTE, area)
@@ -978,7 +1066,7 @@ if (platform === 'crx') {
 
     const setSync = debounce(SECOND, () => setArea('sync', () => {}))
 
-    $.set = $.oneItemSugar(function (data, cb): void {
+    $.set = $.oneItemSugar(function (data: any, cb: any): void {
       if (!$.crxWorking()) {
         return
       }
@@ -1026,7 +1114,7 @@ if (platform === 'crx') {
       (() => {
         const result = []
         for (const key in e.data) {
-          let cb
+          let cb: (arg0: any, arg1: string) => any
           const val = e.data[key]
           if ((cb = $.syncing[key])) {
             result.push(cb(dict.json(JSON.stringify(val)), key))
@@ -1036,11 +1124,11 @@ if (platform === 'crx') {
       })()
     )
 
-    $.sync = (key, cb) => ($.syncing[key] = cb)
+    $.sync = (key: string | number, cb: any) => ($.syncing[key] = cb)
 
     $.forceSync = function () {}
 
-    $.delete = function (keys, cb) {
+    $.delete = function (keys: any[], cb: () => any) {
       if (!(keys instanceof Array)) {
         keys = [keys]
       }
@@ -1050,7 +1138,10 @@ if (platform === 'crx') {
       return cb?.()
     }
 
-    $.get = $.oneItemSugar(function (items, cb) {
+    $.get = $.oneItemSugar(function (
+      items: { [x: string]: any },
+      cb: (arg0: any) => any
+    ) {
       const keys = Object.keys(items)
       return Promise.all(keys.map(key => GM.getValue(g.NAMESPACE + key))).then(
         function (values) {
@@ -1065,7 +1156,10 @@ if (platform === 'crx') {
       )
     })
 
-    $.set = $.oneItemSugar(function (items, cb): void | Promise<void> {
+    $.set = $.oneItemSugar(function (
+      items: { [x: string]: any },
+      cb: () => any
+    ): void | Promise<void> {
       $.securityCheck(items)
       return Promise.all(
         (() => {
@@ -1082,7 +1176,7 @@ if (platform === 'crx') {
       })
     })
 
-    $.clear = cb =>
+    $.clear = (cb: any) =>
       GM.listValues()
         .then(keys =>
           $.delete(
@@ -1109,7 +1203,7 @@ if (platform === 'crx') {
       $.getValue = GM_getValue
       $.listValues = () => GM_listValues() // error when called if missing
     } else if ($.hasStorage) {
-      $.getValue = key => localStorage.getItem(key)
+      $.getValue = (key: string) => localStorage.getItem(key)
       $.listValues = () =>
         (() => {
           const result = []
@@ -1136,7 +1230,7 @@ if (platform === 'crx') {
       GM_deleteValue !== null
     ) {
       $.oldValue = dict()
-      $.setValue = function (key, val) {
+      $.setValue = function (key: string, val: string) {
         GM_setValue(key, val)
         if (key in $.syncing) {
           $.oldValue[key] = val
@@ -1145,7 +1239,7 @@ if (platform === 'crx') {
           } // for `storage` events
         }
       }
-      $.deleteValue = function (key) {
+      $.deleteValue = function (key: string) {
         GM_deleteValue(key)
         if (key in $.syncing) {
           delete $.oldValue[key]
@@ -1159,13 +1253,13 @@ if (platform === 'crx') {
       }
     } else if ($.hasStorage) {
       $.oldValue = dict()
-      $.setValue = function (key, val) {
+      $.setValue = function (key: string, val: string) {
         if (key in $.syncing) {
           $.oldValue[key] = val
         }
         return localStorage.setItem(key, val)
       }
-      $.deleteValue = function (key) {
+      $.deleteValue = function (key: string) {
         if (key in $.syncing) {
           delete $.oldValue[key]
         }
@@ -1181,7 +1275,7 @@ if (platform === 'crx') {
       typeof GM_addValueChangeListener !== 'undefined' &&
       GM_addValueChangeListener !== null
     ) {
-      $.sync = (key, cb) =>
+      $.sync = (key: string, cb: (arg0: any, arg1: any) => void) =>
         ($.syncing[key] = GM_addValueChangeListener(
           g.NAMESPACE + key,
           function (key2, oldValue, newValue, remote) {
@@ -1198,14 +1292,14 @@ if (platform === 'crx') {
       (typeof GM_deleteValue !== 'undefined' && GM_deleteValue !== null) ||
       $.hasStorage
     ) {
-      $.sync = function (key, cb) {
+      $.sync = function (key: string, cb: any) {
         key = g.NAMESPACE + key
         $.syncing[key] = cb
         return ($.oldValue[key] = $.getValue(key))
       }
       ;(function () {
         const onChange = function ({ key, newValue }) {
-          let cb
+          let cb: (arg0: any, arg1: any) => any
           if (!(cb = $.syncing[key])) {
             return
           }
@@ -1225,7 +1319,7 @@ if (platform === 'crx') {
         }
         $.on(window, 'storage', onChange)
 
-        return ($.forceSync = function (key) {
+        return ($.forceSync = function (key: string) {
           // Storage events don't work across origins
           // e.g. http://boards.4chan.org and https://boards.4chan.org
           // so force a check for changes to avoid lost data.
@@ -1238,7 +1332,7 @@ if (platform === 'crx') {
       $.forceSync = function () {}
     }
 
-    $.delete = function (keys) {
+    $.delete = function (keys: any[]) {
       if (!(keys instanceof Array)) {
         keys = [keys]
       }
@@ -1247,11 +1341,13 @@ if (platform === 'crx') {
       }
     }
 
-    $.get = $.oneItemSugar((items, cb) => $.queueTask($.getSync, items, cb))
+    $.get = $.oneItemSugar((items: any, cb: any) =>
+      $.queueTask($.getSync, items, cb)
+    )
 
-    $.getSync = function (items, cb) {
+    $.getSync = function (items: { [x: string]: any }, cb: (arg0: any) => any) {
       for (const key in items) {
-        let val2
+        let val2: string
         if ((val2 = $.getValue(g.NAMESPACE + key))) {
           try {
             items[key] = dict.json(val2)
@@ -1266,7 +1362,10 @@ if (platform === 'crx') {
       return cb(items)
     }
 
-    $.set = $.oneItemSugar(function (items, cb): void | NodeJS.Timeout {
+    $.set = $.oneItemSugar(function (
+      items: { [x: string]: any },
+      cb: () => void | NodeJS.Timeout
+    ): void | NodeJS.Timeout {
       $.securityCheck(items)
       for (const key in items) {
         const val = items[key]
@@ -1275,7 +1374,7 @@ if (platform === 'crx') {
       return cb?.()
     })
 
-    $.clear = function (cb) {
+    $.clear = function (cb: () => any) {
       // XXX https://github.com/greasemonkey/greasemonkey/issues/2033
       // Also support case where GM_listValues is not defined.
       $.delete(Object.keys(Conf), cb)

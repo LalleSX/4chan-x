@@ -86,9 +86,9 @@ const Linkify = {
                 (part1 = word.match(
                   /(https?:\/\/)?([a-z\d-]+\.)*[a-z\d-]+$/i
                 )) &&
-                (part2 = snapshot
-                  .snapshotItem(i)
-                  ?.data?.match(/^(\.[a-z\d-]+)*\//i)) &&
+                (part2 = (snapshot.snapshotItem(i) as Text)?.data?.match(
+                  /^(\.[a-z\d-]+)*\//i
+                )) &&
                 (part1[0] + part2[0]).search(Linkify.regString) === 0
               ) {
                 continue

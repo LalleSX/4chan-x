@@ -5,12 +5,7 @@ import type SWTinyboard from '../site/SW.tinyboard.js'
 
 declare global {
   interface Window {
-    wrappedJSObject: any
-    FCX: any
-    SWFEmbed: any
-    Main: any
-    prettyPrint: any
-    Parser: any
+    [key: string]: any
   }
 }
 
