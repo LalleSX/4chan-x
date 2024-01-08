@@ -1,4 +1,5 @@
 import Callbacks from '../classes/Callbacks.js'
+import Post from '../classes/Post.js'
 import { g, Conf, doc } from '../globals/globals.js'
 import $ from '../platform/$.js'
 import { dict } from '../platform/helpers.js'
@@ -49,14 +50,14 @@ const QuoteBacklink = {
       className: this.isHidden ? 'filtered backlink' : 'backlink',
       textContent: Conf['backlink'].replace(
         /%(?:id|%)/g,
-        x => ({ '%id': this.ID, '%%': '%' })[x]
+        (        x: string | number) => ({ '%id': this.ID, '%%': '%' })[x]
       ),
     })
     if (markYours) {
       $.add(a, QuoteYou.mark.cloneNode(true))
     }
     for (const quote of this.quotes) {
-      let post
+      let post: Post
       const containers = [QuoteBacklink.getContainer(quote)]
       if ((post = g.posts.get(quote)) && post.nodes.backlinkContainer) {
         // Don't add OP clones when OP Backlinks is disabled,
@@ -99,7 +100,7 @@ const QuoteBacklink = {
       return $.add(this.nodes.info, container)
     }
   },
-  getContainer(id) {
+  getContainer(id: string | number) {
     return (
       this.containers[id] ||
       (this.containers[id] = $.el('span', { className: 'container' }))

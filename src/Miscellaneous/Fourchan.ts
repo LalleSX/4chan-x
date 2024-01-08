@@ -20,7 +20,7 @@ const Fourchan = {
 
   initBoard() {
     if (g.BOARD.config.code_tags) {
-      $.on(window, 'prettyprint:cb', function (e) {
+      $.on(window, 'prettyprint:cb', function (e: CustomEvent) {
         let post, pre
         if (!(post = g.posts.get(e.detail.ID))) {
           return
@@ -36,7 +36,7 @@ const Fourchan = {
       $.global(() =>
         window.addEventListener(
           'prettyprint',
-          e =>
+          (e: CustomEvent) =>
             window.dispatchEvent(
               new CustomEvent('prettyprint:cb', {
                 detail: {
@@ -65,7 +65,7 @@ const Fourchan = {
       $.global(() =>
         window.addEventListener(
           'mathjax',
-          function (e) {
+          function (e: CustomEvent) {
             if (window.MathJax) {
               return window.MathJax.Hub.Queue([
                 'Typeset',

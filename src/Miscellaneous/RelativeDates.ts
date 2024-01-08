@@ -45,7 +45,7 @@ const RelativeDates = {
     // pick up the user-formatted time instead of 4chan time when enabled.
     dateEl.title = dateEl.textContent
 
-    return RelativeDates.update(this)
+    return RelativeDates.update(this, new Date())
   },
 
   // diff is milliseconds from now.
@@ -108,6 +108,7 @@ const RelativeDates = {
   // Each individual dateTime element will add its update() function to the stale list
   // when it is to be called.
   stale: [],
+  timeout: null,
   flush() {
     // No point in changing the dates until the user sees them.
     if (d.hidden) {
@@ -132,7 +133,7 @@ const RelativeDates = {
     const { date } = post.info
     const now = new Date()
     const diff = now - date
-    return (post.nodes.date.title = RelativeDates.relative(diff, now, date))
+    return (post.nodes.date.title = RelativeDates.relative(diff, now, date, false))
   },
 
   // `update()`, when called from `flush()`, updates the elements,

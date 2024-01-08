@@ -16,6 +16,7 @@ const IDColor = {
       cb: this.node,
     })
   },
+  ids: dict(),
 
   node() {
     let span, uid

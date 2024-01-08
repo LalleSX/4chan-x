@@ -111,7 +111,7 @@ const Nav = {
       d.body.style.marginBottom = `${extra}px`
     }
 
-    Header.scrollTo(thread)
+    Header.scrollTo(thread, delta, true)
 
     if (extra > 0 && !Nav.haveExtra) {
       Nav.haveExtra = true

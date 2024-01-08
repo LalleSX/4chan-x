@@ -89,7 +89,7 @@ const Settings = {
   },
 
   open(openSection = 'none') {
-    let dialog, sectionToOpen
+    let dialog: HTMLElement, sectionToOpen: HTMLElement
     if (Settings.dialog) {
       return
     }
@@ -170,7 +170,7 @@ const Settings = {
   },
 
   openSection() {
-    let selected
+    let selected: HTMLElement
     if ((selected = $('.tab-selected', Settings.dialog))) {
       $.rmClass(selected, 'tab-selected')
     }
@@ -187,7 +187,7 @@ const Settings = {
   },
 
   warnings: {
-    localStorage(cb) {
+    localStorage(cb: (arg0: HTMLElement) => any) {
       if ($.cantSync) {
         const why = $.cantSet
           ? 'save your settings'
@@ -204,7 +204,7 @@ Enable it on boards.${
         )
       }
     },
-    ads(cb) {
+    ads(cb: { (item: any): Notice; (arg0: HTMLElement): void }) {
       return $.onExists(doc, '.adg-rects > .desktop', ad =>
         $.onExists(ad, 'iframe', function () {
           const url = Redirect.to('thread', { boardID: 'qa', threadID: 362590 })
@@ -232,14 +232,14 @@ Enable it on boards.${
     },
   },
 
-  main(section) {
-    let key
+  main(section: HTMLElement) {
+    let key: string
     const warnings = $.el(
       'fieldset',
       { hidden: true },
       { innerHTML: '<legend>Warnings</legend><ul></ul>' }
     )
-    const addWarning = function (item) {
+    const addWarning = function (item: any) {
       $.add($('ul', warnings), item)
       return (warnings.hidden = false)
     }
@@ -251,7 +251,21 @@ Enable it on boards.${
 
     const items = dict()
     const inputs = dict()
-    const addCheckboxes = function (root, obj) {
+    const addCheckboxes = function (
+      root: HTMLElement,
+      obj: {
+        [x: string]: any
+        'Index Mode'?: string
+        'Previous Index Mode'?: string
+        'Index Size'?: string
+        'Show Replies'?: (string | boolean)[]
+        'Catalog Hover Expand'?: (string | boolean)[]
+        'Catalog Hover Toggle'?: (string | boolean)[]
+        'Pin Watched Threads'?: (string | boolean)[]
+        'Anchor Hidden Threads'?: (string | boolean)[]
+        'Refreshed Navigation'?: (string | boolean)[]
+      }
+    ) {
       const containers = [root]
       return (() => {
         const result = []
@@ -323,7 +337,7 @@ Enable it on boards.${
 
     $.get(
       items,
-      function (items) {
+      function (items: { [x: string]: any }) {
         for (key in items) {
           const val = items[key]
           inputs[key].checked = val
@@ -341,7 +355,10 @@ Enable it on boards.${
     $.get(
       { hiddenThreads: dict(), hiddenPosts: dict() },
       function ({ hiddenThreads, hiddenPosts }) {
-        let board, ID, site, thread
+        let board: { [x: string]: any },
+          ID: string,
+          site: { boards: { [x: string]: any } },
+          thread: {}
         let hiddenNum = 0
         for (ID in hiddenThreads) {
           site = hiddenThreads[ID]
@@ -383,7 +400,7 @@ Enable it on boards.${
       this.textContent = 'Hidden: 0'
       return $.get('hiddenThreads', dict(), function ({ hiddenThreads }) {
         if ($.hasStorage && g.SITE.software === 'yotsuba') {
-          let boardID
+          let boardID: any
           for (boardID in hiddenThreads['4chan.org']?.boards) {
             localStorage.removeItem(`4chan-hide-t-${boardID}`)
           }
@@ -404,7 +421,7 @@ Enable it on boards.${
     const updatedConfig = { ...Conf } // Use object spread for cloning
     return $.get(
       updatedConfig,
-      config => {
+      (config: { [x: string]: any }) => {
         // Remove the 'boardConfig' property to avoid exporting cached JSON data.
         delete config['boardConfig']
 
@@ -446,7 +463,7 @@ Enable it on boards.${
   },
 
   onImport() {
-    let file
+    let file: Blob
     if (!(file = this.files[0])) {
       return
     }
@@ -466,7 +483,7 @@ Enable it on boards.${
       try {
         return Settings.loadSettings(
           dict.json(e.target.result as string),
-          function (err) {
+          function (err: any) {
             if (err) {
               return (output.textContent = 'Import failed due to an error.')
             } else if (confirm('Import successful. Reload now?')) {
@@ -484,7 +501,10 @@ Enable it on boards.${
   },
 
   convertFrom: {
-    loadletter(data) {
+    loadletter(data: {
+      Conf: { [x: string]: any; sauces: string }
+      WatchedThreads: any[]
+    }) {
       const convertSettings = function (
         data: any,
         map: { [key: string]: string }
@@ -568,7 +588,7 @@ Enable it on boards.${
           : ''
         delete data.Conf['Always CDN']
       }
-      data.Conf.sauces = data.Conf.sauces.replace(/\$\d/g, function (c) {
+      data.Conf.sauces = data.Conf.sauces.replace(/\$\d/g, function (c: any) {
         switch (c) {
           case '$1':
             return '%TURL'
@@ -589,7 +609,10 @@ Enable it on boards.${
         }
       }
       if (data.WatchedThreads) {
-        data.WatchedThreads = data.WatchedThreads.map(function (thread) {
+        data.WatchedThreads = data.WatchedThreads.map(function (thread: {
+          boardID: any
+          board: any
+        }) {
           thread.boardID = thread.board
           delete thread.board
           return thread
@@ -599,26 +622,27 @@ Enable it on boards.${
     },
   },
 
-  upgrade(data, version) {
-    let corrupted, key, val
+  upgrade(data, version: string | string[]) {
+    let corrupted: boolean, key: string, val: string
     const changes = dict()
-    const set = (key, value) => (data[key] = changes[key] = value)
-    const setD = function (key, value) {
+    const set = (key: string, value: string | boolean) =>
+      (data[key] = changes[key] = value)
+    const setD = function (key: string, value: boolean) {
       if (data[key] == null) {
         return set(key, value)
       }
     }
-    const addSauces = function (sauces) {
+    const addSauces = function (sauces: any[]) {
       if (data['sauces'] != null) {
         sauces = sauces.filter(
-          s => data['sauces'].indexOf(s.match(/[^#;\s]+|$/)[0]) < 0
+          (s: string) => data['sauces'].indexOf(s.match(/[^#;\s]+|$/)[0]) < 0
         )
         if (sauces.length) {
           return set('sauces', data['sauces'] + '\n\n' + sauces.join('\n'))
         }
       }
     }
-    const addCSS = function (css) {
+    const addCSS = function (css: string) {
       if (data['usercss'] == null) {
         set('usercss', Config['usercss'])
       }
@@ -629,12 +653,12 @@ Enable it on boards.${
     // XXX https://github.com/greasemonkey/greasemonkey/issues/2600
     if ((corrupted = version[0] === '"')) {
       try {
-        version = JSON.parse(version)
+        version = JSON.parse(version as string)
       } catch (error) {}
     }
     const compareString = version
       .replace(/^XT /i, '')
-      .replace(/\d+/g, x => x.padStart(5, '0'))
+      .replace(/\d+/g, (x: string) => x.padStart(5, '0'))
     if (compareString < '00001.00013.00014.00008') {
       for (key in data) {
         val = data[key]
@@ -702,7 +726,7 @@ Enable it on boards.${
       }
     }
     if (compareString < '00001.00011.00016.00000') {
-      let rice
+      let rice: string
       if (
         (rice = Config['usercss'].match(
           /\/\* Board title rice \*\/(?:\n.+)*/
@@ -740,7 +764,9 @@ Enable it on boards.${
     }
     if (compareString < '00001.00011.00019.00003' && !Settings.dialog) {
       $.queueTask(() =>
-        Settings.warnings.ads(item => new Notice('Warning', item))
+        Settings.warnings.ads(
+          (item: string | Node) => new Notice('Warning', item)
+        )
       )
     }
     if (compareString < '00001.00011.00020.00003') {
@@ -1106,26 +1132,32 @@ vp-replace
     return changes
   },
 
-  loadSettings(data: any, cb) {
+  loadSettings(
+    data: any,
+    cb: {
+      (err: any): void | 'Import failed due to an error.'
+      (arg0: null): any
+    }
+  ) {
     if (data.version.split('.')[0] === '2') {
       // https://github.com/loadletter/4chan-x
       data = Settings.convertFrom.loadletter(data)
     } else if (data.version !== g.VERSION) {
       Settings.upgrade(data.Conf, data.version)
     }
-    return $.clear(function (err) {
+    return $.clear(function (err: any) {
       if (err) {
         return cb(err)
       }
       return $.set(
         data.Conf,
-        function (err) {
+        function (err: any) {
           if (err) {
             return cb(err)
           }
           return $.set(
             data,
-            function (err) {
+            function (err: any) {
               if (err) {
                 return cb(err)
               }
@@ -1143,7 +1175,7 @@ vp-replace
     if (
       confirm('Your current settings will be entirely wiped, are you sure?')
     ) {
-      return $.clear(function (err) {
+      return $.clear(function (err: any) {
         if (err) {
           return ($('.imp-exp-result').textContent =
             'Import failed due to an error.')
@@ -1162,8 +1194,8 @@ vp-replace
   },
 
   selectFilter() {
-    let name
-    const div = this.nextElementSibling
+    let name: string | number
+    const div = this.nextElementSibling as HTMLDivElement
     if ((name = this.value) !== 'guide') {
       if (!$.hasOwn(Config.filter, name)) {
         return
@@ -1175,7 +1207,7 @@ vp-replace
         spellcheck: false,
       }) as HTMLTextAreaElement
       $.on(ta, 'change', $.cb.value)
-      $.get(name, Conf[name], function (item) {
+      $.get(name, Conf[name], function (item: { [x: string]: string }) {
         ta.value = item[name]
         return $.add(div, ta)
       })
@@ -1193,7 +1225,7 @@ vp-replace
     $.extend(section, { innerHTML: SaucePage })
     $('.warning', section).hidden = Conf['Sauce']
     const ta = $('textarea', section) as HTMLTextAreaElement
-    $.get('sauces', Conf['sauces'], function (item) {
+    $.get('sauces', Conf['sauces'], function (item: { [x: string]: string }) {
       ta.value = item['sauces']
       return (ta.hidden = false)
     }) // XXX prevent Firefox from adding initialization to undo queue
@@ -1201,7 +1233,19 @@ vp-replace
   },
 
   advanced(section: HTMLElement) {
-    let input, name
+    let input: {
+        [x: string]: any
+        name?: any
+        nodeName?: any
+        type?: any
+        hidden?: any
+        addEventListener?: (
+          arg0: string,
+          arg1: EventListenerOrEventListenerObject,
+          arg2: boolean
+        ) => void
+      },
+      name: string
     $.extend(section, { innerHTML: AdvancedPage })
     for (const warning of $$('.warning', section)) {
       warning.hidden = Conf[warning.dataset.feature]
@@ -1244,7 +1288,7 @@ vp-replace
 
     $.get(
       items,
-      function (items) {
+      function (items: { [x: string]: any }) {
         for (const key in items) {
           const val = items[key]
           input = inputs[key]
@@ -1282,7 +1326,7 @@ vp-replace
     }
     $.get(
       itemsArchive,
-      function (itemsArchive) {
+      function (itemsArchive: { [x: string]: any }) {
         $.extend(Conf, itemsArchive)
         Redirect.selectArchives()
         return Settings.addArchiveTable(section)
@@ -1304,8 +1348,8 @@ vp-replace
     )
   },
 
-  addArchiveTable(section) {
-    let boardID, o
+  addArchiveTable(section: HTMLElement) {
+    let boardID: string, o: { thread: any[][]; post: any[][]; file: any[][] }
     $('#lastarchivecheck', section).textContent =
       Conf['lastarchivecheck'] === 0
         ? 'never'
@@ -1381,7 +1425,7 @@ vp-replace
     for (boardID in Conf['selectedArchives']) {
       const data = Conf['selectedArchives'][boardID]
       for (const type in data) {
-        let select
+        let select: HTMLElement
         const id = data[type]
         if (
           (select = $(
@@ -1398,7 +1442,7 @@ vp-replace
     }
   },
 
-  addArchiveCell(boardID, data, type) {
+  addArchiveCell(boardID: string, data: { [x: string]: any[] }, type: string) {
     const { length } = data[type]
     const td = $.el('td', { className: 'archive-cell' })
 
@@ -1468,7 +1512,7 @@ vp-replace
   backlink() {
     return (this.nextElementSibling.textContent = this.value.replace(
       /%(?:id|%)/g,
-      x => ({ '%id': '123456789', '%%': '%' })[x]
+      (x: string | number) => ({ '%id': '123456789', '%%': '%' })[x]
     ))
   },
 
@@ -1533,8 +1577,8 @@ vp-replace
     return $.cb.checked.call(this)
   },
 
-  keybinds(section) {
-    let key
+  keybinds(section: HTMLElement) {
+    let key: string
     $.extend(section, { innerHTML: KeybindsPage })
     $('.warning', section).hidden = Conf['Keybinds']
 
@@ -1557,7 +1601,7 @@ vp-replace
 
     return $.get(
       items,
-      function (items) {
+      function (items: { [x: string]: any }) {
         for (key in items) {
           const val = items[key]
           inputs[key].value = val
@@ -1567,8 +1611,12 @@ vp-replace
     )
   },
 
-  keybind(e) {
-    let key
+  keybind(e: {
+    keyCode: number
+    preventDefault: () => void
+    stopPropagation: () => void
+  }) {
+    let key: string
     if (e.keyCode === 9) {
       return
     } // tab

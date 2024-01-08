@@ -7,6 +7,21 @@ import $ from '../platform/$.js'
 import $$ from '../platform/$$.js'
 import SW from '../site/SW.js'
 
+interface Post {
+  isReply: boolean
+  file: {
+    url: string
+    name: string
+    size: string
+    sizeInBytes: number
+    dimensions: string
+    isImage: boolean
+    isVideo: boolean
+    isSpoiler: boolean
+    tag: string
+  }
+}
+
 const FileInfo = {
   init() {
     if (
@@ -27,7 +42,7 @@ const FileInfo = {
       return
     }
     if (this.isClone) {
-      let a
+      let a: { addEventListener: (arg0: string, arg1: EventListenerOrEventListenerObject, arg2: boolean) => void }
       for (a of $$('.file-info .download-button', this.file.text)) {
         $.on(a, 'click', ImageCommon.download)
       }
@@ -50,10 +65,10 @@ const FileInfo = {
     return $.prepend(this.file.text, info)
   },
 
-  format(formatString, post, outputNode) {
-    let a
+  format(formatString: string, post: { isReply: boolean; file: { url: string; name: string; size: string; sizeInBytes: number; dimensions: string; isImage: boolean; isVideo: boolean; isSpoiler: boolean; tag: string } }, outputNode: HTMLElement) {
+    let a: { addEventListener: (arg0: string, arg1: EventListenerOrEventListenerObject, arg2: boolean) => void }
     const output = []
-    formatString.replace(/%(.)|[^%]+/g, function (s, c) {
+    formatString.replace(/%(.)|[^%]+/g, function (s: string, c: string | number) {
       output.push(
         $.hasOwn(FileInfo.formatters, c)
           ? FileInfo.formatters[c].call(post)

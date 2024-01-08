@@ -35,6 +35,7 @@ export interface File {
 }
 
 export default class Post {
+  forwarded: any
   delete() {
     throw new Error('Method not implemented.')
   }

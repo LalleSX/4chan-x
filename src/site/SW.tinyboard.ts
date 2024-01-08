@@ -11,6 +11,9 @@ const SWTinyboard = {
   isOPContainerThread: true,
   mayLackJSON: true,
   threadModTimeIgnoresSage: true,
+  cleanCommentDisplay(bq) {
+    return bq
+  },
 
   disabledFeatures: [
     'Resurrect Quotes',

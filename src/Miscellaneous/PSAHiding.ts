@@ -78,7 +78,7 @@ const PSAHiding = {
       Conf['hiddenPSAList'],
       function ({ hiddenPSAList }) {
         set(hiddenPSAList)
-        return $.set('hiddenPSAList', hiddenPSAList)
+        return $.set('hiddenPSAList', hiddenPSAList, true)
       }
     )
   },

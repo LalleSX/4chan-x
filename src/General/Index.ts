@@ -31,6 +31,7 @@ const Index = {
   pageNum: 1,
   pagesNum: 1,
   req: null,
+  enabled: false,
   enabledOn({ siteID, boardID }) {
     return (
       Conf['JSON Index'] &&
