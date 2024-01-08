@@ -49,53 +49,63 @@ const RelativeDates = {
   },
 
   // diff is milliseconds from now.
-  relative(diff, now, date, abbrev) {
-    let number
-    let unit = (() => {
-      if ((number = diff / DAY) >= 1) {
-        const years = now.getFullYear() - date.getFullYear()
-        let months = now.getMonth() - date.getMonth()
-        const days = now.getDate() - date.getDate()
-        if (years > 1) {
-          number = years - (months < 0 || (months === 0 && days < 0))
-          return 'year'
-        } else if (years === 1 && (months > 0 || (months === 0 && days >= 0))) {
-          number = years
-          return 'year'
-        } else if ((months = months + 12 * years) > 1) {
-          number = months - (days < 0)
-          return 'month'
-        } else if (months === 1 && days >= 0) {
-          number = months
-          return 'month'
-        } else {
-          return 'day'
+  relative(diff: number, now: Date, date: Date, abbrev: boolean) {
+    // Function to calculate time difference in years and months
+    const calculateYearsMonths = (
+      years: number,
+      months: number,
+      days: number
+    ) => {
+      if (years > 1) {
+        return {
+          value: years - (months < 0 || (months === 0 && days < 0)),
+          unit: 'year',
         }
-      } else if ((number = diff / HOUR) >= 1) {
+      }
+      if (years === 1 && (months > 0 || (months === 0 && days >= 0))) {
+        return { value: years, unit: 'year' }
+      }
+      if ((months += 12 * years) > 1) {
+        return { value: months - (days < 0), unit: 'month' }
+      }
+      if (months === 1 && days >= 0) {
+        return { value: months, unit: 'month' }
+      }
+      return { value: null, unit: 'day' }
+    }
+
+    let timeValue
+    let unit = (() => {
+      if ((timeValue = diff / DAY) >= 1) {
+        const years = now.getFullYear() - date.getFullYear()
+        const months = now.getMonth() - date.getMonth()
+        const days = now.getDate() - date.getDate()
+        const result = calculateYearsMonths(years, months, days)
+        if (result.value !== null) {
+          timeValue = result.value
+          return result.unit
+        }
+        return 'day'
+      } else if ((timeValue = diff / HOUR) >= 1) {
         return 'hour'
-      } else if ((number = diff / MINUTE) >= 1) {
+      } else if ((timeValue = diff / MINUTE) >= 1) {
         return 'minute'
       } else {
         // prevent "-1 seconds ago"
-        number = Math.max(0, diff) / SECOND
+        timeValue = Math.max(0, diff) / SECOND
         return 'second'
       }
     })()
 
-    const rounded = Math.round(number)
-
+    const roundedValue = Math.round(timeValue)
     if (abbrev) {
       unit = unit === 'month' ? 'mo' : unit[0]
+      return `${roundedValue}${unit}`
     } else {
-      if (rounded !== 1) {
-        unit += 's'
-      } // pluralize
-    }
-
-    if (abbrev) {
-      return `${rounded}${unit}`
-    } else {
-      return `${rounded} ${unit} ago`
+      if (roundedValue !== 1) {
+        unit += 's' // pluralize
+      }
+      return `${roundedValue} ${unit} ago`
     }
   },
 
@@ -132,8 +142,13 @@ const RelativeDates = {
   hover(post) {
     const { date } = post.info
     const now = new Date()
-    const diff = now - date
-    return (post.nodes.date.title = RelativeDates.relative(diff, now, date, false))
+    const diff = now.getTime() - date.getTime()
+    return (post.nodes.date.title = RelativeDates.relative(
+      diff,
+      now,
+      date,
+      false
+    ))
   },
 
   // `update()`, when called from `flush()`, updates the elements,

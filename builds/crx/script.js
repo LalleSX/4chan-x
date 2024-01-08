@@ -1478,9 +1478,9 @@ https://*.hcaptcha.com
     };
     dict.json = (str) => dict.clone(JSON.parse(str));
     const SECOND = 1000;
-    const MINUTE = SECOND * 60;
-    const HOUR = MINUTE * 60;
-    const DAY = HOUR * 24;
+    const MINUTE = 60 * SECOND;
+    const HOUR = 60 * MINUTE;
+    const DAY = 24 * HOUR;
     const platform = window.GM_xmlhttpRequest ? 'userscript' : 'crx';
 
     class DataBoard {
@@ -4339,58 +4339,60 @@ https://*.hcaptcha.com
         },
         // diff is milliseconds from now.
         relative(diff, now, date, abbrev) {
-            let number;
-            let unit = (() => {
-                if ((number = diff / DAY) >= 1) {
-                    const years = now.getFullYear() - date.getFullYear();
-                    let months = now.getMonth() - date.getMonth();
-                    const days = now.getDate() - date.getDate();
-                    if (years > 1) {
-                        number = years - (months < 0 || (months === 0 && days < 0));
-                        return 'year';
-                    }
-                    else if (years === 1 && (months > 0 || (months === 0 && days >= 0))) {
-                        number = years;
-                        return 'year';
-                    }
-                    else if ((months = months + 12 * years) > 1) {
-                        number = months - (days < 0);
-                        return 'month';
-                    }
-                    else if (months === 1 && days >= 0) {
-                        number = months;
-                        return 'month';
-                    }
-                    else {
-                        return 'day';
-                    }
+            // Function to calculate time difference in years and months
+            const calculateYearsMonths = (years, months, days) => {
+                if (years > 1) {
+                    return {
+                        value: years - (months < 0 || (months === 0 && days < 0)),
+                        unit: 'year',
+                    };
                 }
-                else if ((number = diff / HOUR) >= 1) {
+                if (years === 1 && (months > 0 || (months === 0 && days >= 0))) {
+                    return { value: years, unit: 'year' };
+                }
+                if ((months += 12 * years) > 1) {
+                    return { value: months - (days < 0), unit: 'month' };
+                }
+                if (months === 1 && days >= 0) {
+                    return { value: months, unit: 'month' };
+                }
+                return { value: null, unit: 'day' };
+            };
+            let timeValue;
+            let unit = (() => {
+                if ((timeValue = diff / DAY) >= 1) {
+                    const years = now.getFullYear() - date.getFullYear();
+                    const months = now.getMonth() - date.getMonth();
+                    const days = now.getDate() - date.getDate();
+                    const result = calculateYearsMonths(years, months, days);
+                    if (result.value !== null) {
+                        timeValue = result.value;
+                        return result.unit;
+                    }
+                    return 'day';
+                }
+                else if ((timeValue = diff / HOUR) >= 1) {
                     return 'hour';
                 }
-                else if ((number = diff / MINUTE) >= 1) {
+                else if ((timeValue = diff / MINUTE) >= 1) {
                     return 'minute';
                 }
                 else {
                     // prevent "-1 seconds ago"
-                    number = Math.max(0, diff) / SECOND;
+                    timeValue = Math.max(0, diff) / SECOND;
                     return 'second';
                 }
             })();
-            const rounded = Math.round(number);
+            const roundedValue = Math.round(timeValue);
             if (abbrev) {
                 unit = unit === 'month' ? 'mo' : unit[0];
+                return `${roundedValue}${unit}`;
             }
             else {
-                if (rounded !== 1) {
-                    unit += 's';
-                } // pluralize
-            }
-            if (abbrev) {
-                return `${rounded}${unit}`;
-            }
-            else {
-                return `${rounded} ${unit} ago`;
+                if (roundedValue !== 1) {
+                    unit += 's'; // pluralize
+                }
+                return `${roundedValue} ${unit} ago`;
             }
         },
         // Changing all relative dates as soon as possible incurs many annoying
@@ -4420,7 +4422,7 @@ https://*.hcaptcha.com
         hover(post) {
             const { date } = post.info;
             const now = new Date();
-            const diff = now - date;
+            const diff = now.getTime() - date.getTime();
             return (post.nodes.date.title = RelativeDates.relative(diff, now, date, false));
         },
         // `update()`, when called from `flush()`, updates the elements,
@@ -22247,10 +22249,10 @@ vp-replace
     };
     $.toggleClass = (el, className) => el.classList.toggle(className);
     $.hasClass = (el, className) => el.classList.contains(className);
-    $.rm = (el) => el?.remove();
+    $.rm = el => el?.remove();
     $.rmAll = (root // https://gist.github.com/MayhemYDG/8646194
     ) => (root.textContent = null);
-    $.tn = (s) => d.createTextNode(s);
+    $.tn = s => d.createTextNode(s);
     $.frag = () => d.createDocumentFragment();
     $.nodes = function (nodes) {
         if (!(nodes instanceof Array)) {
@@ -22336,17 +22338,17 @@ vp-replace
             }
         })();
     }
-    $.modifiedClick = (e) => e.shiftKey || e.altKey || e.ctrlKey || e.metaKey || e.button !== 0;
+    $.modifiedClick = e => e.shiftKey || e.altKey || e.ctrlKey || e.metaKey || e.button !== 0;
     if (!globalThis.chrome?.extension) {
         $.open =
             GM?.openInTab != null
                 ? GM.openInTab
                 : typeof GM_openInTab !== 'undefined' && GM_openInTab !== null
                     ? GM_openInTab
-                    : (url) => window.open(url, '_blank');
+                    : url => window.open(url, '_blank');
     }
     else {
-        $.open = (url) => window.open(url, '_blank');
+        $.open = url => window.open(url, '_blank');
     }
     $.debounce = function (wait, fn) {
         let lastCall = 0;
@@ -22424,8 +22426,8 @@ vp-replace
                     Math.round(size);
         return `${size} ${['B', 'KB', 'MB', 'GB'][unit]}`;
     };
-    $.minmax = (value, min, max) => value < min ? min : value > max ? max : value;
-    $.hasAudio = (video) => video.mozHasAudio ||
+    $.minmax = (value, min, max) => (value < min ? min : value > max ? max : value);
+    $.hasAudio = video => video.mozHasAudio ||
         !!video.webkitAudioDecodedByteCount ||
         video.nextElementSibling?.tagName === 'AUDIO'; // sound posts
     $.luma = (rgb) => rgb[0] * 0.299 + rgb[1] * 0.587 + rgb[2] * 0.114;
@@ -22433,7 +22435,7 @@ vp-replace
         if (text == null) {
             return text;
         }
-        return text.replace(/<[^>]*>/g, '').replace(/&(amp|#039|quot|lt|gt|#44);/g, (c) => ({
+        return text.replace(/<[^>]*>/g, '').replace(/&(amp|#039|quot|lt|gt|#44);/g, c => ({
             '&amp;': '&',
             '&#039;': "'",
             '&quot;': '"',
@@ -22442,8 +22444,8 @@ vp-replace
             '&#44;': ',',
         })[c]);
     };
-    $.isImage = (url) => /\.(jpe?g|jfif|png|gif|bmp|webp|avif|jxl)$/i.test(url);
-    $.isVideo = (url) => /\.(webm|mp4|ogv)$/i.test(url);
+    $.isImage = url => /\.(jpe?g|jfif|png|gif|bmp|webp|avif|jxl)$/i.test(url);
+    $.isVideo = url => /\.(webm|mp4|ogv)$/i.test(url);
     $.engine = (function () {
         if (/Edge\//.test(navigator.userAgent)) {
             return 'edge';
@@ -22475,7 +22477,7 @@ vp-replace
         item[key] = val;
         return item;
     };
-    $.oneItemSugar = (fn) => function (key, val, cb) {
+    $.oneItemSugar = fn => function (key, val, cb) {
         if (typeof key === 'string') {
             return fn($.item(key, val), cb);
         }
@@ -22533,7 +22535,7 @@ vp-replace
                     cb(data);
                 }
             };
-            const get = (area) => {
+            const get = area => {
                 // Moved the keys check inside the get function
                 if ($.engine === 'gecko' && area === 'sync' && keys.length > 3) {
                     keys = null;
@@ -22708,7 +22710,7 @@ vp-replace
                     return cb?.();
                 });
             });
-            $.clear = (cb) => GM.listValues()
+            $.clear = cb => GM.listValues()
                 .then(keys => $.delete(keys.map(key => key.replace(g.NAMESPACE, '')), cb))
                 .catch(() => $.delete(Object.keys(Conf).concat([
                 'previousversion',
@@ -22725,7 +22727,7 @@ vp-replace
                 $.listValues = () => GM_listValues(); // error when called if missing
             }
             else if ($.hasStorage) {
-                $.getValue = (key) => localStorage.getItem(key);
+                $.getValue = key => localStorage.getItem(key);
                 $.listValues = () => (() => {
                     const result = [];
                     for (const key in localStorage) {

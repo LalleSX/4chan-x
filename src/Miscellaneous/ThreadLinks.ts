@@ -28,7 +28,7 @@ const ThreadLinks = {
     return ThreadLinks.process(this.nodes.thumb.parentNode)
   },
 
-  process(link) {
+  process(link: HTMLAnchorElement) {
     return (link.target = '_blank')
   },
 }

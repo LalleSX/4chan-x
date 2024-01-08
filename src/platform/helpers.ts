@@ -47,8 +47,8 @@ dict.clone = function (obj) {
 dict.json = (str: string) => dict.clone(JSON.parse(str))
 
 export const SECOND = 1000
-export const MINUTE = SECOND * 60
-export const HOUR = MINUTE * 60
-export const DAY = HOUR * 24
+export const MINUTE = 60 * SECOND
+export const HOUR = 60 * MINUTE
+export const DAY = 24 * HOUR
 
 export const platform = window.GM_xmlhttpRequest ? 'userscript' : 'crx'
