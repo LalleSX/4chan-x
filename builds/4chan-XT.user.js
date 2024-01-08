@@ -2650,7 +2650,7 @@ https://*.hcaptcha.com
             if (extra > 0) {
                 d.body.style.marginBottom = `${extra}px`;
             }
-            Header.scrollTo(thread);
+            Header.scrollTo(thread, delta, true);
             if (extra > 0 && !Nav.haveExtra) {
                 Nav.haveExtra = true;
                 return $$1.on(d, 'scroll', Nav.removeExtra);
@@ -3525,6 +3525,7 @@ https://*.hcaptcha.com
     };
 
     class Post {
+        forwarded;
         delete() {
             throw new Error('Method not implemented.');
         }
@@ -4437,7 +4438,7 @@ https://*.hcaptcha.com
             // Since "Time Formatting" runs its `node` before us, the title tooltip will
             // pick up the user-formatted time instead of 4chan time when enabled.
             dateEl.title = dateEl.textContent;
-            return RelativeDates.update(this);
+            return RelativeDates.update(this, new Date());
         },
         // diff is milliseconds from now.
         relative(diff, now, date, abbrev) {
@@ -4504,6 +4505,7 @@ https://*.hcaptcha.com
         // Each individual dateTime element will add its update() function to the stale list
         // when it is to be called.
         stale: [],
+        timeout: null,
         flush() {
             // No point in changing the dates until the user sees them.
             if (d.hidden) {
@@ -4522,7 +4524,7 @@ https://*.hcaptcha.com
             const { date } = post.info;
             const now = new Date();
             const diff = now - date;
-            return (post.nodes.date.title = RelativeDates.relative(diff, now, date));
+            return (post.nodes.date.title = RelativeDates.relative(diff, now, date, false));
         },
         // `update()`, when called from `flush()`, updates the elements,
         // and re-calls `setOwnTimeout()` to re-add `data` to the stale list later.
@@ -5738,7 +5740,7 @@ https://*.hcaptcha.com
                 return;
             }
             this.enabled = true;
-            this.db = new DataBoard('lastReadPosts', this.sync);
+            this.db = new DataBoard('lastReadPosts', this.sync, true);
             Callbacks.Thread.push({
                 name: 'Unread Line in Index',
                 cb: this.node,
@@ -7478,6 +7480,7 @@ https://*.hcaptcha.com
         pageNum: 1,
         pagesNum: 1,
         req: null,
+        enabled: false,
         enabledOn({ siteID, boardID }) {
             return (Conf['JSON Index'] &&
                 g.sites[siteID].software === 'yotsuba' &&
@@ -13050,6 +13053,9 @@ a:only-of-type > .remove {
         isOPContainerThread: true,
         mayLackJSON: true,
         threadModTimeIgnoresSage: true,
+        cleanCommentDisplay(bq) {
+            return bq;
+        },
         disabledFeatures: [
             'Resurrect Quotes',
             'Quick Reply Personas',
@@ -13275,7 +13281,7 @@ $\
             postURL(boardID, threadID, postID) {
                 return `/${boardID}/res/${threadID}.html#${postID}`;
             },
-            spoilerRange: Object.create(null),
+            spoilerRange: dict(),
             postFromObject(data, board) {
                 const o = this.postFromObject(data, board);
                 if (data.ext === 'deleted') {
@@ -14965,7 +14971,7 @@ $\
         },
         setEnabled() {
             if (this.checked) {
-                $$1.set('Prune All Threads', false);
+                $$1.set('Prune All Threads', false, true);
                 const other = ReplyPruning.inputs?.enabled;
                 if (other?.checked) {
                     other.checked = false;
@@ -15865,7 +15871,7 @@ Enable it on boards.${location.hostname.split('.')[1]}.org in your browser's pri
         export() {
             // Export the most recent data without overwriting the existing Conf object.
             const updatedConfig = { ...Conf }; // Use object spread for cloning
-            return $$1.get(updatedConfig, config => {
+            return $$1.get(updatedConfig, (config) => {
                 // Remove the 'boardConfig' property to avoid exporting cached JSON data.
                 delete config['boardConfig'];
                 return Settings.downloadExport({
@@ -16050,7 +16056,7 @@ Enable it on boards.${location.hostname.split('.')[1]}.org in your browser's pri
             };
             const addSauces = function (sauces) {
                 if (data['sauces'] != null) {
-                    sauces = sauces.filter(s => data['sauces'].indexOf(s.match(/[^#;\s]+|$/)[0]) < 0);
+                    sauces = sauces.filter((s) => data['sauces'].indexOf(s.match(/[^#;\s]+|$/)[0]) < 0);
                     if (sauces.length) {
                         return set('sauces', data['sauces'] + '\n\n' + sauces.join('\n'));
                     }
@@ -16073,7 +16079,7 @@ Enable it on boards.${location.hostname.split('.')[1]}.org in your browser's pri
             }
             const compareString = version
                 .replace(/^XT /i, '')
-                .replace(/\d+/g, x => x.padStart(5, '0'));
+                .replace(/\d+/g, (x) => x.padStart(5, '0'));
             if (compareString < '00001.00013.00014.00008') {
                 for (key in data) {
                     val = data[key];
@@ -16164,7 +16170,7 @@ Enable it on boards.${location.hostname.split('.')[1]}.org in your browser's pri
                 }
             }
             if (compareString < '00001.00011.00019.00003' && !Settings.dialog) {
-                $$1.queueTask(() => Settings.warnings.ads(item => new Notice('Warning', item)));
+                $$1.queueTask(() => Settings.warnings.ads((item) => new Notice('Warning', item)));
             }
             if (compareString < '00001.00011.00020.00003') {
                 const object = {
@@ -16690,7 +16696,7 @@ vp-replace
             return Settings.time.call($$1('[name=time]', Settings.dialog));
         },
         backlink() {
-            return (this.nextElementSibling.textContent = this.value.replace(/%(?:id|%)/g, x => ({ '%id': '123456789', '%%': '%' })[x]));
+            return (this.nextElementSibling.textContent = this.value.replace(/%(?:id|%)/g, (x) => ({ '%id': '123456789', '%%': '%' })[x]));
         },
         fileInfo() {
             const data = {
@@ -22344,10 +22350,10 @@ vp-replace
     };
     $.toggleClass = (el, className) => el.classList.toggle(className);
     $.hasClass = (el, className) => el.classList.contains(className);
-    $.rm = el => el?.remove();
+    $.rm = (el) => el?.remove();
     $.rmAll = (root // https://gist.github.com/MayhemYDG/8646194
     ) => (root.textContent = null);
-    $.tn = s => d.createTextNode(s);
+    $.tn = (s) => d.createTextNode(s);
     $.frag = () => d.createDocumentFragment();
     $.nodes = function (nodes) {
         if (!(nodes instanceof Array)) {
@@ -22433,17 +22439,17 @@ vp-replace
             }
         })();
     }
-    $.modifiedClick = e => e.shiftKey || e.altKey || e.ctrlKey || e.metaKey || e.button !== 0;
+    $.modifiedClick = (e) => e.shiftKey || e.altKey || e.ctrlKey || e.metaKey || e.button !== 0;
     if (!globalThis.chrome?.extension) {
         $.open =
             GM?.openInTab != null
                 ? GM.openInTab
                 : typeof GM_openInTab !== 'undefined' && GM_openInTab !== null
                     ? GM_openInTab
-                    : url => window.open(url, '_blank');
+                    : (url) => window.open(url, '_blank');
     }
     else {
-        $.open = url => window.open(url, '_blank');
+        $.open = (url) => window.open(url, '_blank');
     }
     $.debounce = function (wait, fn) {
         let lastCall = 0;
@@ -22521,8 +22527,8 @@ vp-replace
                     Math.round(size);
         return `${size} ${['B', 'KB', 'MB', 'GB'][unit]}`;
     };
-    $.minmax = (value, min, max) => (value < min ? min : value > max ? max : value);
-    $.hasAudio = video => video.mozHasAudio ||
+    $.minmax = (value, min, max) => value < min ? min : value > max ? max : value;
+    $.hasAudio = (video) => video.mozHasAudio ||
         !!video.webkitAudioDecodedByteCount ||
         video.nextElementSibling?.tagName === 'AUDIO'; // sound posts
     $.luma = (rgb) => rgb[0] * 0.299 + rgb[1] * 0.587 + rgb[2] * 0.114;
@@ -22530,7 +22536,7 @@ vp-replace
         if (text == null) {
             return text;
         }
-        return text.replace(/<[^>]*>/g, '').replace(/&(amp|#039|quot|lt|gt|#44);/g, c => ({
+        return text.replace(/<[^>]*>/g, '').replace(/&(amp|#039|quot|lt|gt|#44);/g, (c) => ({
             '&amp;': '&',
             '&#039;': "'",
             '&quot;': '"',
@@ -22539,8 +22545,8 @@ vp-replace
             '&#44;': ',',
         })[c]);
     };
-    $.isImage = url => /\.(jpe?g|jfif|png|gif|bmp|webp|avif|jxl)$/i.test(url);
-    $.isVideo = url => /\.(webm|mp4|ogv)$/i.test(url);
+    $.isImage = (url) => /\.(jpe?g|jfif|png|gif|bmp|webp|avif|jxl)$/i.test(url);
+    $.isVideo = (url) => /\.(webm|mp4|ogv)$/i.test(url);
     $.engine = (function () {
         if (/Edge\//.test(navigator.userAgent)) {
             return 'edge';
@@ -22572,7 +22578,7 @@ vp-replace
         item[key] = val;
         return item;
     };
-    $.oneItemSugar = fn => function (key, val, cb) {
+    $.oneItemSugar = (fn) => function (key, val, cb) {
         if (typeof key === 'string') {
             return fn($.item(key, val), cb);
         }
@@ -22630,7 +22636,7 @@ vp-replace
                     cb(data);
                 }
             };
-            const get = area => {
+            const get = (area) => {
                 // Moved the keys check inside the get function
                 if ($.engine === 'gecko' && area === 'sync' && keys.length > 3) {
                     keys = null;
@@ -22805,7 +22811,7 @@ vp-replace
                     return cb?.();
                 });
             });
-            $.clear = cb => GM.listValues()
+            $.clear = (cb) => GM.listValues()
                 .then(keys => $.delete(keys.map(key => key.replace(g.NAMESPACE, '')), cb))
                 .catch(() => $.delete(Object.keys(Conf).concat([
                 'previousversion',
@@ -22822,7 +22828,7 @@ vp-replace
                 $.listValues = () => GM_listValues(); // error when called if missing
             }
             else if ($.hasStorage) {
-                $.getValue = key => localStorage.getItem(key);
+                $.getValue = (key) => localStorage.getItem(key);
                 $.listValues = () => (() => {
                     const result = [];
                     for (const key in localStorage) {
@@ -23937,6 +23943,17 @@ vp-replace
 
     const Header = {
         menu: new UI.Menu('header'),
+        barFixedToggler: null,
+        bottomBoardList: null,
+        shortcutToggler: null,
+        customNavToggler: null,
+        barPositionToggler: null,
+        boardList: null,
+        headerToggler: null,
+        scrollHeaderToggler: null,
+        linkJustifyToggler: null,
+        footerToggler: null,
+        previousOffset: 0,
         init() {
             $$1.onExists(doc$1, 'body', () => {
                 if (!Main$1.isThisPageLegit()) {
@@ -25812,9 +25829,7 @@ vp-replace
                                 if (
                                 // link deliberately split
                                 (part1 = word.match(/(https?:\/\/)?([a-z\d-]+\.)*[a-z\d-]+$/i)) &&
-                                    (part2 = snapshot
-                                        .snapshotItem(i)
-                                        ?.data?.match(/^(\.[a-z\d-]+)*\//i)) &&
+                                    (part2 = snapshot.snapshotItem(i)?.data?.match(/^(\.[a-z\d-]+)*\//i)) &&
                                     (part1[0] + part2[0]).search(Linkify.regString) === 0) {
                                     continue;
                                 }
@@ -26038,6 +26053,7 @@ aero|asia|biz|cat|com|coop|dance|info|int|jobs|mobi|moe|museum|name|net|org|post
                 },
             });
         },
+        text: '',
         copy() {
             const el = $$1.el('textarea', {
                 className: 'copy-text-element',
@@ -26528,7 +26544,7 @@ aero|asia|biz|cat|com|coop|dance|info|int|jobs|mobi|moe|museum|name|net|org|post
                         return $$1.addClass(pre, 'prettyprinted');
                     }
                 });
-                $$1.global(() => window.addEventListener('prettyprint', e => window.dispatchEvent(new CustomEvent('prettyprint:cb', {
+                $$1.global(() => window.addEventListener('prettyprint', (e) => window.dispatchEvent(new CustomEvent('prettyprint:cb', {
                     detail: {
                         ID: e.detail.ID,
                         i: e.detail.i,
@@ -26644,6 +26660,7 @@ aero|asia|biz|cat|com|coop|dance|info|int|jobs|mobi|moe|museum|name|net|org|post
                 cb: this.node,
             });
         },
+        ids: dict(),
         node() {
             let span, uid;
             if (this.isClone ||
@@ -26662,9 +26679,14 @@ aero|asia|biz|cat|com|coop|dance|info|int|jobs|mobi|moe|museum|name|net|org|post
             // Create a nice string of binary
             const hash = g.SITE.uidColor ? g.SITE.uidColor(uid) : parseInt(uid, 16);
             // Convert binary string to numerical values with bitshift and '&' truncation.
-            const rgb = [(hash >> 16) & 0xff, (hash >> 8) & 0xff, hash & 0xff];
+            const rgb = [
+                (hash >> 16) & 0xff,
+                (hash >> 8) & 0xff,
+                hash & 0xff,
+                '',
+            ];
             // Weight color luminance values, assign a font color that should be readable.
-            rgb.push($$1.luma(rgb) > 125 ? '#000' : '#fff');
+            rgb.push(rgb[0] * 0.299 + rgb[1] * 0.587 + rgb[2] * 0.114 > 186 ? '#000' : '#fff');
             // Cache.
             return (this.ids[uid] = rgb);
         },
@@ -27021,7 +27043,7 @@ aero|asia|biz|cat|com|coop|dance|info|int|jobs|mobi|moe|museum|name|net|org|post
             PSAHiding.sync(Conf['hiddenPSAList']);
             return $$1.get('hiddenPSAList', Conf['hiddenPSAList'], function ({ hiddenPSAList }) {
                 set(hiddenPSAList);
-                return $$1.set('hiddenPSAList', hiddenPSAList);
+                return $$1.set('hiddenPSAList', hiddenPSAList, true);
             });
         },
         sync(hiddenPSAList) {
@@ -27582,7 +27604,7 @@ aero|asia|biz|cat|com|coop|dance|info|int|jobs|mobi|moe|museum|name|net|org|post
             const a = $$1.el('a', {
                 href: g.SITE.Build.postURL(this.board.ID, this.thread.ID, this.ID),
                 className: this.isHidden ? 'filtered backlink' : 'backlink',
-                textContent: Conf['backlink'].replace(/%(?:id|%)/g, x => ({ '%id': this.ID, '%%': '%' })[x]),
+                textContent: Conf['backlink'].replace(/%(?:id|%)/g, (x) => ({ '%id': this.ID, '%%': '%' })[x]),
             });
             if (markYours) {
                 $$1.add(a, QuoteYou.mark.cloneNode(true));

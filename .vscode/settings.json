@@ -22,14 +22,19 @@
     "**/*.code-search": true,
     "**/bower_components": true,
     "**/CVS": true,
-    "**/node_modules": true,
+    "**/node_modules": false,
     "CHANGELOG.md": true,
     "package-lock.json": true,
     "pnpm-lock.yaml": true,
     "yarn.lock": true
   },
-  "editor.formatOnSave": true,
   // TypeScript settings
   "typescript.updateImportsOnFileMove.enabled": "always",
-  "typescript.tsserver.log": "verbose"
+  // Extension Path Intellisense
+  "typescript.suggest.paths": false,
+  "javascript.suggest.paths": false,
+  // Format on paste and save with Prettier
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnPaste": true,
+  "editor.formatOnSave": true
 }
