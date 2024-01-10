@@ -18,3 +18,8 @@ Right now the only testing there is, is the testing I do manually.
 It is highly likely that I will switch from using this projects own Jquery like system to using Jquery itself
 \
 This is because I am not a fan of the current system and it is a pain to work with.
+
+## Known issues
+
+- When you install for the first time, you are greeted with a blank settings page. If you close the settings and open it again, you should see the settings page.
+- QR does not work at the moment

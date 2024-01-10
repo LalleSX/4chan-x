@@ -952,7 +952,7 @@ const Index = {
     }
 
     Index.req = $.whenModified(
-      g.SITE.urls.catalogJSON({ boardID: g.BOARD.ID }),
+      g.SITE.urls.catalogJSON({ boardID: g.BOARD.ID, siteID: g.SITE.ID }),
       'Index',
       Index.load
     )

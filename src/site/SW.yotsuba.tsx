@@ -301,6 +301,14 @@ $\
                 this.response.posts[0].md5)
             }
           },
+          responseType: 'json',
+          withCredentials: true,
+          type: 'GET',
+          onprogress: undefined,
+          form: undefined,
+          headers: undefined,
+          dataType: undefined,
+          testCORB: false,
         }
       )
     }

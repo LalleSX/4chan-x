@@ -46,6 +46,13 @@ const CrossOrigin = {
               return cb(null)
             }
           },
+          timeout: 5000,
+          withCredentials: false,
+          type: 'GET',
+          onprogress: undefined,
+          form: undefined,
+          dataType: undefined,
+          testCORB: false,
         })
       }
       if (
@@ -176,7 +183,19 @@ const CrossOrigin = {
       (typeof window.GM_xmlhttpRequest === 'undefined' ||
         window.GM_xmlhttpRequest === null)
     ) {
-      return $.ajax(url, options)
+      return $.ajax(url, {
+        ...options,
+        onloadend: onloadend.bind(this),
+        timeout: timeout,
+        responseType: responseType,
+        withCredentials: false,
+        type: 'GET',
+        onprogress: undefined,
+        form: undefined,
+        headers: undefined,
+        dataType: undefined,
+        testCORB: false,
+      })
     }
 
     const req = new CrossOrigin.Request()
@@ -224,7 +243,19 @@ const CrossOrigin = {
       try {
         gmReq = (GM?.xmlHttpRequest || GM_xmlhttpRequest)(gmOptions)
       } catch (error) {
-        return $.ajax(url, options)
+        return $.ajax(url, {
+          ...options,
+          onloadend: onloadend.bind(this),
+          timeout: timeout,
+          responseType: responseType,
+          withCredentials: false,
+          type: 'GET',
+          onprogress: undefined,
+          form: undefined,
+          headers: undefined,
+          dataType: undefined,
+          testCORB: false,
+        })
       }
 
       if (gmReq && typeof gmReq.abort === 'function') {

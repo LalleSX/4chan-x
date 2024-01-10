@@ -51,7 +51,7 @@ export default class Fetcher {
   }
 
   declare boardID: string
-  declare threadID: string | number
+  declare threadID: number
   declare postID: string
   declare root: HTMLElement
   declare quoter: Post
@@ -106,7 +106,7 @@ export default class Fetcher {
         function ({ isCached }) {
           return that.fetchedPost(this, isCached)
         },
-        { isJSON: true }
+        { force: true }
       )
     } else {
       this.archivedPost()
@@ -146,19 +146,16 @@ export default class Fetcher {
       clone.nodes.flag &&
       !(
         Fetcher.flagCSS ||
-        (Fetcher.flagCSS = $(
-          'link[href^="//s.4cdn.org/css/flags."]'
-        ) as HTMLLinkElement)
+        (Fetcher.flagCSS = $('link[href^="//s.4cdn.org/css/flags."]'))
       )
     ) {
       const cssVersion =
-        $('link[href^="//s.4cdn.org/css/"]')
-          .getAttribute('href')
-          .match(/\d+(?=\.css$)|$/)[0] || Date.now()
+        $('link[href^="//s.4cdn.org/css/"]').href.match(/\d+(?=\.css$)|$/)[0] ||
+        Date.now()
       Fetcher.flagCSS = $.el('link', {
         rel: 'stylesheet',
         href: `//s.4cdn.org/css/flags.${cssVersion}.css`,
-      }) as HTMLLinkElement
+      })
       $.add(d.head, Fetcher.flagCSS)
     }
 
@@ -219,7 +216,7 @@ export default class Fetcher {
           function () {
             return that.fetchedPost(this, false)
           },
-          { isJSON: true }
+          { force: true }
         )
         return
       }

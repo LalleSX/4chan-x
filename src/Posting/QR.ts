@@ -1067,7 +1067,19 @@ const QR = {
       }
       QR.req = $.ajax(
         `https://sys.${location.hostname.split('.')[1]}.org/${g.BOARD}/post`,
-        options
+        {
+          ...options,
+          onloadend() {
+            QR.response.call(this)
+            return options.onloadend.call(this)
+          },
+          timeout: 30 * SECOND,
+          type: 'POST',
+          onprogress: undefined,
+          headers: undefined,
+          dataType: undefined,
+          testCORB: true,
+        }
       )
       return (QR.req.progress = '...')
     }
@@ -1287,6 +1299,13 @@ const QR = {
         },
         responseType: 'text',
         type: 'HEAD',
+        timeout: 0,
+        withCredentials: true,
+        onprogress: () => {},
+        form: undefined,
+        headers: undefined,
+        dataType: undefined,
+        testCORB: false,
       })
     }
     return check()

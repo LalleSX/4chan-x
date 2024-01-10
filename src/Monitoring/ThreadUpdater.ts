@@ -222,6 +222,15 @@ const ThreadUpdater = {
                   ThreadUpdater.error(this)
                 }
               },
+              timeout: 5000,
+              responseType: 'json',
+              withCredentials: false,
+              type: 'GET',
+              onprogress: undefined,
+              form: undefined,
+              headers: undefined,
+              dataType: undefined,
+              testCORB: false,
             }
           )
         default:
@@ -338,10 +347,14 @@ const ThreadUpdater = {
       oldReq.abort()
     }
     return (ThreadUpdater.req = $.whenModified(
-      g.SITE.urls.threadJSON({
-        boardID: ThreadUpdater.thread.board.ID,
-        threadID: ThreadUpdater.thread.ID,
-      }),
+      g.SITE.urls.threadJSON(
+        {
+          siteID: ThreadUpdater.thread.site.ID,
+          boardID: ThreadUpdater.thread.board.ID,
+          threadID: ThreadUpdater.thread.ID,
+        },
+        ThreadUpdater.thread.board.ID
+      ),
       'ThreadUpdater',
       ThreadUpdater.cb.load,
       { timeout: MINUTE }

@@ -18,22 +18,15 @@ const BoardConfig = {
     ) {
       return $.ajax(`${location.protocol}//a.4cdn.org/boards.json`, {
         onloadend: this.load,
-        /*timeout: 5000,
+        timeout: 5000,
         responseType: 'json',
         withCredentials: false,
         type: 'GET',
-        onprogress: () => {
-          return (Conf['boardConfig'].lastChecked = Date.now())
-        },
-        form: {
-          _: Date.now(),
-        },
-        headers: {
-          'If-Modified-Since': new Date(middle).toUTCString(),
-        },
-        dataType: 'json',
-        testCORB: true,
-        */
+        onprogress: undefined,
+        form: undefined,
+        headers: undefined,
+        dataType: undefined,
+        testCORB: false,
       })
     } else {
       const { boards } = Conf['boardConfig']

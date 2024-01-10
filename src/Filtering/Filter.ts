@@ -359,7 +359,18 @@ const Filter = {
       return
     }
     Filter.catalogData = dict()
-    $.ajax(url, { onloadend: Filter.catalogParse })
+    $.ajax(url, {
+      onloadend: Filter.catalogParse,
+      timeout: 30000,
+      responseType: 'json',
+      withCredentials: true,
+      type: 'GET',
+      onprogress: undefined,
+      form: undefined,
+      headers: undefined,
+      dataType: undefined,
+      testCORB: undefined,
+    })
     return Callbacks.CatalogThreadNative.push({
       name: 'Filter',
       cb: this.catalogNode,

@@ -126,6 +126,14 @@ const Report = {
             }
           },
           form,
+          timeout: 5000,
+          responseType: 'json',
+          withCredentials: false,
+          type: 'POST',
+          onprogress: undefined,
+          headers: undefined,
+          dataType: undefined,
+          testCORB: false,
         })
       })(name, url)
     }

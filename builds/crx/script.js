@@ -2849,6 +2849,15 @@ https://*.hcaptcha.com
                             onloadend() {
                                 return parseJSON.call(this, true);
                             },
+                            timeout: 5000,
+                            responseType: 'json',
+                            withCredentials: false,
+                            type: 'GET',
+                            onprogress: undefined,
+                            form: undefined,
+                            headers: undefined,
+                            dataType: undefined,
+                            testCORB: false,
                         });
                     }
                     else {
@@ -2880,6 +2889,15 @@ https://*.hcaptcha.com
                 onloadend() {
                     return parseJSON.call(this);
                 },
+                timeout: 5000,
+                responseType: 'json',
+                withCredentials: false,
+                type: 'GET',
+                onprogress: undefined,
+                form: undefined,
+                headers: undefined,
+                dataType: undefined,
+                testCORB: false,
             });
         },
         // Add controls, but not until the mouse is moved over the video.
@@ -4498,22 +4516,15 @@ https://*.hcaptcha.com
                 middle > now) {
                 return $$1.ajax(`${location.protocol}//a.4cdn.org/boards.json`, {
                     onloadend: this.load,
-                    /*timeout: 5000,
+                    timeout: 5000,
                     responseType: 'json',
                     withCredentials: false,
                     type: 'GET',
-                    onprogress: () => {
-                      return (Conf['boardConfig'].lastChecked = Date.now())
-                    },
-                    form: {
-                      _: Date.now(),
-                    },
-                    headers: {
-                      'If-Modified-Since': new Date(middle).toUTCString(),
-                    },
-                    dataType: 'json',
-                    testCORB: true,
-                    */
+                    onprogress: undefined,
+                    form: undefined,
+                    headers: undefined,
+                    dataType: undefined,
+                    testCORB: false,
                 });
             }
             else {
@@ -7075,7 +7086,7 @@ https://*.hcaptcha.com
                     threadID: this.threadID,
                 }, true), function ({ isCached }) {
                     return that.fetchedPost(this, isCached);
-                }, { isJSON: true });
+                }, { force: true });
             }
             else {
                 this.archivedPost();
@@ -7107,9 +7118,8 @@ https://*.hcaptcha.com
             if (clone.nodes.flag &&
                 !(Fetcher.flagCSS ||
                     (Fetcher.flagCSS = $$1('link[href^="//s.4cdn.org/css/flags."]')))) {
-                const cssVersion = $$1('link[href^="//s.4cdn.org/css/"]')
-                    .getAttribute('href')
-                    .match(/\d+(?=\.css$)|$/)[0] || Date.now();
+                const cssVersion = $$1('link[href^="//s.4cdn.org/css/"]').href.match(/\d+(?=\.css$)|$/)[0] ||
+                    Date.now();
                 Fetcher.flagCSS = $$1.el('link', {
                     rel: 'stylesheet',
                     href: `//s.4cdn.org/css/flags.${cssVersion}.css`,
@@ -7162,7 +7172,7 @@ https://*.hcaptcha.com
                     const that = this;
                     $$1.cache(api, function () {
                         return that.fetchedPost(this, false);
-                    }, { isJSON: true });
+                    }, { force: true });
                     return;
                 }
                 // The post can be deleted by the time we check a quote.
@@ -8152,7 +8162,7 @@ https://*.hcaptcha.com
                 location.reload();
                 return;
             }
-            Index.req = $$1.whenModified(g.SITE.urls.catalogJSON({ boardID: g.BOARD.ID }), 'Index', Index.load);
+            Index.req = $$1.whenModified(g.SITE.urls.catalogJSON({ boardID: g.BOARD.ID, siteID: g.SITE.ID }), 'Index', Index.load);
             return $$1.addClass(Index.button, 'spin');
         },
         load() {
@@ -13455,6 +13465,14 @@ $\
                             }
                         },
                         form,
+                        timeout: 5000,
+                        responseType: 'json',
+                        withCredentials: false,
+                        type: 'POST',
+                        onprogress: undefined,
+                        headers: undefined,
+                        dataType: undefined,
+                        testCORB: false,
                     });
                 })(name, url);
             }
@@ -13890,6 +13908,14 @@ $\
                                 this.response.posts[0].md5);
                         }
                     },
+                    responseType: 'json',
+                    withCredentials: true,
+                    type: 'GET',
+                    onprogress: undefined,
+                    form: undefined,
+                    headers: undefined,
+                    dataType: undefined,
+                    testCORB: false,
                 });
             }
         },
@@ -15214,6 +15240,15 @@ $\
                                     ThreadUpdater.error(this);
                                 }
                             },
+                            timeout: 5000,
+                            responseType: 'json',
+                            withCredentials: false,
+                            type: 'GET',
+                            onprogress: undefined,
+                            form: undefined,
+                            headers: undefined,
+                            dataType: undefined,
+                            testCORB: false,
                         });
                     default:
                         return ThreadUpdater.error(this);
@@ -15309,9 +15344,10 @@ $\
                 oldReq.abort();
             }
             return (ThreadUpdater.req = $$1.whenModified(g.SITE.urls.threadJSON({
+                siteID: ThreadUpdater.thread.site.ID,
                 boardID: ThreadUpdater.thread.board.ID,
                 threadID: ThreadUpdater.thread.ID,
-            }), 'ThreadUpdater', ThreadUpdater.cb.load, { timeout: MINUTE }));
+            }, ThreadUpdater.thread.board.ID), 'ThreadUpdater', ThreadUpdater.cb.load, { timeout: MINUTE }));
         },
         updateThreadStatus(type, status) {
             if (!(ThreadUpdater.thread[`is${type}`] !== status)) {
@@ -20267,7 +20303,19 @@ vp-replace
                         }
                     }
                 }
-                QR.req = $$1.ajax(`https://sys.${location.hostname.split('.')[1]}.org/${g.BOARD}/post`, options);
+                QR.req = $$1.ajax(`https://sys.${location.hostname.split('.')[1]}.org/${g.BOARD}/post`, {
+                    ...options,
+                    onloadend() {
+                        QR.response.call(this);
+                        return options.onloadend.call(this);
+                    },
+                    timeout: 30 * SECOND,
+                    type: 'POST',
+                    onprogress: undefined,
+                    headers: undefined,
+                    dataType: undefined,
+                    testCORB: true,
+                });
                 return (QR.req.progress = '...');
             };
             if (typeof captcha === 'function') {
@@ -20464,6 +20512,13 @@ vp-replace
                     },
                     responseType: 'text',
                     type: 'HEAD',
+                    timeout: 0,
+                    withCredentials: true,
+                    onprogress: () => { },
+                    form: undefined,
+                    headers: undefined,
+                    dataType: undefined,
+                    testCORB: false,
                 });
             };
             return check();
@@ -21620,6 +21675,13 @@ vp-replace
                                 return cb(null);
                             }
                         },
+                        timeout: 5000,
+                        withCredentials: false,
+                        type: 'GET',
+                        onprogress: undefined,
+                        form: undefined,
+                        dataType: undefined,
+                        testCORB: false,
                     });
                 };
                 if (typeof window.GM_xmlhttpRequest === 'undefined' ||
@@ -21738,7 +21800,19 @@ vp-replace
             if (window.GM?.xmlHttpRequest == null &&
                 (typeof window.GM_xmlhttpRequest === 'undefined' ||
                     window.GM_xmlhttpRequest === null)) {
-                return $$1.ajax(url, options);
+                return $$1.ajax(url, {
+                    ...options,
+                    onloadend: onloadend.bind(this),
+                    timeout: timeout,
+                    responseType: responseType,
+                    withCredentials: false,
+                    type: 'GET',
+                    onprogress: undefined,
+                    form: undefined,
+                    headers: undefined,
+                    dataType: undefined,
+                    testCORB: false,
+                });
             }
             const req = new CrossOrigin.Request();
             req.onloadend = onloadend;
@@ -21787,7 +21861,19 @@ vp-replace
                     gmReq = (GM?.xmlHttpRequest || GM_xmlhttpRequest)(gmOptions);
                 }
                 catch (error) {
-                    return $$1.ajax(url, options);
+                    return $$1.ajax(url, {
+                        ...options,
+                        onloadend: onloadend.bind(this),
+                        timeout: timeout,
+                        responseType: responseType,
+                        withCredentials: false,
+                        type: 'GET',
+                        onprogress: undefined,
+                        form: undefined,
+                        headers: undefined,
+                        dataType: undefined,
+                        testCORB: false,
+                    });
                 }
                 if (gmReq && typeof gmReq.abort === 'function') {
                     req.abort = function () {
@@ -21876,7 +21962,6 @@ vp-replace
             return undefined;
         }
     };
-    $.ajaxPage = undefined;
     $.ajax = (function () {
         let pageXHR;
         if (window.wrappedJSObject && window.wrappedJSObject.XMLHttpRequest) {
@@ -23279,7 +23364,18 @@ vp-replace
                 return;
             }
             Filter.catalogData = dict();
-            $$1.ajax(url, { onloadend: Filter.catalogParse });
+            $$1.ajax(url, {
+                onloadend: Filter.catalogParse,
+                timeout: 30000,
+                responseType: 'json',
+                withCredentials: true,
+                type: 'GET',
+                onprogress: undefined,
+                form: undefined,
+                headers: undefined,
+                dataType: undefined,
+                testCORB: undefined,
+            });
             return Callbacks.CatalogThreadNative.push({
                 name: 'Filter',
                 cb: this.catalogNode,
@@ -26076,6 +26172,12 @@ aero|asia|biz|cat|com|coop|dance|info|int|jobs|mobi|moe|museum|name|net|org|post
                     return DeleteLink.load(link, post, fileOnly, this.response);
                 },
                 form: $$1.formData(form),
+                timeout: 5000,
+                type: 'POST',
+                onprogress: undefined,
+                headers: undefined,
+                dataType: undefined,
+                testCORB: false,
             });
         },
         load(link, post, fileOnly, resDoc) {

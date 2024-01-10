@@ -127,6 +127,12 @@ const DeleteLink = {
           return DeleteLink.load(link, post, fileOnly, this.response)
         },
         form: $.formData(form),
+        timeout: 5000,
+        type: 'POST',
+        onprogress: undefined,
+        headers: undefined,
+        dataType: undefined,
+        testCORB: false,
       }
     )
   },

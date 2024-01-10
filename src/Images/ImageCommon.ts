@@ -115,6 +115,15 @@ const ImageCommon = {
             onloadend() {
               return parseJSON.call(this, true)
             },
+            timeout: 5000,
+            responseType: 'json',
+            withCredentials: false,
+            type: 'GET',
+            onprogress: undefined,
+            form: undefined,
+            headers: undefined,
+            dataType: undefined,
+            testCORB: false,
           })
         } else {
           post.kill(!post.isClone, fileObj.index)
@@ -147,6 +156,15 @@ const ImageCommon = {
       onloadend() {
         return parseJSON.call(this)
       },
+      timeout: 5000,
+      responseType: 'json',
+      withCredentials: false,
+      type: 'GET',
+      onprogress: undefined,
+      form: undefined,
+      headers: undefined,
+      dataType: undefined,
+      testCORB: false,
     })
   },
 

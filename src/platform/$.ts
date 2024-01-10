@@ -57,7 +57,6 @@ $.getOwn = function (obj, key) {
     return undefined
   }
 }
-$.ajaxPage = undefined
 $.ajax = (function () {
   let pageXHR
   if (window.wrappedJSObject && window.wrappedJSObject.XMLHttpRequest) {
