@@ -46,7 +46,7 @@ BoardConfig =
     !!(@boards or Conf['boardConfig'].boards)[board]?.ws_board
 
   domain: (board) ->
-    "boards.#{if BoardConfig.isSFW(board) then '4channel' else '4chan'}.org"
+    "boards.#{if BoardConfig.isSFW(board) then '4chan' else '4chan'}.org"
 
   isArchived: (board) ->
     # assume archive exists if no data available to prevent cleaning of archived threads

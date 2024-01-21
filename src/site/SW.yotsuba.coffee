@@ -111,7 +111,7 @@ SW.yotsuba =
 
   isThisPageLegit: ->
     # not 404 error page or similar.
-    location.hostname in ['boards.4chan.org', 'boards.4channel.org'] and
+    location.hostname in ['boards.4chan.org'] and
     d.doctype and
     !$('link[href*="favicon-status.ico"]', d.head) and
     d.title not in ['4chan - Temporarily Offline', '4chan - Error', '504 Gateway Time-out', 'MathJax Equation Source']
@@ -124,24 +124,24 @@ SW.yotsuba =
     return g.VIEW in ['index', 'thread'] and not $('.board + *')
 
   isBoardlessPage: (url) ->
-    url.hostname in ['www.4chan.org', 'www.4channel.org']
+    url.hostname in ['www.4chan.org']
 
   isAuxiliaryPage: (url) ->
-    url.hostname not in ['boards.4chan.org', 'boards.4channel.org']
+    url.hostname not in ['boards.4chan.org']
 
   isFileURL: (url) ->
     ImageHost.test(url.hostname)
 
   initAuxiliary: ->
     switch location.hostname
-      when 'www.4chan.org', 'www.4channel.org'
+      when 'www.4chan.org'
         if SW.yotsuba.regexp.pass.test(location.href)
           PassMessage.init()
         else
           $.onExists doc, 'body', -> $.addStyle CSS.www
           Captcha.replace.init()
         return
-      when 'sys.4chan.org', 'sys.4channel.org'
+      when 'sys.4chan.org'
         pathname = location.pathname.split /\/+/
         if pathname[2] is 'imgboard.php'
           if /\bmode=report\b/.test location.search

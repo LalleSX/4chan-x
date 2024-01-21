@@ -468,8 +468,8 @@ Settings =
       if data['sauces']?
         set 'sauces', data['sauces'].replace(/^(#?\s*)https:\/\/whatanime\.ga\//mg, '$1https://trace.moe/')
     if compareString < '00001.00014.00004.00004'
-      if data['siteSoftware']? and !/^4channel\.org yotsuba$/m.test(data['siteSoftware'])
-        set 'siteSoftware', data['siteSoftware'] + '\n4channel.org yotsuba'
+      if data['siteSoftware']? and !/^4chan\.org yotsuba$/m.test(data['siteSoftware'])
+        set 'siteSoftware', data['siteSoftware'] + '\n4chan.org yotsuba'
     if compareString < '00001.00014.00005.00000'
       for db in DataBoard.keys
         if data[db]?.boards

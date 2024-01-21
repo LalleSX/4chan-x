@@ -7,7 +7,7 @@ Captcha.replace =
       return
 
     if Conf['captchaLanguage'].trim()
-      if location.hostname in ['boards.4chan.org', 'boards.4channel.org']
+      if location.hostname in ['boards.4chan.org']
         $.onExists doc, '#captchaFormPart', (node) -> $.onExists node, 'iframe[src^="https://www.google.com/recaptcha/"]', Captcha.replace.iframe
       else
         $.onExists doc, 'iframe[src^="https://www.google.com/recaptcha/"]', Captcha.replace.iframe

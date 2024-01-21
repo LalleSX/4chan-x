@@ -4872,7 +4872,7 @@ $ = (function() {
         options.responseType = 'json';
       }
       options.type || (options.type = options.form && 'post' || 'get');
-      url = url.replace(/^((?:https?:)?\/\/(?:\w+\.)?(?:4chan|4channel|4cdn)\.org)\/adv\//, '$1//adv/');
+      url = url.replace(/^((?:https?:)?\/\/(?:\w+\.)?(?:4chan|4cdn)\.org)\/adv\//, '$1//adv/');
       onloadend = options.onloadend, timeout = options.timeout, responseType = options.responseType, withCredentials = options.withCredentials, type = options.type, onprogress = options.onprogress, form = options.form, headers = options.headers;
       r = new pageXHR();
       try {
@@ -5726,7 +5726,7 @@ CrossOrigin = (function() {
       if (headers == null) {
         headers = $.dict();
       }
-      url = url.replace(/^((?:https?:)?\/\/(?:\w+\.)?(?:4chan|4channel|4cdn)\.org)\/adv\//, '$1//adv/');
+      url = url.replace(/^((?:https?:)?\/\/(?:\w+\.)?(?:4chan|4cdn)\.org)\/adv\//, '$1//adv/');
       fallback = function() {
         return $.ajax(url, {
           headers: headers,
@@ -8236,7 +8236,7 @@ SW = {};
     },
     isThisPageLegit: function() {
       var ref, ref1;
-      return ((ref = location.hostname) === 'boards.4chan.org' || ref === 'boards.4channel.org') && d.doctype && !$('link[href*="favicon-status.ico"]', d.head) && ((ref1 = d.title) !== '4chan - Temporarily Offline' && ref1 !== '4chan - Error' && ref1 !== '504 Gateway Time-out' && ref1 !== 'MathJax Equation Source');
+      return ((ref = location.hostname) === 'boards.4chan.org') && d.doctype && !$('link[href*="favicon-status.ico"]', d.head) && ((ref1 = d.title) !== '4chan - Temporarily Offline' && ref1 !== '4chan - Error' && ref1 !== '504 Gateway Time-out' && ref1 !== 'MathJax Equation Source');
     },
     is404: function() {
       var ref;
@@ -8248,11 +8248,11 @@ SW = {};
     },
     isBoardlessPage: function(url) {
       var ref;
-      return (ref = url.hostname) === 'www.4chan.org' || ref === 'www.4channel.org';
+      return (ref = url.hostname) === 'www.4chan.org';
     },
     isAuxiliaryPage: function(url) {
       var ref;
-      return (ref = url.hostname) !== 'boards.4chan.org' && ref !== 'boards.4channel.org';
+      return (ref = url.hostname) !== 'boards.4chan.org';
     },
     isFileURL: function(url) {
       return ImageHost.test(url.hostname);
@@ -8261,7 +8261,6 @@ SW = {};
       var match, pathname;
       switch (location.hostname) {
         case 'www.4chan.org':
-        case 'www.4channel.org':
           if (SW.yotsuba.regexp.pass.test(location.href)) {
             PassMessage.init();
           } else {
@@ -8272,7 +8271,6 @@ SW = {};
           }
           break;
         case 'sys.4chan.org':
-        case 'sys.4channel.org':
           pathname = location.pathname.split(/\/+/);
           if (pathname[2] === 'imgboard.php') {
             if (/\bmode=report\b/.test(location.search)) {
@@ -8804,9 +8802,6 @@ Site = (function() {
     defaultProperties: {
       '4chan.org': {
         software: 'yotsuba'
-      },
-      '4channel.org': {
-        canonical: '4chan.org'
       },
       '4cdn.org': {
         canonical: '4chan.org'
@@ -10523,7 +10518,7 @@ BoardConfig = (function() {
       return !!((ref = (this.boards || Conf['boardConfig'].boards)[board]) != null ? ref.ws_board : void 0);
     },
     domain: function(board) {
-      return "boards." + (BoardConfig.isSFW(board) ? '4channel' : '4chan') + ".org";
+      return "boards." + (BoardConfig.isSFW(board) ? '4chan' : '4chan') + ".org";
     },
     isArchived: function(board) {
       var data;
@@ -10907,7 +10902,7 @@ Header = (function() {
       }
       boardID = t.split('-')[0];
       if (boardID === 'current') {
-        if ((ref = location.hostname) === 'boards.4chan.org' || ref === 'boards.4channel.org') {
+        if ((ref = location.hostname) === 'boards.4chan.org') {
           boardID = g.BOARD.ID;
         } else {
           a = $.el('a', {
@@ -10973,7 +10968,7 @@ Header = (function() {
       }
       if (Conf['JSON Index'] && indexOptions) {
         a.dataset.indexOptions = indexOptions;
-        if (((ref1 = a.hostname) === 'boards.4chan.org' || ref1 === 'boards.4channel.org') && a.pathname.split('/')[2] === '') {
+        if (((ref1 = a.hostname) === 'boards.4chan.org') && a.pathname.split('/')[2] === '') {
           a.href += (a.hash ? '/' : '#') + indexOptions;
         }
       }
@@ -13417,8 +13412,8 @@ Settings = (function() {
         }
       }
       if (compareString < '00001.00014.00004.00004') {
-        if ((data['siteSoftware'] != null) && !/^4channel\.org yotsuba$/m.test(data['siteSoftware'])) {
-          set('siteSoftware', data['siteSoftware'] + '\n4channel.org yotsuba');
+        if ((data['siteSoftware'] != null) && !/^4chan\.org yotsuba$/m.test(data['siteSoftware'])) {
+          set('siteSoftware', data['siteSoftware'] + '\n4chan.org yotsuba');
         }
       }
       if (compareString < '00001.00014.00005.00000') {
@@ -23338,7 +23333,7 @@ Captcha = {};
         return;
       }
       if (Conf['captchaLanguage'].trim()) {
-        if ((ref = location.hostname) === 'boards.4chan.org' || ref === 'boards.4channel.org') {
+        if ((ref = location.hostname) === 'boards.4chan.org') {
           return $.onExists(doc, '#captchaFormPart', function(node) {
             return $.onExists(node, 'iframe[src^="https://www.google.com/recaptcha/"]', Captcha.replace.iframe);
           });
@@ -27075,7 +27070,7 @@ Quotify = (function() {
       if (!(m = link.pathname.match(/^\/([^\/]+)\/thread\/S?(\d+)\/?$/))) {
         return;
       }
-      if ((ref = link.hostname) === 'boards.4chan.org' || ref === 'boards.4channel.org') {
+      if ((ref = link.hostname) === 'boards.4chan.org') {
         return;
       }
       boardID = m[1];
@@ -27252,7 +27247,7 @@ Main = (function() {
           Conf[parent] = obj;
         }
       };
-      if ((ref1 = location.hostname) === 'boards.4chan.org' || ref1 === 'boards.4channel.org') {
+      if ((ref1 = location.hostname) === 'boards.4chan.org') {
         $.global(function() {
           var fromCharCode0;
           fromCharCode0 = String.fromCharCode;

@@ -76,7 +76,7 @@ $.ajax = do ->
     options.responseType ?= 'json'
     options.type or= options.form and 'post' or 'get'
     # XXX https://forums.lanik.us/viewtopic.php?f=64&t=24173&p=78310
-    url = url.replace /^((?:https?:)?\/\/(?:\w+\.)?(?:4chan|4channel|4cdn)\.org)\/adv\//, '$1//adv/'
+    url = url.replace /^((?:https?:)?\/\/(?:\w+\.)?(?:4chan|4cdn)\.org)\/adv\//, '$1//adv/'
     <% if (type === 'crx') { %>
     # XXX https://bugs.chromium.org/p/chromium/issues/detail?id=920638
     if Conf['Work around CORB Bug'] and g.SITE.software is 'yotsuba' and !options.testCORB and FormData.prototype.entries

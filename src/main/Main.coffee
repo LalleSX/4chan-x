@@ -45,7 +45,7 @@ Main =
       return
 
     # XXX Remove document-breaking ad
-    if location.hostname in ['boards.4chan.org', 'boards.4channel.org']
+    if location.hostname in ['boards.4chan.org']
       $.global ->
         fromCharCode0 = String.fromCharCode
         String.fromCharCode = ->

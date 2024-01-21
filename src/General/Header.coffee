@@ -221,7 +221,7 @@ Header =
 
     boardID = t.split('-')[0]
     if boardID is 'current'
-      if location.hostname in ['boards.4chan.org', 'boards.4channel.org']
+      if location.hostname in ['boards.4chan.org']
         boardID = g.BOARD.ID
       else
         a = $.el 'a',
@@ -274,7 +274,7 @@ Header =
 
     if Conf['JSON Index'] and indexOptions
       a.dataset.indexOptions = indexOptions
-      if a.hostname in ['boards.4chan.org', 'boards.4channel.org'] and a.pathname.split('/')[2] is ''
+      if a.hostname in ['boards.4chan.org'] and a.pathname.split('/')[2] is ''
         a.href += (if a.hash then '/' else '#') + indexOptions
 
     if /-archive/.test t
@@ -476,7 +476,7 @@ Header =
     else
       x = Header.getTopOf root
       if Conf['Fixed Header'] and Conf['Header auto-hide on scroll'] and !Conf['Bottom header']
-        {height} = Header.bar.getBoundingClientRect()
+        { height } = Header.bar.getBoundingClientRect()
         if x >= 0
           x += height if !Header.isHidden()
         else
@@ -487,14 +487,14 @@ Header =
     Header.scrollTo root, down, true
 
   getTopOf: (root) ->
-    {top} = root.getBoundingClientRect()
+    { top } = root.getBoundingClientRect()
     if Conf['Fixed Header'] and not Conf['Bottom Header']
       headRect = Header.toggle.getBoundingClientRect()
       top     -= headRect.top + headRect.height
     top
 
   getBottomOf: (root) ->
-    {clientHeight} = doc
+    { clientHeight } = doc
     bottom = clientHeight - root.getBoundingClientRect().bottom
     if Conf['Fixed Header'] and Conf['Bottom Header']
       headRect = Header.toggle.getBoundingClientRect()
@@ -503,11 +503,11 @@ Header =
 
   isNodeVisible: (node) ->
     return false if d.hidden or !doc.contains node
-    {height} = node.getBoundingClientRect()
+    { height } = node.getBoundingClientRect()
     Header.getTopOf(node) + height >= 0 and Header.getBottomOf(node) + height >= 0
 
   isHidden: ->
-    {top} = Header.bar.getBoundingClientRect()
+    { top } = Header.bar.getBoundingClientRect()
     if Conf['Bottom header']
       top is doc.clientHeight
     else
@@ -531,7 +531,7 @@ Header =
     Header.menu.toggle e, @, g
 
   createNotification: (e) ->
-    {type, content, lifetime} = e.detail
+    { type, content, lifetime } = e.detail
     notice = new Notice type, content, lifetime
 
   areNotificationsEnabled: false
