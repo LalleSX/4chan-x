@@ -32,6 +32,7 @@ export const meta = {
 
 // interfaces might be incomplete
 export interface BoardConfig {
+  code_tags: any
   forced_anon: any
   sjis_tags: any
   math_tags: any

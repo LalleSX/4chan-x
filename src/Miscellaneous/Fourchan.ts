@@ -81,7 +81,7 @@ const Fourchan = {
                 window.loadMathJax = function () {}
               }
               // 4chan only handles post comments on MathJax load; anything else (e.g. the QR preview) must be queued explicitly.
-              if (!e.target.classList.contains('postMessage')) {
+              if (!(e.target as Element).classList.contains('postMessage')) {
                 return document
                   .querySelector('script[src^="//cdn.mathjax.org/"]')
                   .addEventListener(

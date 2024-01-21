@@ -6,6 +6,10 @@ import { g, Conf, E } from '../globals/globals.js'
 import $ from '../platform/$.js'
 
 const Volume = {
+  inputs: null as {
+    unmute: HTMLInputElement
+    volume: HTMLInputElement
+  },
   init() {
     if (
       !['index', 'thread'].includes(g.VIEW) ||
@@ -49,8 +53,12 @@ const Volume = {
       })
     }
 
-    const unmuteEntry = UI.checkbox('Allow Sound', 'Allow Sound')
-    unmuteEntry.title = Config.main['Images and Videos']['Allow Sound'][1]
+    const unmuteEntry = UI.checkbox('Allow Sound', 'Allow Sound', {
+      title: 'Unmute videos by default.',
+    })
+    unmuteEntry.title = String(
+      Config.main['Images and Videos']['Allow Sound'][1]
+    )
 
     const volumeEntry = $.el('label', { title: 'Default volume for videos.' })
     $.extend(volumeEntry, {
@@ -90,7 +98,7 @@ const Volume = {
         delete items[key]
       }
     }
-    $.set(items)
+    $.set(items, Conf, 'lastarchivecheck')
     $.extend(Conf, items)
     if (Volume.inputs) {
       Volume.inputs.unmute.checked = !muted

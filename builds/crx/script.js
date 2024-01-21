@@ -2634,6 +2634,7 @@ https://*.hcaptcha.com
     };
 
     const Volume = {
+        inputs: null,
         init() {
             if (!['index', 'thread'].includes(g.VIEW) ||
                 (!Conf['Image Expansion'] &&
@@ -2669,8 +2670,10 @@ https://*.hcaptcha.com
                     cb: this.catalogNode,
                 });
             }
-            const unmuteEntry = UI.checkbox('Allow Sound', 'Allow Sound');
-            unmuteEntry.title = Config.main['Images and Videos']['Allow Sound'][1];
+            const unmuteEntry = UI.checkbox('Allow Sound', 'Allow Sound', {
+                title: 'Unmute videos by default.',
+            });
+            unmuteEntry.title = String(Config.main['Images and Videos']['Allow Sound'][1]);
             const volumeEntry = $$1.el('label', { title: 'Default volume for videos.' });
             $$1.extend(volumeEntry, {
                 innerHTML: '<input name="Default Volume" type="range" min="0" max="1" step="0.01" value="' +
@@ -2703,7 +2706,7 @@ https://*.hcaptcha.com
                     delete items[key];
                 }
             }
-            $$1.set(items);
+            $$1.set(items, Conf, 'lastarchivecheck');
             $$1.extend(Conf, items);
             if (Volume.inputs) {
                 Volume.inputs.unmute.checked = !muted;
@@ -3441,6 +3444,7 @@ https://*.hcaptcha.com
 
     class Post {
         forwarded;
+        callbacksExecuted;
         delete() {
             throw new Error('Method not implemented.');
         }
@@ -12962,6 +12966,9 @@ a:only-of-type > .remove {
         isOPContainerThread: true,
         mayLackJSON: true,
         threadModTimeIgnoresSage: true,
+        noAudio(board) {
+            return board.config['disable-voices'];
+        },
         cleanCommentDisplay(bq) {
             return bq;
         },

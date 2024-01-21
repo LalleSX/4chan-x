@@ -20,7 +20,7 @@ const AntiAutoplay = {
     return $.ready(() => this.process(d.body))
   },
 
-  stop(audio) {
+  stop(audio: { autoplay: boolean; pause: () => void; controls: boolean }) {
     if (!audio.autoplay) {
       return
     }
@@ -37,7 +37,7 @@ const AntiAutoplay = {
     return AntiAutoplay.process(this.nodes.comment)
   },
 
-  process(root) {
+  process(root: HTMLElement) {
     for (const iframe of $$(
       'iframe[src*="youtube"][src*="autoplay=1"]',
       root
@@ -52,7 +52,7 @@ const AntiAutoplay = {
     }
   },
 
-  processVideo(el, attr) {
+  processVideo(el: HTMLIFrameElement | HTMLObjectElement, attr: string) {
     el[attr] = el[attr]
       .replace(/\?autoplay=1&?/, '?')
       .replace('&autoplay=1', '')

@@ -11,6 +11,9 @@ const SWTinyboard = {
   isOPContainerThread: true,
   mayLackJSON: true,
   threadModTimeIgnoresSage: true,
+  noAudio(board) {
+    return board.config['disable-voices']
+  },
   cleanCommentDisplay(bq) {
     return bq
   },
